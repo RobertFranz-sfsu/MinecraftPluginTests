@@ -1,0 +1,17 @@
+name: Minecraft_Test
+version: '1.0-SNAPSHOT'
+main: mctest.minecraft_test.Minecraft_Test
+api-version: '1.19'
+commands:
+  fly:
+    description: Toggles flying for the command sender
+    usage: /fly
+    aliases: f
+    permission: fly
+    permission-message: You do not have permission to fly
+  menu:
+    description: Opens the Server Menu
+    usage: /menu
+    aliases: m
+    permission: menu
+    permission-message: You do not have permission to open the menu

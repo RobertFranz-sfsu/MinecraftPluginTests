@@ -1,0 +1,4 @@
+mctest\minecraft_test\commands\Menu.class
+mctest\minecraft_test\commands\Fly.class
+mctest\minecraft_test\handlers\PlayerHandler.class
+mctest\minecraft_test\handlers\ItemHandler.class
