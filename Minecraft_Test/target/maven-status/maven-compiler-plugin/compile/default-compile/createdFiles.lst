@@ -1,4 +1,13 @@
-mctest\minecraft_test\commands\Menu.class
-mctest\minecraft_test\commands\Fly.class
+mctest\minecraft_test\roles\Survivor.class
+mctest\minecraft_test\util\DelayedTask.class
 mctest\minecraft_test\handlers\PlayerHandler.class
 mctest\minecraft_test\handlers\ItemHandler.class
+mctest\minecraft_test\commands\Spawn.class
+mctest\minecraft_test\commands\Menu.class
+mctest\minecraft_test\util\SpawnUtil.class
+mctest\minecraft_test\commands\SetRole.class
+mctest\minecraft_test\commands\SetSpawn.class
+mctest\minecraft_test\commands\Fly.class
+mctest\minecraft_test\roles\SurvivalPlayer.class
+mctest\minecraft_test\util\ConfigUtil.class
+mctest\minecraft_test\roles\Infected.class
