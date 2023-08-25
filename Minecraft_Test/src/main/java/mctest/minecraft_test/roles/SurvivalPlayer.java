@@ -2,8 +2,10 @@ package mctest.minecraft_test.roles;
 
 import mctest.minecraft_test.Minecraft_Test;
 import org.bukkit.*;
+//import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,6 +33,8 @@ public class SurvivalPlayer implements Listener{
     public Player getPlayer() {
         return gamer;
     }
+
+    //TODO Create a hashmap.  Use uid instead of name and set status
 
     public SurvivalPlayer(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -82,7 +86,7 @@ public class SurvivalPlayer implements Listener{
             Bukkit.getLogger().info(player.getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
             Inventory inv = player.getInventory();
             inv.clear();
-            event.setRespawnLocation(infectSpawn());
+            //event.setRespawnLocation(infectSpawn());
             this.setSurvivalStatus(false);
             this.setInfectedStatus(true);
             this.setRole(player, "infected");
@@ -92,27 +96,24 @@ public class SurvivalPlayer implements Listener{
             //TODO
             Bukkit.getLogger().info("**********INFECTED***********");
             this.setRole(player, "infected");
-            player.setHealth(1);
-            player.setFoodLevel(1);
             //event.setRespawnLocation(infectSpawn());
             Bukkit.getLogger().info(player.getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
         }
 
     }
     public void setInfection(Player player) {
-        Bukkit.getLogger().info(player + " has been infected!");
+        Bukkit.getLogger().info(player.getName() + " has been infected!");
         this.setInfectedStatus(true);
         this.setSurvivalStatus(false);
 
 //            world = player.getLocation().getWorld();
 //
 //            Location infSpawn = new Location(world, 22.5, 67, -36, 0f, 0f);
-        //player.teleport(infectSpawn());
+//            player.teleport(infectSpawn());
 
-        player.setGlowing(true);
         player.setWalkSpeed(.6f);
-        player.setHealth(4);
-        player.setFoodLevel(1);
+        player.setMaxHealth(4);
+        //player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(4);
 
         Inventory inv = player.getInventory();
         inv.clear();
@@ -134,7 +135,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     public void setSurvivor(Player player) {
-        Bukkit.getLogger().info(player + " is a survivor!");
+        Bukkit.getLogger().info(player.getName() + " is a survivor!");
         this.setInfectedStatus(false);
         this.setSurvivalStatus(true);
 
@@ -143,10 +144,10 @@ public class SurvivalPlayer implements Listener{
 //            Location sSpawn = new Location(world, 22.5, 67, 37, -180f, -1f);
 //            player.teleport(sSpawn);
 
-        player.setGlowing(false);
         player.setWalkSpeed(.2f);
+        //player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+        player.setMaxHealth(20);
         player.setHealth(20);
-        player.setFoodLevel(20);
 
         Inventory inv = player.getInventory();
         inv.clear();
@@ -162,13 +163,14 @@ public class SurvivalPlayer implements Listener{
         return sur;
     }
     public void setNotPlaying(Player player) {
-        Bukkit.getLogger().info(player + " is no longer playing!");
+        Bukkit.getLogger().info(player.getName() + " is no longer playing!");
         this.setInfectedStatus(false);
         this.setSurvivalStatus(false);
 
-        player.setGlowing(false);
         Inventory inv = player.getInventory();
         inv.clear();
+        //player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+        player.setMaxHealth(20);
         player.setHealth(20);
         player.setFoodLevel(20);
         player.setWalkSpeed(.2f);
@@ -178,9 +180,8 @@ public class SurvivalPlayer implements Listener{
     @EventHandler
     public void onPlayerDisconnect(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Bukkit.getLogger().info("Player:  " + player + "  has disconnected");
+        Bukkit.getLogger().info("Player:  " + player.getName() + "  has disconnected");
         this.setRole(player, "N/A");
-
     }
 
     /**
@@ -192,20 +193,21 @@ public class SurvivalPlayer implements Listener{
     public void onPlayerAttack(EntityDamageByEntityEvent event) {
         Entity attacker = event.getDamager();
         Entity damaged = event.getEntity();
+
         if (attacker instanceof Player && damaged instanceof Player) {
-        Bukkit.getLogger().info("attacker: " + attacker.getName() + "  damaged: " + damaged.getName());
+            Bukkit.getLogger().info("Player: " + this.getPlayer().getName() + "  attacker:  " + ((Player)attacker).getName() + "   damaged:  " + ((Player)damaged).getName());
+            Bukkit.getLogger().info(this.getPlayer().getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
             if (this.getInfectedStatus()) {
-                if (((Player) damaged).getInventory().getItemInMainHand().equals(claw())) {
+                if (((Player) damaged).getItemInHand().equals((claw()))) {
                     event.setCancelled(true);
                 }
             } else if (this.getSurvivalStatus()) {
-                if (((Player) damaged).getInventory().getItemInMainHand().equals(magicBow())) {
+                if (((Player) damaged).getItemInHand().equals((magicBow()))) {
                     event.setCancelled(true);
                 }
             }
         }
     }
-
 
     /**
      * Items and Inventories
@@ -239,7 +241,8 @@ public class SurvivalPlayer implements Listener{
         ItemMeta meta = item.getItemMeta();
 
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        meta.setUnbreakable(true);
+//        meta.setUnbreakable(true);
+
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         meta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
 

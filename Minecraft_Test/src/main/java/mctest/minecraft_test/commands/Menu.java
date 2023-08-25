@@ -19,14 +19,10 @@ import java.util.List;
 
 public class Menu implements Listener, CommandExecutor {
     private String invName = "Server Selector";
-//    private Infected infected;
-//    private Survivor survivor;
     private SurvivalPlayer gamer;
 
     public Menu(Minecraft_Test plugin, SurvivalPlayer gamer) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
-//        this.infected = infected;
-//        this.survivor = survivor;
         this.gamer = gamer;
     }
 
@@ -47,18 +43,6 @@ public class Menu implements Listener, CommandExecutor {
             player.setLevel(10);
             Location loc = player.getLocation().add(0, 20, 0);
             player.teleport(loc);
-//        } else if (slot == 13) {
-//            if (survivor.getSur()) {
-//                survivor.setSurvivor(player);
-//            }
-//            infected.setInfection(player);
-//            Bukkit.getLogger().info(player + "  is infected: " + infected.getI() + "  and is survivor: " + survivor.getSur());
-//        } else if (slot == 15) {
-//            if (infected.getI()) {
-//                infected.setInfection(player);
-//            }
-//            survivor.setSurvivor(player);
-//            Bukkit.getLogger().info(player + "  is infected: " + infected.getI() + "  and is survivor: " + survivor.getSur());
 
         } else if (slot == 20) {
             gamer.setRole(player, "infected");

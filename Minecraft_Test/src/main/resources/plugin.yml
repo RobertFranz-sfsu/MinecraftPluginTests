@@ -15,12 +15,6 @@ commands:
     aliases: m
     permission: menu
     permission-message: You do not have permission to open the menu
-  infect:
-    description: Makes User Infected
-    usage: /infect
-    aliases: i
-    permission: infect
-    permission-message: You do not have permission to infect
   setSpawn:
     description: Sets the spawn
     usage: /setSpawn
