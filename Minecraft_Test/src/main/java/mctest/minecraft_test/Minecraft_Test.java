@@ -28,8 +28,8 @@ public final class Minecraft_Test extends JavaPlugin {
         SpawnUtil spawnUtil = new SpawnUtil(this);
 
         getCommand("fly").setExecutor(new Fly());
-        getCommand("menu").setExecutor(new Menu(this, new Infected(this), new Survivor(this), new SurvivalPlayer(this)));
-        getCommand("infect").setExecutor(new SetRole(new Infected(this), new Survivor(this)));
+        getCommand("menu").setExecutor(new Menu(this, new SurvivalPlayer(this)));
+        //getCommand("infect").setExecutor(new SetRole(new Infected(this), new Survivor(this)));
         getCommand("spawn").setExecutor(new Spawn(spawnUtil));
         getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil));
 
@@ -37,8 +37,8 @@ public final class Minecraft_Test extends JavaPlugin {
         new PlayerHandler(this);
         new DelayedTask(this);
         new ItemHandler(this);
-        new Infected(this);
-        new Survivor(this);
+//        new Infected(this);
+//        new Survivor(this);
         new SurvivalPlayer(this);
     }
 

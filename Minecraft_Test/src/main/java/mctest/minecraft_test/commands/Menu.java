@@ -1,14 +1,11 @@
 package mctest.minecraft_test.commands;
 
 import mctest.minecraft_test.Minecraft_Test;
-import mctest.minecraft_test.roles.Infected;
 import mctest.minecraft_test.roles.SurvivalPlayer;
-import mctest.minecraft_test.roles.Survivor;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,14 +19,14 @@ import java.util.List;
 
 public class Menu implements Listener, CommandExecutor {
     private String invName = "Server Selector";
-    private Infected infected;
-    private Survivor survivor;
+//    private Infected infected;
+//    private Survivor survivor;
     private SurvivalPlayer gamer;
 
-    public Menu(Minecraft_Test plugin, Infected infected, Survivor survivor, SurvivalPlayer gamer) {
+    public Menu(Minecraft_Test plugin, SurvivalPlayer gamer) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        this.infected = infected;
-        this.survivor = survivor;
+//        this.infected = infected;
+//        this.survivor = survivor;
         this.gamer = gamer;
     }
 
@@ -50,28 +47,28 @@ public class Menu implements Listener, CommandExecutor {
             player.setLevel(10);
             Location loc = player.getLocation().add(0, 20, 0);
             player.teleport(loc);
-        } else if (slot == 13) {
-            if (survivor.getSur()) {
-                survivor.setSurvivor(player);
-            }
-            infected.setInfection(player);
-            Bukkit.getLogger().info(player + "  is infected: " + infected.getI() + "  and was survivor: " + survivor.getSur());
-        } else if (slot == 15) {
-            if (infected.getI()) {
-                infected.setInfection(player);
-            }
-            survivor.setSurvivor(player);
-            Bukkit.getLogger().info(player + "  is infected: " + infected.getI() + "  and was survivor: " + survivor.getSur());
+//        } else if (slot == 13) {
+//            if (survivor.getSur()) {
+//                survivor.setSurvivor(player);
+//            }
+//            infected.setInfection(player);
+//            Bukkit.getLogger().info(player + "  is infected: " + infected.getI() + "  and is survivor: " + survivor.getSur());
+//        } else if (slot == 15) {
+//            if (infected.getI()) {
+//                infected.setInfection(player);
+//            }
+//            survivor.setSurvivor(player);
+//            Bukkit.getLogger().info(player + "  is infected: " + infected.getI() + "  and is survivor: " + survivor.getSur());
 
         } else if (slot == 20) {
             gamer.setRole(player, "infected");
-            Bukkit.getLogger().info(player + "  is infected: " + gamer.getInfect() + "  and was survivor: " + gamer.getSurv());
+            Bukkit.getLogger().info(player.getName() + "  is infected: " + gamer.getInfectedStatus() + "  and is survivor: " + gamer.getSurvivalStatus());
         } else if (slot == 22) {
             gamer.setRole(player, "survivor");
-            Bukkit.getLogger().info(player + "  is infected: " + gamer.getInfect() + "  and was survivor: " + gamer.getSurv());
+            Bukkit.getLogger().info(player.getName() + "  is infected: " + gamer.getInfectedStatus() + "  and is survivor: " + gamer.getSurvivalStatus());
         } else if (slot == 24) {
             gamer.setRole(player, "N/A");
-            Bukkit.getLogger().info(player + "  is infected: " + gamer.getInfect() + "  and was survivor: " + gamer.getSurv());
+            Bukkit.getLogger().info(player.getName() + "  is infected: " + gamer.getInfectedStatus() + "  and is survivor: " + gamer.getSurvivalStatus());
         }
 
         event.setCancelled(true);
@@ -90,8 +87,8 @@ public class Menu implements Listener, CommandExecutor {
         inv.setItem(13, getItem(new ItemStack(Material.DIAMOND_PICKAXE), "&9Story", "&aClick to Join", "&aStory it out"));
         inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9Farm", "&aClick to Join", "&aFarm it out"));
 
-        inv.setItem(20, getItem(new ItemStack(Material.NETHERITE_SWORD), "&9Infect", "&aClick to Join", "&aFarm it out"));
-        inv.setItem(22, getItem(new ItemStack(Material.TRIDENT), "&9Survive", "&aClick to Join", "&aFarm it out"));
+        inv.setItem(20, getItem(new ItemStack(Material.IRON_SWORD), "&9Infect", "&aClick to Join", "&aFarm it out"));
+        inv.setItem(22, getItem(new ItemStack(Material.BOW), "&9Survive", "&aClick to Join", "&aFarm it out"));
         inv.setItem(24, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to Join", "&aFarm it out"));
 
         player.openInventory(inv);

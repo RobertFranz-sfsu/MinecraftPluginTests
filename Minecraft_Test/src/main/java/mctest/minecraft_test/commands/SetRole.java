@@ -30,17 +30,17 @@ public class SetRole implements CommandExecutor, Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(("Must be a player to run this command!"));
-            return true;
-        }
-        Player player = (Player) sender;
-        Bukkit.getLogger().info(player + "  was infected: " + infected.getI() + "  and was survivor: " + survivor.getSur());
-        if (survivor.getSur()) {
-            survivor.setSurvivor(player);
-        }
-        infected.setInfection(player);
-        Bukkit.getLogger().info(player + "  is infected: " + infected.getI() + "  and was survivor: " + survivor.getSur());
+//        if (!(sender instanceof Player)) {
+//            sender.sendMessage(("Must be a player to run this command!"));
+//            return true;
+//        }
+//        Player player = (Player) sender;
+//        Bukkit.getLogger().info(player + "  was infected: " + infected.getI() + "  and was survivor: " + survivor.getSur());
+//        if (survivor.getSur()) {
+//            survivor.setSurvivor(player);
+//        }
+//        infected.setInfection(player);
+//        Bukkit.getLogger().info(player + "  is infected: " + infected.getI() + "  and was survivor: " + survivor.getSur());
 
 
         return true;
