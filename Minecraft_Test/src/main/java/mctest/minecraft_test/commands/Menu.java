@@ -45,14 +45,12 @@ public class Menu implements Listener, CommandExecutor {
             player.teleport(loc);
 
         } else if (slot == 20) {
-            gamer.setRole(player, "infected");
-            Bukkit.getLogger().info(player.getName() + "  is infected: " + gamer.getInfectedStatus() + "  and is survivor: " + gamer.getSurvivalStatus());
+            gamer.setInfection(player);
         } else if (slot == 22) {
-            gamer.setRole(player, "survivor");
-            Bukkit.getLogger().info(player.getName() + "  is infected: " + gamer.getInfectedStatus() + "  and is survivor: " + gamer.getSurvivalStatus());
+            gamer.setSurvivor(player);
         } else if (slot == 24) {
-            gamer.setRole(player, "N/A");
-            Bukkit.getLogger().info(player.getName() + "  is infected: " + gamer.getInfectedStatus() + "  and is survivor: " + gamer.getSurvivalStatus());
+            gamer.setNotPlaying(player);
+
         }
 
         event.setCancelled(true);

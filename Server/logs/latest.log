@@ -1,177 +1,226 @@
-[18:27:34] [ServerMain/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
-[18:27:35] [ServerMain/INFO]: Loaded 7 recipes
-[18:27:36] [Server thread/INFO]: Starting minecraft server version 1.19.4
-[18:27:36] [Server thread/INFO]: Loading properties
-[18:27:36] [Server thread/INFO]: This server is running CraftBukkit version 3763-Spigot-7d7b241-5a5e43e (MC: 1.19.4) (Implementing API version 1.19.4-R0.1-SNAPSHOT)
-[18:27:36] [Server thread/INFO]: Debug logging is disabled
-[18:27:36] [Server thread/INFO]: Server Ping Player Sample Count: 12
-[18:27:36] [Server thread/INFO]: Using 4 threads for Netty based IO
-[18:27:36] [Server thread/INFO]: Default game type: SURVIVAL
-[18:27:36] [Server thread/INFO]: Generating keypair
-[18:27:36] [Server thread/INFO]: Starting Minecraft server on *:25565
-[18:27:36] [Server thread/INFO]: Using default channel type
-[18:27:37] [Server thread/INFO]: [Minecraft_Test] Loading Minecraft_Test v1.0-SNAPSHOT
-[18:27:37] [Server thread/INFO]: Preparing level "world"
-[18:27:37] [Server thread/INFO]: -------- World Settings For [world] --------
-[18:27:37] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
-[18:27:37] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
-[18:27:37] [Server thread/INFO]: Experience Merge Radius: 3.0
-[18:27:37] [Server thread/INFO]: Mob Spawn Range: 6
-[18:27:37] [Server thread/INFO]: Cactus Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Cane Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Melon Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Mushroom Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Sapling Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Beetroot Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Carrot Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Potato Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Wheat Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: NetherWart Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Vine Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Cocoa Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Bamboo Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: SweetBerry Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Kelp Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: TwistingVines Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: WeepingVines Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: CaveVines Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Di 128 / Other 64
-[18:27:37] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Ra 48 / Mi 16 / Tiv true / Isa false
-[18:27:37] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Desert: 14357617 Igloo: 14357618 Jungle: 14357619 Swamp: 14357620 Monument: 10387313 Ocean: 14357621 Shipwreck: 165745295 End City: 10387313 Slime: 987234911 Nether: 30084232 Mansion: 10387319 Fossil: 14357921 Portal: 34222645
-[18:27:37] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 1 Hopper Amount: 1 Hopper Can Load Chunks: false
-[18:27:37] [Server thread/INFO]: Max TNT Explosions: 100
-[18:27:37] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
-[18:27:37] [Server thread/INFO]: Arrow Despawn Rate: 1200 Trident Respawn Rate:1200
-[18:27:37] [Server thread/INFO]: Item Merge Radius: 2.5
-[18:27:37] [Server thread/INFO]: Item Despawn Rate: 6000
-[18:27:37] [Server thread/INFO]: Simulation Distance: 10
-[18:27:37] [Server thread/INFO]: View Distance: 10
-[18:27:37] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
-[18:27:37] [Server thread/INFO]: -------- World Settings For [world_nether] --------
-[18:27:37] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
-[18:27:37] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
-[18:27:37] [Server thread/INFO]: Experience Merge Radius: 3.0
-[18:27:37] [Server thread/INFO]: Mob Spawn Range: 6
-[18:27:37] [Server thread/INFO]: Cactus Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Cane Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Melon Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Mushroom Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Sapling Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Beetroot Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Carrot Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Potato Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Wheat Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: NetherWart Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Vine Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Cocoa Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Bamboo Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: SweetBerry Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Kelp Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: TwistingVines Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: WeepingVines Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: CaveVines Growth Modifier: 100%
-[18:27:37] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Di 128 / Other 64
-[18:27:37] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Ra 48 / Mi 16 / Tiv true / Isa false
-[18:27:37] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Desert: 14357617 Igloo: 14357618 Jungle: 14357619 Swamp: 14357620 Monument: 10387313 Ocean: 14357621 Shipwreck: 165745295 End City: 10387313 Slime: 987234911 Nether: 30084232 Mansion: 10387319 Fossil: 14357921 Portal: 34222645
-[18:27:37] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 1 Hopper Amount: 1 Hopper Can Load Chunks: false
-[18:27:37] [Server thread/INFO]: Max TNT Explosions: 100
-[18:27:37] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
-[18:27:37] [Server thread/INFO]: Arrow Despawn Rate: 1200 Trident Respawn Rate:1200
-[18:27:37] [Server thread/INFO]: Item Merge Radius: 2.5
-[18:27:37] [Server thread/INFO]: Item Despawn Rate: 6000
-[18:27:37] [Server thread/INFO]: Simulation Distance: 10
-[18:27:37] [Server thread/INFO]: View Distance: 10
-[18:27:37] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
-[18:27:39] [Server thread/INFO]: -------- World Settings For [world_the_end] --------
-[18:27:39] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
-[18:27:39] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
-[18:27:39] [Server thread/INFO]: Experience Merge Radius: 3.0
-[18:27:39] [Server thread/INFO]: Mob Spawn Range: 6
-[18:27:39] [Server thread/INFO]: Cactus Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Cane Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Melon Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Mushroom Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Sapling Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Beetroot Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Carrot Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Potato Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Wheat Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: NetherWart Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Vine Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Cocoa Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Bamboo Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: SweetBerry Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Kelp Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: TwistingVines Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: WeepingVines Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: CaveVines Growth Modifier: 100%
-[18:27:39] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Di 128 / Other 64
-[18:27:39] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Ra 48 / Mi 16 / Tiv true / Isa false
-[18:27:39] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Desert: 14357617 Igloo: 14357618 Jungle: 14357619 Swamp: 14357620 Monument: 10387313 Ocean: 14357621 Shipwreck: 165745295 End City: 10387313 Slime: 987234911 Nether: 30084232 Mansion: 10387319 Fossil: 14357921 Portal: 34222645
-[18:27:39] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 1 Hopper Amount: 1 Hopper Can Load Chunks: false
-[18:27:39] [Server thread/INFO]: Max TNT Explosions: 100
-[18:27:39] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
-[18:27:39] [Server thread/INFO]: Arrow Despawn Rate: 1200 Trident Respawn Rate:1200
-[18:27:39] [Server thread/INFO]: Item Merge Radius: 2.5
-[18:27:39] [Server thread/INFO]: Item Despawn Rate: 6000
-[18:27:39] [Server thread/INFO]: Simulation Distance: 10
-[18:27:39] [Server thread/INFO]: View Distance: 10
-[18:27:39] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
-[18:27:39] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
-[18:27:44] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-3/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-3/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-3/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-1/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:44] [Worker-Main-1/INFO]: Preparing spawn area: 6%
-[18:27:45] [Worker-Main-2/INFO]: Preparing spawn area: 27%
-[18:27:45] [Server thread/INFO]: Time elapsed: 5761 ms
-[18:27:45] [Server thread/INFO]: Preparing start region for dimension minecraft:the_nether
-[18:27:48] [Worker-Main-3/INFO]: Preparing spawn area: 0%
-[18:27:48] [Worker-Main-1/INFO]: Preparing spawn area: 0%
-[18:27:48] [Worker-Main-1/INFO]: Preparing spawn area: 0%
-[18:27:48] [Worker-Main-1/INFO]: Preparing spawn area: 0%
-[18:27:48] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:48] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:48] [Worker-Main-1/INFO]: Preparing spawn area: 37%
-[18:27:48] [Server thread/INFO]: Time elapsed: 3329 ms
-[18:27:48] [Server thread/INFO]: Preparing start region for dimension minecraft:the_end
-[18:27:51] [Worker-Main-3/INFO]: Preparing spawn area: 0%
-[18:27:51] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:51] [Worker-Main-3/INFO]: Preparing spawn area: 0%
-[18:27:51] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:51] [Worker-Main-2/INFO]: Preparing spawn area: 0%
-[18:27:51] [Worker-Main-1/INFO]: Preparing spawn area: 0%
-[18:27:51] [Server thread/INFO]: Time elapsed: 2855 ms
-[18:27:51] [Server thread/INFO]: [Minecraft_Test] Enabling Minecraft_Test v1.0-SNAPSHOT
-[18:27:51] [Server thread/INFO]: Hello World
-[18:27:51] [Server thread/INFO]: Server permissions file permissions.yml is empty, ignoring it
-[18:27:51] [Server thread/INFO]: Done (14.437s)! For help, type "help"
-[18:27:57] [User Authenticator #1/INFO]: UUID of player Mithraea is 488f49f1-03b3-4634-944f-50a987f6f5ad
-[18:27:57] [Server thread/INFO]: Mithraea joined the game
-[18:27:57] [Server thread/INFO]: Mithraea[/127.0.0.1:49975] logged in with entity id 142 at ([world]224.28125527499586, 63.0, 177.79772978374973)
-[18:28:06] [Server thread/INFO]: Mithraea issued server command: /m
-[18:28:07] [Server thread/WARN]: Mithraea moved too quickly! 0.0,20.0,0.0
-[18:28:12] [Server thread/INFO]: Mithraea issued server command: /m
-[18:28:13] [Server thread/WARN]: Mithraea moved too quickly! 0.0,20.0,0.0
-[18:32:16] [Server thread/INFO]: Villager EntityVillager['Nitwit'/215, l='ServerLevel[world]', x=240.66, y=64.77, z=92.66] died, message: 'Nitwit was slain by Zombie'
-[18:32:24] [Server thread/INFO]: Mithraea has made the advancement [Monster Hunter]
-[18:34:22] [Server thread/INFO]: Mithraea issued server command: /menu
-[18:34:24] [Server thread/WARN]: Mithraea moved too quickly! 0.0,20.0,0.0
-[18:34:32] [Server thread/INFO]: Mithraea issued server command: /menu
-[18:34:52] [Server thread/INFO]: Villager EntityVillager['Nitwit'/221, l='ServerLevel[world]', x=228.70, y=64.00, z=140.30] died, message: 'Nitwit was slain by Zombie'
-[18:34:54] [Server thread/WARN]: Mithraea moved too quickly! 0.0,20.0,0.0
-[18:35:00] [Server thread/INFO]: Mithraea issued server command: /menu
-[18:35:22] [Server thread/INFO]: Mithraea issued server command: /fly
-[18:35:27] [Server thread/INFO]: Mithraea issued server command: /fly
-[18:35:55] [Server thread/INFO]: Mithraea issued server command: /m
-[18:47:45] [Server thread/INFO]: Mithraea lost connection: Disconnected
-[18:47:45] [Server thread/INFO]: Mithraea left the game
+[16:00:39] [ServerMain/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+[16:00:41] [ServerMain/INFO]: Loaded 7 recipes
+[16:00:42] [Server thread/INFO]: Starting minecraft server version 1.19.4
+[16:00:42] [Server thread/INFO]: Loading properties
+[16:00:42] [Server thread/INFO]: This server is running CraftBukkit version 3763-Spigot-7d7b241-5a5e43e (MC: 1.19.4) (Implementing API version 1.19.4-R0.1-SNAPSHOT)
+[16:00:42] [Server thread/INFO]: Debug logging is disabled
+[16:00:42] [Server thread/INFO]: Server Ping Player Sample Count: 12
+[16:00:42] [Server thread/INFO]: Using 4 threads for Netty based IO
+[16:00:42] [Server thread/INFO]: Default game type: SURVIVAL
+[16:00:42] [Server thread/INFO]: Generating keypair
+[16:00:42] [Server thread/INFO]: Starting Minecraft server on *:25565
+[16:00:42] [Server thread/INFO]: Using default channel type
+[16:00:43] [Server thread/INFO]: [Minecraft_Test] Loading Minecraft_Test v1.0-SNAPSHOT
+[16:00:43] [Server thread/INFO]: Preparing level "world"
+[16:00:43] [Server thread/INFO]: -------- World Settings For [world] --------
+[16:00:43] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
+[16:00:43] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
+[16:00:43] [Server thread/INFO]: Item Despawn Rate: 6000
+[16:00:43] [Server thread/INFO]: Item Merge Radius: 2.5
+[16:00:43] [Server thread/INFO]: View Distance: 10
+[16:00:43] [Server thread/INFO]: Simulation Distance: 10
+[16:00:43] [Server thread/INFO]: Max TNT Explosions: 100
+[16:00:43] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
+[16:00:43] [Server thread/INFO]: Experience Merge Radius: 3.0
+[16:00:43] [Server thread/INFO]: Mob Spawn Range: 6
+[16:00:43] [Server thread/INFO]: Cactus Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Cane Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Melon Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Mushroom Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Sapling Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Beetroot Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Carrot Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Potato Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Wheat Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: NetherWart Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Vine Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Cocoa Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Bamboo Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: SweetBerry Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Kelp Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: TwistingVines Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: WeepingVines Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: CaveVines Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Ra 48 / Mi 16 / Tiv true / Isa false
+[16:00:43] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 1 Hopper Amount: 1 Hopper Can Load Chunks: false
+[16:00:43] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Desert: 14357617 Igloo: 14357618 Jungle: 14357619 Swamp: 14357620 Monument: 10387313 Ocean: 14357621 Shipwreck: 165745295 End City: 10387313 Slime: 987234911 Nether: 30084232 Mansion: 10387319 Fossil: 14357921 Portal: 34222645
+[16:00:43] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Di 128 / Other 64
+[16:00:43] [Server thread/INFO]: Arrow Despawn Rate: 1200 Trident Respawn Rate:1200
+[16:00:43] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
+[16:00:43] [Server thread/INFO]: -------- World Settings For [world_nether] --------
+[16:00:43] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
+[16:00:43] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
+[16:00:43] [Server thread/INFO]: Item Despawn Rate: 6000
+[16:00:43] [Server thread/INFO]: Item Merge Radius: 2.5
+[16:00:43] [Server thread/INFO]: View Distance: 10
+[16:00:43] [Server thread/INFO]: Simulation Distance: 10
+[16:00:43] [Server thread/INFO]: Max TNT Explosions: 100
+[16:00:43] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
+[16:00:43] [Server thread/INFO]: Experience Merge Radius: 3.0
+[16:00:43] [Server thread/INFO]: Mob Spawn Range: 6
+[16:00:43] [Server thread/INFO]: Cactus Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Cane Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Melon Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Mushroom Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Sapling Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Beetroot Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Carrot Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Potato Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Wheat Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: NetherWart Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Vine Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Cocoa Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Bamboo Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: SweetBerry Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Kelp Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: TwistingVines Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: WeepingVines Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: CaveVines Growth Modifier: 100%
+[16:00:43] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Ra 48 / Mi 16 / Tiv true / Isa false
+[16:00:43] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 1 Hopper Amount: 1 Hopper Can Load Chunks: false
+[16:00:43] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Desert: 14357617 Igloo: 14357618 Jungle: 14357619 Swamp: 14357620 Monument: 10387313 Ocean: 14357621 Shipwreck: 165745295 End City: 10387313 Slime: 987234911 Nether: 30084232 Mansion: 10387319 Fossil: 14357921 Portal: 34222645
+[16:00:43] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Di 128 / Other 64
+[16:00:43] [Server thread/INFO]: Arrow Despawn Rate: 1200 Trident Respawn Rate:1200
+[16:00:43] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
+[16:00:46] [Server thread/INFO]: -------- World Settings For [world_the_end] --------
+[16:00:46] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
+[16:00:46] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
+[16:00:46] [Server thread/INFO]: Item Despawn Rate: 6000
+[16:00:46] [Server thread/INFO]: Item Merge Radius: 2.5
+[16:00:46] [Server thread/INFO]: View Distance: 10
+[16:00:46] [Server thread/INFO]: Simulation Distance: 10
+[16:00:46] [Server thread/INFO]: Max TNT Explosions: 100
+[16:00:46] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
+[16:00:46] [Server thread/INFO]: Experience Merge Radius: 3.0
+[16:00:46] [Server thread/INFO]: Mob Spawn Range: 6
+[16:00:46] [Server thread/INFO]: Cactus Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Cane Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Melon Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Mushroom Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Sapling Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Beetroot Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Carrot Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Potato Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Wheat Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: NetherWart Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Vine Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Cocoa Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Bamboo Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: SweetBerry Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Kelp Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: TwistingVines Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: WeepingVines Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: CaveVines Growth Modifier: 100%
+[16:00:46] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Ra 48 / Mi 16 / Tiv true / Isa false
+[16:00:46] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 1 Hopper Amount: 1 Hopper Can Load Chunks: false
+[16:00:46] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Desert: 14357617 Igloo: 14357618 Jungle: 14357619 Swamp: 14357620 Monument: 10387313 Ocean: 14357621 Shipwreck: 165745295 End City: 10387313 Slime: 987234911 Nether: 30084232 Mansion: 10387319 Fossil: 14357921 Portal: 34222645
+[16:00:46] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Di 128 / Other 64
+[16:00:46] [Server thread/INFO]: Arrow Despawn Rate: 1200 Trident Respawn Rate:1200
+[16:00:46] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
+[16:00:46] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[16:00:50] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[16:00:50] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[16:00:50] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:50] [Worker-Main-3/INFO]: Preparing spawn area: 0%
+[16:00:50] [Worker-Main-3/INFO]: Preparing spawn area: 0%
+[16:00:50] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:50] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[16:00:50] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:51] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:51] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[16:00:51] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[16:00:52] [Worker-Main-3/INFO]: Preparing spawn area: 10%
+[16:00:52] [Worker-Main-1/INFO]: Preparing spawn area: 58%
+[16:00:52] [Server thread/INFO]: Time elapsed: 6234 ms
+[16:00:52] [Server thread/INFO]: Preparing start region for dimension minecraft:the_nether
+[16:00:56] [Worker-Main-3/INFO]: Preparing spawn area: 0%
+[16:00:56] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:56] [Worker-Main-3/INFO]: Preparing spawn area: 0%
+[16:00:56] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:56] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:56] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:56] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:56] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:56] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:57] [Worker-Main-3/INFO]: Preparing spawn area: 70%
+[16:00:57] [Server thread/INFO]: Time elapsed: 4707 ms
+[16:00:57] [Server thread/INFO]: Preparing start region for dimension minecraft:the_end
+[16:00:59] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[16:00:59] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[16:00:59] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[16:00:59] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:00:59] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[16:01:00] [Worker-Main-3/INFO]: Preparing spawn area: 1%
+[16:01:00] [Server thread/INFO]: Time elapsed: 2878 ms
+[16:01:00] [Server thread/INFO]: [Minecraft_Test] Enabling Minecraft_Test v1.0-SNAPSHOT
+[16:01:00] [Server thread/INFO]: Server Started
+[16:01:00] [Server thread/INFO]: Server permissions file permissions.yml is empty, ignoring it
+[16:01:00] [Server thread/INFO]: Done (16.877s)! For help, type "help"
+[16:01:16] [User Authenticator #1/INFO]: UUID of player Mithraea is 488f49f1-03b3-4634-944f-50a987f6f5ad
+[16:01:16] [Server thread/INFO]: Mithraea joined the game
+[16:01:16] [Server thread/INFO]: Mithraea[/127.0.0.1:51835] logged in with entity id 260 at ([world]20.808388325572228, 67.0, -0.4039296316109345)
+[16:01:23] [Server thread/INFO]: Mithraea issued server command: /m
+[16:01:25] [Server thread/INFO]: Mithraea is a survivor!
+[16:01:25] [Server thread/INFO]: 488f49f1-03b3-4634-944f-50a987f6f5ad survivor
+[16:01:29] [Server thread/INFO]: Mithraea issued server command: /kill
+[16:01:29] [Server thread/INFO]: Player:  Mithraea  has died 
+[16:01:29] [Server thread/INFO]: Mithraea fell out of the world
+[16:01:29] [Server thread/INFO]: [Mithraea: Killed Mithraea]
+[16:01:30] [Server thread/INFO]: **********SURVIVOR***********
+[16:01:30] [Server thread/INFO]: Mithraea has been infected!
+[16:01:30] [Server thread/INFO]: 488f49f1-03b3-4634-944f-50a987f6f5ad infected
+[16:01:46] [Server thread/INFO]: ***Player attack***
+[16:01:46] [Server thread/INFO]: ***Player attack***
+[16:01:59] [Server thread/INFO]: Mithraea issued server command: /gamemode creative
+[16:01:59] [Server thread/INFO]: [Mithraea: Set own game mode to Creative Mode]
+[16:02:31] [Server thread/INFO]: Mithraea issued server command: /gamemode survival
+[16:02:31] [Server thread/INFO]: [Mithraea: Set own game mode to Survival Mode]
+[16:02:35] [Server thread/INFO]: Mithraea issued server command: /kill
+[16:02:35] [Server thread/INFO]: Player:  Mithraea  has died 
+[16:02:35] [Server thread/INFO]: Mithraea fell out of the world
+[16:02:35] [Server thread/INFO]: [Mithraea: Killed Mithraea]
+[16:02:36] [Server thread/INFO]: **********INFECTED***********
+[16:02:36] [Server thread/INFO]: Mithraea has been infected!
+[16:02:36] [Server thread/INFO]: 488f49f1-03b3-4634-944f-50a987f6f5ad infected
+[16:02:45] [Server thread/INFO]: Mithraea issued server command: /gamemode creative
+[16:02:45] [Server thread/INFO]: [Mithraea: Set own game mode to Creative Mode]
+[16:02:47] [Server thread/INFO]: Mithraea issued server command: /m
+[16:02:48] [Server thread/INFO]: Mithraea is no longer playing!
+[16:02:59] [Server thread/INFO]: Mithraea issued server command: /kill
+[16:02:59] [Server thread/INFO]: Mithraea fell out of the world
+[16:02:59] [Server thread/INFO]: [Mithraea: Killed Mithraea]
+[16:03:08] [Server thread/INFO]: Mithraea issued server command: /m
+[16:03:10] [Server thread/INFO]: Mithraea is a survivor!
+[16:03:10] [Server thread/INFO]: 488f49f1-03b3-4634-944f-50a987f6f5ad survivor
+[16:03:21] [Server thread/INFO]: Mithraea issued server command: /kill
+[16:03:21] [Server thread/INFO]: Player:  Mithraea  has died 
+[16:03:21] [Server thread/INFO]: Mithraea fell out of the world
+[16:03:21] [Server thread/INFO]: [Mithraea: Killed Mithraea]
+[16:03:22] [Server thread/INFO]: **********SURVIVOR***********
+[16:03:22] [Server thread/INFO]: Mithraea has been infected!
+[16:03:22] [Server thread/INFO]: 488f49f1-03b3-4634-944f-50a987f6f5ad infected
+[16:03:33] [Server thread/INFO]: Mithraea issued server command: /m
+[16:03:34] [Server thread/INFO]: Mithraea is no longer playing!
+[16:04:02] [Server thread/INFO]: Mithraea issued server command: /kill
+[16:04:02] [Server thread/INFO]: Mithraea fell out of the world
+[16:04:02] [Server thread/INFO]: [Mithraea: Killed Mithraea]
+[16:04:09] [Server thread/INFO]: Mithraea issued server command: /m
+[16:04:12] [Server thread/INFO]: Mithraea has been infected!
+[16:04:12] [Server thread/INFO]: 488f49f1-03b3-4634-944f-50a987f6f5ad infected
+[16:04:16] [Server thread/INFO]: Mithraea issued server command: /kill
+[16:04:16] [Server thread/INFO]: Player:  Mithraea  has died 
+[16:04:16] [Server thread/INFO]: Mithraea fell out of the world
+[16:04:16] [Server thread/INFO]: [Mithraea: Killed Mithraea]
+[16:04:18] [Server thread/INFO]: **********INFECTED***********
+[16:04:18] [Server thread/INFO]: Mithraea has been infected!
+[16:04:18] [Server thread/INFO]: 488f49f1-03b3-4634-944f-50a987f6f5ad infected
+[16:04:25] [Server thread/INFO]: Mithraea issued server command: /m
+[16:04:27] [Server thread/INFO]: Mithraea is no longer playing!
+[16:04:30] [Server thread/INFO]: Mithraea issued server command: /kill
+[16:04:30] [Server thread/INFO]: Mithraea fell out of the world
+[16:04:30] [Server thread/INFO]: [Mithraea: Killed Mithraea]
+[16:10:01] [Server thread/INFO]: Mithraea lost connection: Disconnected
+[16:10:01] [Server thread/INFO]: Mithraea left the game

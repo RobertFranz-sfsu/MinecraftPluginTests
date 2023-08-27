@@ -5,7 +5,6 @@ import org.bukkit.*;
 //import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,8 +20,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 public class SurvivalPlayer implements Listener{
-    private Boolean inf = false; //if player is infected
-    private Boolean sur = false; //if player is survivor
     private Player gamer;
     private World world;
     public void setPlayer(Player player) {
@@ -39,74 +36,12 @@ public class SurvivalPlayer implements Listener{
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    public void setRole(Player player, String role) {
-        setPlayer(player);
-        statusMap.put(player.getUniqueId(), role);
 
-        if (Objects.equals(role, "infected")) {
-            setInfection(player);
-        } else if (Objects.equals(role, "survivor")) {
-            setSurvivor(player);
-        } else if (Objects.equals(role, "N/A")) {
-            statusMap.remove(player.getUniqueId());
-            setNotPlaying(player);
-        }
-    }
-
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
-        if (this.getSurvivalStatus()) {
-            Bukkit.getLogger().info("**********SURVIVOR***********");
-            Bukkit.getLogger().info(player.getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
-            Inventory inv = player.getInventory();
-            inv.clear();
-//            this.setSurvivalStatus(false);
-//            this.setInfectedStatus(true);
-//            this.setRole(player, "infected");
-            Bukkit.getLogger().info(player.getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
-
-        } else if (this.getInfectedStatus()) {
-            //TODO
-            Bukkit.getLogger().info("**********INFECTED***********");
-            //event.setKeepInventory(true);
-            List<ItemStack> items = event.getDrops();
-            for (ItemStack i : items) {
-                Bukkit.getLogger().info("Dropping: " + i.toString());
-                event.getDrops().remove(i);
-            }
-        }
-
-    }
-    @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-        Player player = event.getPlayer();
-        Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
-        if (this.getSurvivalStatus()) {
-            Bukkit.getLogger().info("**********SURVIVOR***********");
-            Bukkit.getLogger().info(player.getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
-            Inventory inv = player.getInventory();
-            inv.clear();
-            //event.setRespawnLocation(infectSpawn());
-            this.setSurvivalStatus(false);
-            this.setInfectedStatus(true);
-            this.setRole(player, "infected");
-            Bukkit.getLogger().info(player.getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
-
-        } else if (this.getInfectedStatus()) {
-            //TODO
-            Bukkit.getLogger().info("**********INFECTED***********");
-            this.setRole(player, "infected");
-            //event.setRespawnLocation(infectSpawn());
-            Bukkit.getLogger().info(player.getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
-        }
-
-    }
     public void setInfection(Player player) {
         Bukkit.getLogger().info(player.getName() + " has been infected!");
-        this.setInfectedStatus(true);
-        this.setSurvivalStatus(false);
+        statusMap.put(player.getUniqueId(), "infected");
+        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+
 
 //            world = player.getLocation().getWorld();
 //
@@ -129,17 +64,10 @@ public class SurvivalPlayer implements Listener{
         return new Location(world, 22.5, 67, -36, 0f, 0f);
     }
 
-    public void setInfectedStatus(Boolean bool) {
-        this.inf = bool;
-    }
-    public boolean getInfectedStatus() {
-        return inf;
-    }
-
     public void setSurvivor(Player player) {
         Bukkit.getLogger().info(player.getName() + " is a survivor!");
-        this.setInfectedStatus(false);
-        this.setSurvivalStatus(true);
+        statusMap.put(player.getUniqueId(), "survivor");
+        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
 //            world = player.getLocation().getWorld();
 //
@@ -154,20 +82,14 @@ public class SurvivalPlayer implements Listener{
         Inventory inv = player.getInventory();
         inv.clear();
         inv.setItem(0, magicBow());
-        inv.setItem(10, silverArrow());
+        inv.setItem(9, silverArrow());
 
         player.sendMessage("YOU ARE A SURVIVOR!");
     }
-    public void setSurvivalStatus(Boolean bool) {
-        this.sur = bool;
-    }
-    public boolean getSurvivalStatus() {
-        return sur;
-    }
+
     public void setNotPlaying(Player player) {
         Bukkit.getLogger().info(player.getName() + " is no longer playing!");
-        this.setInfectedStatus(false);
-        this.setSurvivalStatus(false);
+        statusMap.remove(player.getUniqueId());
 
         Inventory inv = player.getInventory();
         inv.clear();
@@ -180,10 +102,40 @@ public class SurvivalPlayer implements Listener{
         //TODO Store players' items and give them back
     }
     @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        if (!statusMap.containsKey(player.getUniqueId())) {
+            return;
+        }
+        Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+        event.getDrops().clear();
+    }
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        if (!statusMap.containsKey(player.getUniqueId())) {
+            return;
+        }
+        if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
+            Bukkit.getLogger().info("**********SURVIVOR***********");
+            this.setInfection(player);
+            //event.setRespawnLocation(infectSpawn());
+
+        } else if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
+            //TODO
+            Bukkit.getLogger().info("**********INFECTED***********");
+            this.setInfection(player);
+            //event.setRespawnLocation(infectSpawn());
+        }
+    }
+    @EventHandler
     public void onPlayerDisconnect(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        if (!statusMap.containsKey(player.getUniqueId())) {
+            return;
+        }
         Bukkit.getLogger().info("Player:  " + player.getName() + "  has disconnected");
-        this.setRole(player, "N/A");
+        this.setNotPlaying(player);
     }
 
     /**
@@ -195,11 +147,25 @@ public class SurvivalPlayer implements Listener{
     public void onPlayerAttack(EntityDamageByEntityEvent event) {
         Entity attacker = event.getDamager();
         Entity damaged = event.getEntity();
+        if (!statusMap.containsKey(attacker.getUniqueId()) && !statusMap.containsKey(damaged.getUniqueId())) {
+            return;
+        }
 
+        //TEST CODE
+        if (attacker instanceof Player) {
+            Bukkit.getLogger().info("***Player attack***");
+
+        }
+        //END TEST
         if (attacker instanceof Player && damaged instanceof Player) {
-            statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+            //        Bukkit.getLogger().info("****Entity damaged by entity event called****");
+
+            Bukkit.getLogger().info("***Passed check***");
            // Bukkit.getLogger().info(this.getPlayer().getName() + " survivor:  " + getSurvivalStatus() + "   infected:  " + getInfectedStatus());
+            Bukkit.getLogger().info("Attacker: " + statusMap.get(attacker.getUniqueId()) + "  Damaged: " + statusMap.get(damaged.getUniqueId()));
+
             if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
+                Bukkit.getLogger().info("*****FRIENDLY FIRE*****");
                 event.setCancelled(true);
             }
         }
