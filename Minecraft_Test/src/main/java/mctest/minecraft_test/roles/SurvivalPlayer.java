@@ -26,18 +26,33 @@ public class SurvivalPlayer implements Listener{
     private final HashMap<UUID, String> statusMap = new HashMap<>();
     private int infectedCnt = 0;
     private int survivorCnt = 0;
+    private Boolean playing = false;
+
+    public void setPlaying(Boolean playing) {
+        this.playing = playing;
+    }
+    public Boolean getPlaying() {
+        return this.playing;
+    }
 
     public SurvivalPlayer(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            this.setInfectedCnt();
-            this.setSurvivorCnt();
-            statusMap.forEach((key, value) -> this.setBoard(Bukkit.getPlayer(key)));
-            Bukkit.getLogger().info("Survivors: " + getSurvivorCnt());
-            if (this.getSurvivorCnt() == 0) {
-                this.endGame();
-            }
+            //if (this.getPlaying()) {
+                this.setInfectedCnt();
+                this.setSurvivorCnt();
+                statusMap.forEach((key, value) -> this.setBoard(Bukkit.getPlayer(key)));
+                statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+                Bukkit.getLogger().info("Survivors: " + this.getSurvivorCnt());
+                int test = this.getSurvivorCnt() + this.getInfectedCnt();
+                Bukkit.getLogger().info(test + " == " + 0 + " : " + (test == 0));
+                if (this.getInfectedCnt() == 2) {
+                    Bukkit.getLogger().info("all (two) infected :(");
+                    this.endGame();
+                }
+            //}
+
         }, 0L, 100L);
     }
 
@@ -212,13 +227,13 @@ public class SurvivalPlayer implements Listener{
     private void onPlayerAttack(EntityDamageByEntityEvent event) {
         Entity attacker = event.getDamager();
         Entity damaged = event.getEntity();
-        //TODO TEST CODE WORKS: REMOVE SOON
-        if (event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
-            Bukkit.getLogger().info("Projectile hit!");
-            if (damaged.getType() == EntityType.ZOMBIE_VILLAGER) {
-                event.setCancelled(true);
-            }
-        }
+//        //TODO TEST CODE WORKS: REMOVE SOON
+//        if (event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+//            Bukkit.getLogger().info("Projectile hit!");
+//            if (damaged.getType() == EntityType.ZOMBIE_VILLAGER) {
+//                event.setCancelled(true);
+//            }
+//        }
         //Makes sure both are playing the game, else return
         if (!statusMap.containsKey(attacker.getUniqueId()) && !statusMap.containsKey(damaged.getUniqueId())) {
             return;

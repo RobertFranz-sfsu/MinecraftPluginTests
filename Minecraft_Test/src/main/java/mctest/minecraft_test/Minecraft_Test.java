@@ -30,7 +30,7 @@ public final class Minecraft_Test extends JavaPlugin {
         new PlayerHandler(this);
         new DelayedTask(this);
 //        new PlagueHandler(this);
-        new SurvivalPlayer(this);
+        //new SurvivalPlayer(this);
 
     }
 
