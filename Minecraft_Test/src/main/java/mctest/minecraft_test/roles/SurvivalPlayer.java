@@ -7,6 +7,7 @@
 * Fine tune buffs
 * Figure out how to add custom items in JSON
 * Scoreboard styling
+* Custom guns/fix accuracy
 *
 * */
 
