@@ -1,3 +1,15 @@
+/*
+* TODO
+*
+* Add JSON configurability
+* Init game
+* Fine tune timers
+* Fine tune buffs
+* Figure out how to add custom items in JSON
+* Scoreboard styling
+*
+* */
+
 package mctest.minecraft_test.roles;
 
 import mctest.minecraft_test.Minecraft_Test;
@@ -242,7 +254,7 @@ public class SurvivalPlayer implements Listener{
         if (!statusMap.containsKey(attacker.getUniqueId()) && !statusMap.containsKey(damaged.getUniqueId())) {
             return;
         }
-        
+
         //If survivor and hit by arrow, cancel damage
         if (Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
             Bukkit.getLogger().info("*****PROJECTILE FRIENDLY FIRE*****");
