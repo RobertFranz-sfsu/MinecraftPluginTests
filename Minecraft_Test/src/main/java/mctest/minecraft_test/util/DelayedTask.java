@@ -16,7 +16,7 @@ public class DelayedTask implements Listener {
         this(runnable, 0);
     }
 
-    public  DelayedTask(Runnable runnable, long delay) {
+    public DelayedTask(Runnable runnable, long delay) {
         if (plugin.isEnabled()) {
             id = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, runnable, delay);
         } else {

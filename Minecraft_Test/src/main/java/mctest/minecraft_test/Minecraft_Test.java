@@ -1,7 +1,6 @@
 package mctest.minecraft_test;
 
 import mctest.minecraft_test.commands.*;
-import mctest.minecraft_test.handlers.PlagueHandler;
 import mctest.minecraft_test.handlers.PlayerHandler;
 import mctest.minecraft_test.handlers.TorchHandler;
 import mctest.minecraft_test.roles.SurvivalPlayer;
@@ -32,6 +31,7 @@ public final class Minecraft_Test extends JavaPlugin {
         new DelayedTask(this);
 //        new PlagueHandler(this);
         new SurvivalPlayer(this);
+
     }
 
     @Override
