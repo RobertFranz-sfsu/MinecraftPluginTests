@@ -29,6 +29,16 @@ public class SurvivalPlayer implements Listener{
 
     public SurvivalPlayer(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
+
+        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+            this.setInfectedCnt();
+            this.setSurvivorCnt();
+            statusMap.forEach((key, value) -> this.setBoard(Bukkit.getPlayer(key)));
+            Bukkit.getLogger().info("Survivors: " + getSurvivorCnt());
+            if (this.getSurvivorCnt() == 0) {
+                this.endGame();
+            }
+        }, 0L, 100L);
     }
 
     public void gameInit() {
@@ -153,11 +163,11 @@ public class SurvivalPlayer implements Listener{
         // Note: currently if everyone is infected and no one respawns game never ends.
         // Or if the last person never respawns game doesnt end either
         this.setInfectedCnt();
-        this.setSurviorCnt();
+        this.setSurvivorCnt();
         Bukkit.getLogger().info("Survivors: " + this.getSurvivorCnt() + "  Infected: " + this.getInfectedCnt());
-        if (Collections.frequency(statusMap.values(), "survivor") == 0) {
-            this.endGame();
-        }
+//        if (Collections.frequency(statusMap.values(), "survivor") == 0) {
+//            this.endGame();
+//        }
     }
     @EventHandler
     private void onPlayerDisconnect(PlayerQuitEvent event) {
@@ -169,7 +179,7 @@ public class SurvivalPlayer implements Listener{
         this.setNotPlaying(player);
     }
     private void endGame() {
-        Bukkit.getLogger().info("No more survivors!!!");
+        //Bukkit.getLogger().info("No more survivors!!!");
         new DelayedTask(() -> {
             //https://stackoverflow.com/questions/2351331/iterating-over-and-deleting-from-hashtable-in-java
             Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
@@ -190,6 +200,7 @@ public class SurvivalPlayer implements Listener{
             //       });
 
         }, 20 * 10);
+        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
     }
 
     /**
@@ -218,15 +229,18 @@ public class SurvivalPlayer implements Listener{
             Bukkit.getLogger().info("Attacker: " + statusMap.get(attacker.getUniqueId()) + "  Damaged: " + statusMap.get(damaged.getUniqueId()));
 
             // if both are on the same team or if a survivor is hit by a projectile: cancel the attack
-            if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId())) ||
-                    Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+            if (Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+                Bukkit.getLogger().info("*****PROJECTILE FRIENDLY FIRE*****");
+                event.setCancelled(true);
+            }
+            if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
                 Bukkit.getLogger().info("*****FRIENDLY FIRE*****");
                 event.setCancelled(true);
             }
         }
     }
 
-    public void setSurviorCnt() {
+    public void setSurvivorCnt() {
         this.survivorCnt = Collections.frequency(statusMap.values(), "survivor");
     }
     public int getSurvivorCnt() {
@@ -295,11 +309,12 @@ public class SurvivalPlayer implements Listener{
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = manager.getNewScoreboard();
 
-        Objective objective = scoreboard.registerNewObjective("Game Status", "dummy", ChatColor.GOLD + "Survival Status");
+        Objective objective = scoreboard.registerNewObjective("Game Status", "dummy");
+        objective.setDisplayName(ChatColor.GOLD + "Survival Status");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         //TODO can possibly move these to where/when the game initializes so they arent called everytime the scoreboard is called
-        this.setSurviorCnt();
+        this.setSurvivorCnt();
         this.setInfectedCnt();
 
         Score newLine = objective.getScore("");
