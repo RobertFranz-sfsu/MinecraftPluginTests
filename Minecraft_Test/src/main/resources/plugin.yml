@@ -13,7 +13,7 @@ commands:
     description: Opens the Server Menu
     usage: /menu
     aliases: m
-    permission: infected.menu
+    permission: menu
     permission-message: You do not have permission to open the menu
   setSpawn:
     description: Sets the spawn

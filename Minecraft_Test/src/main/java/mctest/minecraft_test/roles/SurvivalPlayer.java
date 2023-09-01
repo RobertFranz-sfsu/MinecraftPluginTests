@@ -8,9 +8,6 @@
 * Figure out how to add custom items in JSON
 * Scoreboard styling
 * Custom guns/fix accuracy
-* Change plugin name
-* Remove old tests
-* Set permissions
 *
 * */
 
@@ -19,6 +16,7 @@ package mctest.minecraft_test.roles;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.DelayedTask;
 import org.bukkit.*;
+//import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
