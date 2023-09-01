@@ -1,6 +1,8 @@
 /*
 * TODO
 *
+* Change plugin name
+* Remove old tests/code
 * Add JSON configurability
 * Init game
 * Fine tune timers
@@ -231,7 +233,7 @@ public class SurvivalPlayer implements Listener{
             //          Bukkit.getLogger().info(Bukkit.getPlayer(key) + " No longer playing.");
             //       });
 
-        }, 10 * 10);
+        }, 10 * 0);
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
     }
 
