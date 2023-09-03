@@ -355,10 +355,10 @@ public class SurvivalPlayer implements Listener{
 
         Score newLine = objective.getScore("");
         newLine.setScore(3);
-        Score infectedScore = objective.getScore(ChatColor.GREEN + "Infected:  " + this.getInfectedCnt());
-        infectedScore.setScore(2);
-        Score survivorScore = objective.getScore(ChatColor.AQUA + "Survivors: " + this.getSurvivorCnt());
-        survivorScore.setScore(1);
+        Score survivorScore = objective.getScore(ChatColor.GREEN + "Survivors: " + this.getSurvivorCnt());
+        survivorScore.setScore(2);
+        Score infectedScore = objective.getScore(ChatColor.RED + "Infected:  " + this.getInfectedCnt());
+        infectedScore.setScore(1);
 
         player.setScoreboard(scoreboard);
     }
