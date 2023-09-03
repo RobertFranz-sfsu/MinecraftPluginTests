@@ -1,13 +1,28 @@
-infected:
-  - TEST3
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
-  - LOOK_AT_THIS
+loadouts:
+  survivor:
+    item:
+      - BOW
+    itemAmount:
+      - 1
+    itemName:
+      - "&9Infected Slayer"
+    lore:
+      - "&8Kill the infected!"
+    enchantment:
+      - ARROW_INFINITE
+    enchantmentLevel:
+      - 1
+
+  infected:
+    item:
+      - IRON_SWORD
+    itemAmount:
+      - 1
+    itemName:
+      - "&9Infected Claw"
+    lore:
+      - "&9Infect the uninfected!"
+    enchantment:
+      - DURABILITY
+    enchantmentLevel:
+      - 10

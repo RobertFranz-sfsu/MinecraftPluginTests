@@ -56,7 +56,7 @@ public class Menu implements Listener, CommandExecutor {
             gamer.setInfection(player);
         } else if (slot == 13) {
             gamer.setSurvivor(player);
-        } else{
+        } else if(slot == 15){
             gamer.setNotPlaying(player);
         }
 

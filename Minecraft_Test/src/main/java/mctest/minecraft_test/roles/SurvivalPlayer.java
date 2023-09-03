@@ -7,9 +7,12 @@
 * Init game
 * Fine tune timers
 * Fine tune buffs
-* Figure out how to add custom items in JSON
+* Figure out how to add custom items in yml
 * Scoreboard styling
 * Custom guns/fix accuracy
+* Add command to reload config
+* Add command to print item stack to console
+*   Add command to add item in current hand to config
 *
 * */
 
@@ -18,7 +21,6 @@ package mctest.minecraft_test.roles;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.DelayedTask;
 import org.bukkit.*;
-//import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -86,21 +88,13 @@ public class SurvivalPlayer implements Listener{
         statusMap.put(player.getUniqueId(), "infected");
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
-//            world = player.getLocation().getWorld();
-//
-//            Location infSpawn = new Location(world, 22.5, 67, -36, 0f, 0f);
-//            player.teleport(infectSpawn());
-
-        //player.setWalkSpeed(.6f);
-        //player.setMaxHealth(4);
         this.setSpeed(player, .6f);
         this.setMaxHealth(player, 4);
         this.setHealth(player, 4);
-        //player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(4);
 
         Inventory inv = player.getInventory();
         inv.clear();
-        inv.setItem(0, claw());
+        inv.setItem(0, giveWeapons("infected"));
         this.setBoard(player);
         player.sendMessage("YOU ARE INFECTED!");
     }
@@ -116,21 +110,13 @@ public class SurvivalPlayer implements Listener{
         statusMap.put(player.getUniqueId(), "survivor");
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
-//        world = player.getLocation().getWorld();
-//        Location sSpawn = new Location(world, 22.5, 67, 37, -180f, -1f);
-//        player.teleport(sSpawn);
-
-//        player.setWalkSpeed(.2f);
-//        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
-//        player.setMaxHealth(20);
-//        player.setHealth(20);
         this.setSpeed(player, .2f);
         this.setMaxHealth(player, 20);
         this.setHealth(player, 20);
 
         Inventory inv = player.getInventory();
         inv.clear();
-        inv.setItem(0, magicBow());
+        inv.setItem(0, giveWeapons("survivor"));
         inv.setItem(9, silverArrow());
         this.setBoard(player);
 
@@ -143,10 +129,7 @@ public class SurvivalPlayer implements Listener{
 
         Inventory inv = player.getInventory();
         inv.clear();
-        //player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
-//        player.setMaxHealth(20);
-//        player.setHealth(20);
-//        player.setWalkSpeed(.2f);
+
         player.setFoodLevel(20);
         this.setSpeed(player, .2f);
         this.setMaxHealth(player, 20);
@@ -228,10 +211,6 @@ public class SurvivalPlayer implements Listener{
             }
 
             setPlaying(false);
-            //       statusMap.forEach((key, value) -> {
-            //          this.setNotPlaying(Bukkit.getPlayer(key));
-            //          Bukkit.getLogger().info(Bukkit.getPlayer(key) + " No longer playing.");
-            //       });
 
         }, 10 * 0);
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
@@ -246,13 +225,7 @@ public class SurvivalPlayer implements Listener{
     private void onPlayerAttack(EntityDamageByEntityEvent event) {
         Entity attacker = event.getDamager();
         Entity damaged = event.getEntity();
-//        //TODO TEST CODE WORKS: REMOVE SOON
-//        if (event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
-//            Bukkit.getLogger().info("Projectile hit!");
-//            if (damaged.getType() == EntityType.ZOMBIE_VILLAGER) {
-//                event.setCancelled(true);
-//            }
-//        }
+
         //Makes sure both are playing the game, else return
         if (!statusMap.containsKey(attacker.getUniqueId()) && !statusMap.containsKey(damaged.getUniqueId())) {
             return;
@@ -293,12 +266,47 @@ public class SurvivalPlayer implements Listener{
      * Items and Inventories
      *
      */
-    public ItemStack claw() {
+    public ItemStack giveWeapons(String role){
+
+        Map<String, Object> config = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getConfigurationSection("loadouts").getValues(true);
+
+        if(role.equals("infected")){
+            ItemStack weapon = new ItemStack(Material.matchMaterial(config.get("infected.item").toString()), Integer.valueOf(config.get("infected.itemAmount").toString().replaceAll("[\\[\\],]","")));
+            getItem(weapon, config.get("infected.itemName").toString().replaceAll("[\\[\\],]",""), config.get("infected.lore").toString().replaceAll("[\\[\\],]",""));
+
+            if((config.get("infected.enchantment") != null) && (config.get("infected.enchantmentLevel") != null)){
+                ItemMeta meta = weapon.getItemMeta();
+                meta.addEnchant(Enchantment.getByName(config.get("infected.enchantment").toString().replaceAll("[\\[\\],]","")),
+                        Integer.valueOf(config.get("infected.enchantmentLevel").toString().replaceAll("[\\[\\],]","")), true);
+                weapon.setItemMeta(meta);
+            }
+
+            return weapon;
+        }else if(role.equals("survivor")){
+            ItemStack weapon = new ItemStack(Material.matchMaterial(config.get("survivor.item").toString()), Integer.valueOf(config.get("survivor.itemAmount").toString().replaceAll("[\\[\\],]","")));
+            getItem(weapon, config.get("survivor.itemName").toString().replaceAll("[\\[\\],]",""),
+                    config.get("survivor.lore").toString().replaceAll("[\\[\\],]",""));
+            if((config.get("survivor.enchantment") != null) && (config.get("survivor.enchantmentLevel") != null)){
+                ItemMeta meta = weapon.getItemMeta();
+                meta.addEnchant(Enchantment.getByName(config.get("survivor.enchantment").toString().replaceAll("[\\[\\],]","")),
+                        Integer.valueOf(config.get("survivor.enchantmentLevel").toString().replaceAll("[\\[\\],]","")), true);
+                weapon.setItemMeta(meta);
+            }
+
+            return weapon;
+        }else{
+            return null;
+        }
+    }
+    public ItemStack infectedWeapons() {
+        Minecraft_Test pl = new Minecraft_Test();
+        Map<String, Object> test2 = pl.getConfig().getConfigurationSection("loadouts").getValues(true);
+
         ItemStack weapon = new ItemStack(Material.IRON_SWORD, 1);
         getItem(weapon, "&9Infected Claw", "&9Infect the uninfected!");
         return weapon;
     }
-    public ItemStack magicBow() {
+    public ItemStack survivorWeapons() {
         ItemStack weapon = new ItemStack(Material.BOW, 1);
         getItem(weapon, "&9Infected Slayer", "&8Kill the infected!");
         ItemMeta meta = weapon.getItemMeta();
