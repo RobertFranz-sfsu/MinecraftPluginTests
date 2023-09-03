@@ -9,13 +9,21 @@ import mctest.minecraft_test.util.SpawnUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
+
 public final class Minecraft_Test extends JavaPlugin {
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         Bukkit.getLogger().info("Server Started");
-        //saveDefaultConfig();
+        saveDefaultConfig();
+
+        List<String> test = (List<String>) getConfig().getList("infected");
+
+        for (String x : test){
+            Bukkit.getLogger().info(x);
+        }
 
         //ConfigUtil config = new ConfigUtil(this, "test.yml");
 

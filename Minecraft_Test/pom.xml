@@ -39,7 +39,7 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>C:\Users\shado\OneDrive\Documents\Plugins\Minecraft_Test.jar</outputFile>
+                            <outputFile>C:\Users\shado\Documents\Plugins\Minecraft_Test.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
@@ -47,8 +47,8 @@
         </plugins>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>false</filtering>
             </resource>
         </resources>
     </build>
