@@ -64,12 +64,8 @@ public class Loadout implements CommandExecutor {
                             if(!con.getConfig().contains(args[1])){
                                 sender.sendMessage("Please enter a valid loadout!");
                             }else{
-//                                Bukkit.getLogger().info("CONFIG: " + con.getConfig().getConfigurationSection(args[1]).getValues(false).toString());
                                 for(int i = 0 ; i < player.getInventory().getSize() ; i++) {
                                     con.getConfig().set(args[1].toString().replaceAll("[\\[\\],]","") + "." + i, player.getInventory().getItem(i));
-//                                    if(player.getInventory().getItem(i) != null) {
-//                                        con.getConfig().set(args[1].toString().replaceAll("[\\[\\],]","") + "." + i, player.getInventory().getItem(i));
-//                                    }
                                 }
 
                                 if(player.getInventory().getHelmet() != null){
