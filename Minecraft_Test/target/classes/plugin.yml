@@ -1,14 +1,8 @@
 name: Minecraft_Test
-version: '1.0-SNAPSHOT'
+version: '${project.version}'
 main: mctest.minecraft_test.Minecraft_Test
 api-version: '1.19'
 commands:
-  fly:
-    description: Toggles flying for the command sender
-    usage: /fly
-    aliases: f
-    permission: fly
-    permission-message: You do not have permission to fly
   menu:
     description: Opens the Server Menu
     usage: /menu
@@ -23,3 +17,9 @@ commands:
     description: Teleports you to spawn
     usage: /spawn
     permission: spawn.teleport
+  loadout:
+    description: Loadout editor commands.
+    usage: /loadout
+    aliases: /l
+    permission: infected.loadout
+    permission-message: You do not have permission to run this command

@@ -18,20 +18,20 @@ public class PlayerHandler implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-
-        ItemStack dia = new ItemStack(Material.DIAMOND,33);
-        ItemStack tor = new ItemStack(Material.TORCH, 3);
-        ItemStack test = new ItemStack(Material.GRASS, 1);
-        Inventory inv = player.getInventory();
-
-        ItemMeta meta = test.getItemMeta();
-        meta.setDisplayName("Secret Item");
-        test.setItemMeta(meta);
-
-
-        inv.setItem(0, tor);
-        inv.setItem(1, test);
-        inv.addItem(dia);
+//        Player player = event.getPlayer();
+//
+//        ItemStack dia = new ItemStack(Material.DIAMOND,33);
+//        ItemStack tor = new ItemStack(Material.TORCH, 3);
+//        ItemStack test = new ItemStack(Material.GRASS, 1);
+//        Inventory inv = player.getInventory();
+//
+//        ItemMeta meta = test.getItemMeta();
+//        meta.setDisplayName("Secret Item");
+//        test.setItemMeta(meta);
+//
+//
+//        inv.setItem(0, tor);
+//        inv.setItem(1, test);
+//        inv.addItem(dia);
     }
 }
