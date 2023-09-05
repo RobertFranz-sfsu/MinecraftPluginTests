@@ -3,16 +3,16 @@
 *
 * Change plugin name
 * Remove old tests/code
-* Add JSON configurability
+* Add YML configurability
+*   Timer
+*   Max players
+*   Num starting infected
 * Init game
 * Fine tune timers
 * Fine tune buffs
-* Figure out how to add custom items in yml
 * Scoreboard styling
 * Custom guns/fix accuracy
-* Add command to reload config
-* Add command to print item stack to console
-*   Add command to add item in current hand to config
+* Add command to reload main config
 *
 * */
 
