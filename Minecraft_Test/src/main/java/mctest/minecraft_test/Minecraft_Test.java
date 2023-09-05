@@ -24,18 +24,6 @@ public final class Minecraft_Test extends JavaPlugin {
         Bukkit.getLogger().info("Server Started");
         this.saveDefaultConfig();
 
-        // THIS IS JUST FOR TESTING
-//        Map<String, Object> test2 = this.getConfig().getConfigurationSection("loadouts").getValues(true);
-
-//        Bukkit.getLogger().info("!!!!!!!!!!!!!: " + test2.get("survivor.items").toString());
-
-//        for (Map.Entry<String, Object> t :
-//                test2.entrySet()) {
-//
-//            Bukkit.getLogger().info("!!!!! TEST 2 !!!!!");
-//            Bukkit.getLogger().info(t.getKey() + ":");
-//            Bukkit.getLogger().info((String) t.getValue().toString());
-//        }
 
         ConfigUtil config = new ConfigUtil(this, "config.yml");
         config.save();

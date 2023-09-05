@@ -35,23 +35,6 @@ public class Menu implements Listener, CommandExecutor {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
 
-//        if (slot == 11) {
-//            player.sendMessage("FIGHT!");
-//            player.playNote(player.getLocation(), Instrument.PIANO, Note.natural(1, Note.Tone.A));
-//            player.playNote(player.getLocation(), Instrument.PIANO, Note.natural(1, Note.Tone.B));
-//            player.playNote(player.getLocation(), Instrument.PIANO, Note.natural(1, Note.Tone.C));
-//            player.setLevel(10);
-//            Location loc = player.getLocation().add(0, 20, 0);
-//            player.teleport(loc);
-//
-//        } else if (slot == 20) {
-//            gamer.setInfection(player);
-//        } else if (slot == 22) {
-//            gamer.setSurvivor(player);
-//        } else if (slot == 24) {
-//            gamer.setNotPlaying(player);
-//
-//        }
         if (slot == 11) {
             gamer.setInfection(player);
         } else if (slot == 13) {
@@ -72,13 +55,6 @@ public class Menu implements Listener, CommandExecutor {
         Player player = (Player) sender;
         Inventory inv = Bukkit.createInventory(player, 9 * 3, invName);
 
-//        inv.setItem(11, getItem(new ItemStack(Material.DIAMOND_SWORD), "&9PVP", "&aClick to Join", "&aBattle it out"));
-//        inv.setItem(13, getItem(new ItemStack(Material.DIAMOND_PICKAXE), "&9Story", "&aClick to Join", "&aStory it out"));
-//        inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9Farm", "&aClick to Join", "&aFarm it out"));
-//
-//        inv.setItem(20, getItem(new ItemStack(Material.IRON_SWORD), "&9Infect", "&aClick to Join", "&aFarm it out"));
-//        inv.setItem(22, getItem(new ItemStack(Material.BOW), "&9Survive", "&aClick to Join", "&aFarm it out"));
-//        inv.setItem(24, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to Join", "&aFarm it out"));
 
         inv.setItem(11, getItem(new ItemStack(Material.IRON_SWORD), "&9Infected", "&aClick to become infected"));
         inv.setItem(13, getItem(new ItemStack(Material.BOW), "&9Survivor", "&aClick to become a survivor"));

@@ -233,17 +233,17 @@ public class SurvivalPlayer implements Listener{
 
         //If survivor and hit by arrow, cancel damage
         if (Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
-            Bukkit.getLogger().info("*****PROJECTILE FRIENDLY FIRE*****");
+//            Bukkit.getLogger().info("*****PROJECTILE FRIENDLY FIRE*****");
             event.setCancelled(true);
         }
 
         if (attacker instanceof Player && damaged instanceof Player) {
             // Bukkit.getLogger().info("****Entity damaged by entity event called****");
-            Bukkit.getLogger().info("Attacker: " + statusMap.get(attacker.getUniqueId()) + "  Damaged: " + statusMap.get(damaged.getUniqueId()));
+//            Bukkit.getLogger().info("Attacker: " + statusMap.get(attacker.getUniqueId()) + "  Damaged: " + statusMap.get(damaged.getUniqueId()));
 
             // if both are on the same team or if a survivor is hit by a projectile: cancel the attack
             if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
-                Bukkit.getLogger().info("*****FRIENDLY FIRE*****");
+//                Bukkit.getLogger().info("*****FRIENDLY FIRE*****");
                 event.setCancelled(true);
             }
         }
@@ -298,23 +298,23 @@ public class SurvivalPlayer implements Listener{
             return null;
         }
     }
-    public ItemStack infectedWeapons() {
-        Minecraft_Test pl = new Minecraft_Test();
-        Map<String, Object> test2 = pl.getConfig().getConfigurationSection("loadouts").getValues(true);
-
-        ItemStack weapon = new ItemStack(Material.IRON_SWORD, 1);
-        getItem(weapon, "&9Infected Claw", "&9Infect the uninfected!");
-        return weapon;
-    }
-    public ItemStack survivorWeapons() {
-        ItemStack weapon = new ItemStack(Material.BOW, 1);
-        getItem(weapon, "&9Infected Slayer", "&8Kill the infected!");
-        ItemMeta meta = weapon.getItemMeta();
-        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
-        weapon.setItemMeta(meta);
-
-        return weapon;
-    }
+//    public ItemStack infectedWeapons() {
+//        Minecraft_Test pl = new Minecraft_Test();
+//        Map<String, Object> test2 = pl.getConfig().getConfigurationSection("loadouts").getValues(true);
+//
+//        ItemStack weapon = new ItemStack(Material.IRON_SWORD, 1);
+//        getItem(weapon, "&9Infected Claw", "&9Infect the uninfected!");
+//        return weapon;
+//    }
+//    public ItemStack survivorWeapons() {
+//        ItemStack weapon = new ItemStack(Material.BOW, 1);
+//        getItem(weapon, "&9Infected Slayer", "&8Kill the infected!");
+//        ItemMeta meta = weapon.getItemMeta();
+//        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+//        weapon.setItemMeta(meta);
+//
+//        return weapon;
+//    }
     public ItemStack silverArrow() {
         ItemStack weapon = new ItemStack(Material.ARROW, 1);
         getItem(weapon, "&9Silver Arrows", "&7Shiny");
