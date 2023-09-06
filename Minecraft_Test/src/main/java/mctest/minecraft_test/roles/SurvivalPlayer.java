@@ -2,10 +2,7 @@
 * TODO
 *  Remove old tests/code
 *  Add YML configurability
-*    Timers
-*    Max players
-*    Num starting infected
-*    Buffs
+*    Infected/Survivor Buffs
 *  Init game
 *  Scoreboard styling
 *  Custom guns/fix accuracy
@@ -13,8 +10,8 @@
 *  Implement multiverse
 *    Must change playerhandler
 *    Add world checks to every command
-*  Move code to fresh repo lol
 *  Test command to reload main config
+*  Move code to fresh repo lol
 *
 * */
 

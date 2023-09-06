@@ -2,6 +2,8 @@ wait-timer:
   - 60
 respawn-timer:
   - 10
+match-length:
+  - 500
 max-players:
   - 20
 min-players:
