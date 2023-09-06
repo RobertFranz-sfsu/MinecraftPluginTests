@@ -230,6 +230,7 @@ public class Loadout implements CommandExecutor {
                             }else{
                                 con.getConfig().set(args[1] + ".type", String.valueOf(args[2]).toLowerCase());
                                 con.save();
+                                sender.sendMessage("Type for loadout " + args[1] + " set to " + String.valueOf(args[2]).toLowerCase());
                             }
                         }catch(Exception e){
                             sender.sendMessage("Something went wrong.");

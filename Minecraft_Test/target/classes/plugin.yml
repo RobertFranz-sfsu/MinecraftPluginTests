@@ -20,6 +20,6 @@ commands:
   loadout:
     description: Loadout editor commands.
     usage: /loadout
-    aliases: /l
+    aliases: lo
     permission: infected.loadout
     permission-message: You do not have permission to run this command

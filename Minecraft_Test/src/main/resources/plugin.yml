@@ -20,6 +20,18 @@ commands:
   loadout:
     description: Loadout editor commands.
     usage: /loadout
-    aliases: /l
+    aliases: lo
     permission: infected.loadout
+    permission-message: You do not have permission to run this command
+  infectedMenu:
+    description: Loadout menu for infected
+    usage: /infectedMenu
+    aliases: im
+    permission: infected.infectedmenu
+    permission-message: You do not have permission to run this command
+  survivorMenu:
+    description: Loadout menu for suirvivors
+    usage: /survivorMenu
+    aliases: sm
+    permission: infected.survivormenu
     permission-message: You do not have permission to run this command
