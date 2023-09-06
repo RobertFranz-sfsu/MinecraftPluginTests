@@ -2,6 +2,7 @@ package mctest.minecraft_test.commands;
 
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.roles.SurvivalPlayer;
+import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -53,9 +54,11 @@ public class Menu implements Listener, CommandExecutor {
         }
 
         Player player = (Player) sender;
+        ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
         Inventory inv = Bukkit.createInventory(player, 9 * 3, invName);
 
-
+        for(String keys : con.getConfig().getConfigurationSection(args[1].toString().replaceAll("[\\[\\],]", "")).getKeys(false)){
+        }
         inv.setItem(11, getItem(new ItemStack(Material.IRON_SWORD), "&9Infected", "&aClick to become infected"));
         inv.setItem(13, getItem(new ItemStack(Material.BOW), "&9Survivor", "&aClick to become a survivor"));
         inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to leave the game"));
