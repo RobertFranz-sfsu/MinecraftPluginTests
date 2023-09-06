@@ -32,6 +32,7 @@ public final class Minecraft_Test extends JavaPlugin {
         getCommand("loadout").setExecutor(new Loadout());
         getCommand("infectedMenu").setExecutor(new InfectedMenu());
         getCommand("survivorMenu").setExecutor(new SurvivorMenu());
+        getCommand("reload").setExecutor(new Reload());
 
         new PlayerHandler(this);
         new DelayedTask(this);

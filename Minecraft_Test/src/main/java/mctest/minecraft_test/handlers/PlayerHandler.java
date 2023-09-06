@@ -2,36 +2,36 @@ package mctest.minecraft_test.handlers;
 
 import mctest.minecraft_test.Minecraft_Test;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class PlayerHandler implements Listener {
+    private ArrayList<UUID> players = new ArrayList<>();
     public PlayerHandler(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
+    public ArrayList<UUID> getPlayers(){
+        return this.players;
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-//        Player player = event.getPlayer();
-//
-//        ItemStack dia = new ItemStack(Material.DIAMOND,33);
-//        ItemStack tor = new ItemStack(Material.TORCH, 3);
-//        ItemStack test = new ItemStack(Material.GRASS, 1);
-//        Inventory inv = player.getInventory();
-//
-//        ItemMeta meta = test.getItemMeta();
-//        meta.setDisplayName("Secret Item");
-//        test.setItemMeta(meta);
-//
-//
-//        inv.setItem(0, tor);
-//        inv.setItem(1, test);
-//        inv.addItem(dia);
+        // Change when implementing MV
+        Player p = event.getPlayer();
+        players.add(p.getUniqueId());
+        Bukkit.getLogger().info(players.toString());
+    }
+
+    @EventHandler
+    public void onPlayerDisconnect(PlayerQuitEvent event){
+        Player p = event.getPlayer();
+        players.removeIf(pl -> (pl.equals(p.getUniqueId())));
     }
 }

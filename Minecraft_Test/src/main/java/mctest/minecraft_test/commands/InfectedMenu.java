@@ -7,6 +7,6 @@ import org.bukkit.command.CommandSender;
 public class InfectedMenu implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        return false;
+        return true;
     }
 }

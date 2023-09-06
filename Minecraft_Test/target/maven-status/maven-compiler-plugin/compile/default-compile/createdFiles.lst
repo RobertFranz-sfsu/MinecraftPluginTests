@@ -9,3 +9,4 @@ mctest\minecraft_test\commands\SetSpawn.class
 mctest\minecraft_test\roles\SurvivalPlayer.class
 mctest\minecraft_test\commands\Loadout.class
 mctest\minecraft_test\util\ConfigUtil.class
+mctest\minecraft_test\commands\Reload.class

@@ -14,6 +14,9 @@
 * Custom guns/fix accuracy
 * Add command to reload main config
 * Make loadout list prettier
+* Implement multiverse
+*   Must change playerhandler
+*   Add world checks to every command
 *
 * */
 
@@ -81,6 +84,13 @@ public class SurvivalPlayer implements Listener{
         // Set infected/survivor counts: possibly add unassigned role,
         // Set Scoreboards,
         // Start game
+        if((int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players") > Bukkit.getOnlinePlayers().size()){
+            Bukkit.broadcastMessage("There were not enough people to start a game!");
+            Bukkit.broadcastMessage("Waiting for more people to join.");
+        }else{
+            this.setPlaying(true);
+
+        }
     }
 
     public void setInfection(Player player) {

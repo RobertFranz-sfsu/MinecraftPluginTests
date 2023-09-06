@@ -35,3 +35,9 @@ commands:
     aliases: sm
     permission: infected.survivormenu
     permission-message: You do not have permission to run this command
+  reload:
+    description: Reload config
+    usage: /infected reload
+    aliases: ir
+    permission: infected.reload
+    permission-message: You do not have permission to run this command
