@@ -23,7 +23,8 @@ public class PlayerHandler implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        // Change when implementing MV
+        // TODO
+        //  Change when implementing MV
         Player p = event.getPlayer();
         players.add(p.getUniqueId());
         Bukkit.getLogger().info(players.toString());
@@ -31,6 +32,8 @@ public class PlayerHandler implements Listener {
 
     @EventHandler
     public void onPlayerDisconnect(PlayerQuitEvent event){
+        // TODO
+        //  Change when implementing MV
         Player p = event.getPlayer();
         players.removeIf(pl -> (pl.equals(p.getUniqueId())));
     }

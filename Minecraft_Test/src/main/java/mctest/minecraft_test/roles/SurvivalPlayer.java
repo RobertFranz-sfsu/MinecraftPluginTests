@@ -1,28 +1,27 @@
 /*
 * TODO
-*
-* Change plugin name
-* Remove old tests/code
-* Add YML configurability
-*   Timer
-*   Max players
-*   Num starting infected
-* Init game
-* Fine tune timers
-* Fine tune buffs
-* Scoreboard styling
-* Custom guns/fix accuracy
-* Add command to reload main config
-* Make loadout list prettier
-* Implement multiverse
-*   Must change playerhandler
-*   Add world checks to every command
+*  Remove old tests/code
+*  Add YML configurability
+*    Timers
+*    Max players
+*    Num starting infected
+*    Buffs
+*  Init game
+*  Scoreboard styling
+*  Custom guns/fix accuracy
+*  Make loadout list prettier
+*  Implement multiverse
+*    Must change playerhandler
+*    Add world checks to every command
+*  Move code to fresh repo lol
+*  Test command to reload main config
 *
 * */
 
 package mctest.minecraft_test.roles;
 
 import mctest.minecraft_test.Minecraft_Test;
+import mctest.minecraft_test.handlers.PlayerHandler;
 import mctest.minecraft_test.util.DelayedTask;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
@@ -77,27 +76,54 @@ public class SurvivalPlayer implements Listener{
         }, 0L, 50L);
     }
 
-    public void gameInit() {
-        //TODO Check if enough people are playing,
-        // Set players as infected or survivor,
+    public void gameInit() { // Maybe rename to start? startGame?
+        //TODO
+        // -Check if enough people are playing,-
+        // -Set players as infected or survivor,-
+        // Start countdown,
         // Start timer,
         // Set infected/survivor counts: possibly add unassigned role,
         // Set Scoreboards,
+        // Bring up loadouts menu
         // Start game
-        if((int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players") > Bukkit.getOnlinePlayers().size()){
-            Bukkit.broadcastMessage("There were not enough people to start a game!");
-            Bukkit.broadcastMessage("Waiting for more people to join.");
-        }else{
-            this.setPlaying(true);
+        try{
+            // TODO
+            //  Change when implementing MV to check the world
+            if((int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players") > Bukkit.getOnlinePlayers().size()){
+                Bukkit.broadcastMessage("There were not enough people to start a game!");
+                Bukkit.broadcastMessage("Waiting for more people to join.");
+            }else{
+                PlayerHandler pl = new PlayerHandler(Minecraft_Test.getPlugin(Minecraft_Test.class));
+                ArrayList<UUID> chosen = new ArrayList<>();
 
+                //Randomly select number of players from list to be infected by index num
+                for(int i = 0; i < (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"); i++){
+                    chosen.add(pl.getPlayers().get((int)(Math.random() * (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"))));
+                }
+
+                // Populate the map and assign roles
+                for(UUID p : pl.getPlayers()){
+                    if(chosen.contains(p) && p != null){
+                        statusMap.put(p, "infected");
+                        setInfection(Bukkit.getPlayer(p));
+                    }else if(p != null){
+                        statusMap.put(p, "survivor");
+                        setSurvivor(Bukkit.getPlayer(p));
+                    }
+                }
+
+                this.setPlaying(true);
+            }
+        }catch(Exception e){
+            Bukkit.getLogger().info("Something went wrong trying to initialize the game.");
         }
     }
 
     public void setInfection(Player player) {
         Bukkit.getLogger().info("Size: " + statusMap.size());
         Bukkit.getLogger().info(player.getName() + " has been infected!");
-        statusMap.put(player.getUniqueId(), "infected");
-        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+//        statusMap.put(player.getUniqueId(), "infected");
+//        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
         this.setSpeed(player, .6f);
         this.setMaxHealth(player, 4);
@@ -117,9 +143,9 @@ public class SurvivalPlayer implements Listener{
 
     public void setSurvivor(Player player) {
         Bukkit.getLogger().info(player.getName() + " is a survivor!");
-        setPlaying(true);
-        statusMap.put(player.getUniqueId(), "survivor");
-        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+//        setPlaying(true);
+//        statusMap.put(player.getUniqueId(), "survivor");
+//        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
         this.setSpeed(player, .2f);
         this.setMaxHealth(player, 20);
