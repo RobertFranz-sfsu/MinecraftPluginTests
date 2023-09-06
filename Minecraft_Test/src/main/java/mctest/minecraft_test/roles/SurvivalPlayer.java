@@ -88,7 +88,8 @@ public class SurvivalPlayer implements Listener{
         // Start game
         try{
             // TODO
-            //  Change when implementing MV to check the world
+            //  Change when implementing MV to only be allowed to run in specified worlds
+            //  mv.get world or something
             if((int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players") > Bukkit.getOnlinePlayers().size()){
                 Bukkit.broadcastMessage("There were not enough people to start a game!");
                 Bukkit.broadcastMessage("Waiting for more people to join.");
@@ -98,7 +99,8 @@ public class SurvivalPlayer implements Listener{
 
                 //Randomly select number of players from list to be infected by index num
                 for(int i = 0; i < (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"); i++){
-                    chosen.add(pl.getPlayers().get((int)(Math.random() * (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"))));
+                    chosen.add(pl.getPlayers().get((int)(Math.random() *
+                            (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"))));
                 }
 
                 // Populate the map and assign roles
