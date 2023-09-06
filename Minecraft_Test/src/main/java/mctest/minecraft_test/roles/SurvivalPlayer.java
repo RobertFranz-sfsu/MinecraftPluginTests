@@ -13,6 +13,7 @@
 * Scoreboard styling
 * Custom guns/fix accuracy
 * Add command to reload main config
+* Make loadout list prettier
 *
 * */
 

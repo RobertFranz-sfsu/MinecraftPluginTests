@@ -3,6 +3,7 @@ package mctest.minecraft_test.commands;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,29 +24,19 @@ public class Loadout implements CommandExecutor {
         if(args.length != 0){
             switch(args[0].toLowerCase()){
                 case "create": case "c":
-                    if(args.length < 3){
-                        sender.sendMessage("Usage /loadout create/c [loadoutname] [survivor/infected]");
+                    if(args.length < 2){
+                        sender.sendMessage("Usage: /loadout create/c [loadoutname]");
                     }else {
                         try{
                             if(con.getConfig().contains(args[1])){
                                 sender.sendMessage("A loadout with this name already exists!");
                             }else{
-                                if(!args[2].toLowerCase().equals("survivor") && !args[2].toLowerCase().equals("infected")){
-                                    sender.sendMessage("Loadout not saved");
-                                    sender.sendMessage("Please enter whether this is a survivor or infected loadout.");
-                                    break;
-                                }
-
                                 con.getConfig().createSection(String.valueOf(args[1]));
-                                con.getConfig().set(args[1] + ".type", String.valueOf(args[2]).toLowerCase());
-                                con.getConfig().set(args[1] + ".placeholder", "WOODEN_SWORD");
-                                if(args[2].toLowerCase().equals("survivor")){
-                                    con.getConfig().set(args[1] + ".description",
-                                            "A survivor loadout.");
-                                }else if(args[2].toLowerCase().equals("infected")){
-                                    con.getConfig().set(args[1] + ".description",
-                                            "An infected loadout.");
-                                }
+
+                                ItemStack weapon = new ItemStack(Material.matchMaterial("IRON_SWORD"), 1);
+                                con.getConfig().set(args[1] + ".placeholder", weapon);
+                                con.getConfig().set(args[1] + ".description", "A loadout.");
+
                                 con.save();
 
                                 sender.sendMessage("New loadout created with name: " + args[1]);
@@ -57,7 +48,7 @@ public class Loadout implements CommandExecutor {
                     break;
                 case "delete": case "del":
                     if(args.length < 2){
-                        sender.sendMessage("Usage /loadout delete/del [loadoutname]");
+                        sender.sendMessage("Usage: /loadout delete/del [loadoutname]");
                     }else {
                         try{
                             if(!con.getConfig().contains(args[1])){
@@ -75,7 +66,7 @@ public class Loadout implements CommandExecutor {
                     break;
                 case "save":
                     if(args.length < 2){
-                        sender.sendMessage("Usage /loadout save [loadoutname]");
+                        sender.sendMessage("Usage: /loadout save [loadoutname]");
                     }else {
                         try{
                             if(!con.getConfig().contains(args[1])){
@@ -120,7 +111,7 @@ public class Loadout implements CommandExecutor {
                     break;
                 case "give":
                     if(args.length < 2){
-                        sender.sendMessage("Usage /loadout give [playername (optional)] [loadoutname]");
+                        sender.sendMessage("Usage: /loadout give [playername (optional)] [loadoutname]");
                     }else {
                         try {
                             int index = 1;
@@ -167,7 +158,7 @@ public class Loadout implements CommandExecutor {
                 case "setplaceholder": case "sp":
                     if(args.length < 2){
                         sender.sendMessage("The placeholder is the item the loadout is represented by in the menu.");
-                        sender.sendMessage("Usage /loadout setPlaceholder/sp [loadoutname]");
+                        sender.sendMessage("Usage: /loadout setPlaceholder/sp [loadoutname]");
                     }else {
                         try{
                             if(!con.getConfig().contains(args[1])){
@@ -190,7 +181,7 @@ public class Loadout implements CommandExecutor {
                     break;
                 case "setdescription": case "sd":
                     if(args.length < 2){
-                        sender.sendMessage("Usage /loadout setDescription/sd [loadoutname] [description]");
+                        sender.sendMessage("Usage: /loadout setDescription/sd [loadoutname] [description]");
                     }else {
                         try{
                             if(!con.getConfig().contains(args[1])){
@@ -229,12 +220,28 @@ public class Loadout implements CommandExecutor {
                     }
 
                     break;
+                case "settype": case "st":
+                    if(args.length < 3){
+                        sender.sendMessage("Usage: /loadout setType/st [loadoutname] [type]");
+                    }else {
+                        try{
+                            if(!args[2].toLowerCase().equals("survivor") && !args[2].toLowerCase().equals("infected")){
+                                sender.sendMessage("Please enter whether this is a survivor or infected loadout.");
+                            }else{
+                                con.getConfig().set(args[1] + ".type", String.valueOf(args[2]).toLowerCase());
+                                con.save();
+                            }
+                        }catch(Exception e){
+                            sender.sendMessage("Something went wrong.");
+                        }
+                    }
+                    break;
                 default:
                     sender.sendMessage("Please enter a valid loadout name or create one!");
                     break;
             }
         }else{
-            sender.sendMessage("Valid sub commands: create, delete, list, give, setPlaceholder, setDescription.");
+            sender.sendMessage("Valid sub commands: create, save, delete, list, give, setPlaceholder, setDescription, setType.");
         }
 
         return true;
