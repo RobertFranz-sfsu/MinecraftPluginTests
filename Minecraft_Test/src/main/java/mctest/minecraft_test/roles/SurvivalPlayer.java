@@ -201,6 +201,13 @@ public class SurvivalPlayer implements Listener{
             Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<UUID, String> entry = it.next();
+                Bukkit.getPlayer(entry.getKey()).getInventory().clear();
+
+                Bukkit.getPlayer(entry.getKey()).getInventory().setHelmet(null);
+                Bukkit.getPlayer(entry.getKey()).getInventory().setChestplate(null);
+                Bukkit.getPlayer(entry.getKey()).getInventory().setLeggings(null);
+                Bukkit.getPlayer(entry.getKey()).getInventory().setBoots(null);
+
                 Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + "  successfully exited the game");
                 Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
                 if (entry.getKey() == null) {

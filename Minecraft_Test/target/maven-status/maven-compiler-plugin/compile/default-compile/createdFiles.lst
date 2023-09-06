@@ -1,8 +1,10 @@
+mctest\minecraft_test\commands\InfectedMenu.class
 mctest\minecraft_test\util\DelayedTask.class
 mctest\minecraft_test\handlers\PlayerHandler.class
 mctest\minecraft_test\commands\Spawn.class
 mctest\minecraft_test\commands\Menu.class
 mctest\minecraft_test\util\SpawnUtil.class
+mctest\minecraft_test\commands\SurvivorMenu.class
 mctest\minecraft_test\commands\SetSpawn.class
 mctest\minecraft_test\roles\SurvivalPlayer.class
 mctest\minecraft_test\commands\Loadout.class

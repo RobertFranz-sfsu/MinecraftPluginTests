@@ -57,8 +57,6 @@ public class Menu implements Listener, CommandExecutor {
         ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
         Inventory inv = Bukkit.createInventory(player, 9 * 3, invName);
 
-        for(String keys : con.getConfig().getConfigurationSection(args[1].toString().replaceAll("[\\[\\],]", "")).getKeys(false)){
-        }
         inv.setItem(11, getItem(new ItemStack(Material.IRON_SWORD), "&9Infected", "&aClick to become infected"));
         inv.setItem(13, getItem(new ItemStack(Material.BOW), "&9Survivor", "&aClick to become a survivor"));
         inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to leave the game"));
