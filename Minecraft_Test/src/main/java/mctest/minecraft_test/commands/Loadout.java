@@ -18,7 +18,6 @@ public class Loadout implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        Player player = (Player) sender;
         ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
 
         if(args.length != 0){
@@ -81,6 +80,8 @@ public class Loadout implements CommandExecutor {
                             if(!con.getConfig().contains(args[1])){
                                 sender.sendMessage("Please enter a valid loadout!");
                             }else{
+                                Player player = (Player) sender;
+
                                 for(int i = 0 ; i < player.getInventory().getSize() ; i++) {
                                     con.getConfig().set(args[1] + "." + i, player.getInventory().getItem(i));
                                 }
@@ -124,11 +125,13 @@ public class Loadout implements CommandExecutor {
                     }else {
                         try {
                             int index = 1;
-                            Player pl = (Player) sender;
+                            Player pl = null;
 
                             if((Bukkit.getPlayer(args[1]) instanceof Player)){
                                 index = 2;
                                 pl = Bukkit.getPlayer(args[1]);
+                            }else if(sender instanceof Player){
+                                pl = (Player) sender;
                             }
 
                             pl.getInventory().clear();
@@ -170,6 +173,7 @@ public class Loadout implements CommandExecutor {
                         sender.sendMessage("Usage: /loadout setPlaceholder/sp [loadoutname]");
                     }else {
                         try{
+                            Player player = (Player) sender;
                             if(!con.getConfig().contains(args[1])){
                                 sender.sendMessage("This loadout does not exist!");
                             }else{

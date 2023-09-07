@@ -4,6 +4,7 @@
 *  Add YML configurability
 *    Infected/Survivor Buffs
 *  Init game
+*  Make menu give correct loadout
 *  Scoreboard styling
 *  Custom guns/fix accuracy
 *  Make loadout list prettier

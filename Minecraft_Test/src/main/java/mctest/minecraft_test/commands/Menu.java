@@ -37,15 +37,25 @@ public class Menu implements Listener, CommandExecutor {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
 
+        // TODO
+        //  Remove later
         if (slot == 11) {
             gamer.setInfection(player);
+            event.setCancelled(true);
         } else if (slot == 13) {
             gamer.setSurvivor(player);
+            event.setCancelled(true);
         } else if(slot == 15){
             gamer.setNotPlaying(player);
+            event.setCancelled(true);
         }
 
+        ItemStack loadout = event.getCurrentItem();
+        String name = loadout.getItemMeta().getDisplayName();
+
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Bukkit.getPlayer(player.getUniqueId()).getName() + " " + name);
         event.setCancelled(true);
+        player.closeInventory();
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String [] args) {
@@ -79,7 +89,6 @@ public class Menu implements Listener, CommandExecutor {
                 }
             }
         }
-//        Inventory inv = Bukkit.createInventory(player, 9 * 3, invName);
 
         // TODO
         //  Remove after testing
