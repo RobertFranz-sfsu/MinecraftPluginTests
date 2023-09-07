@@ -12,6 +12,7 @@
 *    Must change playerhandler
 *    Add world checks to every command
 *  Test command to reload main config
+*  Figure out why it kicks for spam for no reason
 *  Move code to fresh repo lol
 *
 * */
@@ -116,6 +117,7 @@ public class SurvivalPlayer implements Listener{
             }
         }catch(Exception e){
             Bukkit.getLogger().info("Something went wrong trying to initialize the game.");
+            e.printStackTrace();
         }
     }
 
@@ -129,9 +131,10 @@ public class SurvivalPlayer implements Listener{
         this.setMaxHealth(player, 4);
         this.setHealth(player, 4);
 
-        Inventory inv = player.getInventory();
-        inv.clear();
-        inv.setItem(0, giveWeapons("infected"));
+//        Inventory inv = player.getInventory();
+//        inv.clear();
+//        inv.setItem(0, giveWeapons("infected"));
+        Bukkit.dispatchCommand(player, "m");
         this.setBoard(player);
         player.sendMessage("YOU ARE INFECTED!");
     }
@@ -151,10 +154,12 @@ public class SurvivalPlayer implements Listener{
         this.setMaxHealth(player, 20);
         this.setHealth(player, 20);
 
-        Inventory inv = player.getInventory();
-        inv.clear();
-        inv.setItem(0, giveWeapons("survivor"));
-        inv.setItem(9, silverArrow());
+        Bukkit.dispatchCommand(player, "m");
+
+//        Inventory inv = player.getInventory();
+//        inv.clear();
+//        inv.setItem(0, giveWeapons("survivor"));
+//        inv.setItem(9, silverArrow());
         this.setBoard(player);
 
         player.sendMessage("YOU ARE A SURVIVOR!");

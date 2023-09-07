@@ -50,7 +50,8 @@ public class Loadout implements CommandExecutor {
                                 sender.sendMessage("New loadout created with name: " + args[1]);
                             }
                         }catch(Exception e){
-                            sender.sendMessage("Something went wrong.");
+                            sender.sendMessage("Something went wrong. Please check the console.");
+                            e.printStackTrace();
                         }
                     }
                     break;
@@ -68,7 +69,8 @@ public class Loadout implements CommandExecutor {
                                 sender.sendMessage("Loadout " + args[1] + " has been deleted!");
                             }
                         }catch(Exception e){
-                            sender.sendMessage("Something went wrong.");
+                            sender.sendMessage("Something went wrong. Please check the console.");
+                            e.printStackTrace();
                         }
                     }
                     break;
@@ -115,7 +117,8 @@ public class Loadout implements CommandExecutor {
                                 sender.sendMessage("Loadout has been saved to " + args[1]);
                             }
                         }catch(Exception e){
-                            sender.sendMessage("Something went wrong.");
+                            sender.sendMessage("Something went wrong. Please check the console.");
+                            e.printStackTrace();
                         }
                     }
                     break;
@@ -158,7 +161,8 @@ public class Loadout implements CommandExecutor {
                                 }
                             }
                         } catch (Exception e) {
-                            sender.sendMessage("Something went wrong.");
+                            sender.sendMessage("Something went wrong. Please check the console.");
+                            e.printStackTrace();
                         }
                     }
                     break;
@@ -207,7 +211,8 @@ public class Loadout implements CommandExecutor {
                                 sender.sendMessage("Placeholder for " + args[1] + " has been updated!");
                             }
                         }catch(Exception e){
-                            sender.sendMessage("Something went wrong.");
+                            sender.sendMessage("Something went wrong. Please check the console.");
+                            e.printStackTrace();
                         }
                     }
                     break;
@@ -247,7 +252,8 @@ public class Loadout implements CommandExecutor {
                                 sender.sendMessage("Description for " + args[1] + " has been updated!");
                             }
                         }catch(Exception e){
-                            sender.sendMessage("Something went wrong.");
+                            sender.sendMessage("Something went wrong. Please check the console.");
+                            e.printStackTrace();
                         }
                     }
 
@@ -265,7 +271,8 @@ public class Loadout implements CommandExecutor {
                                 sender.sendMessage("Type for loadout " + args[1] + " set to " + String.valueOf(args[2]).toLowerCase());
                             }
                         }catch(Exception e){
-                            sender.sendMessage("Something went wrong.");
+                            sender.sendMessage("Something went wrong. Please check the console.");
+                            e.printStackTrace();
                         }
                     }
                     break;

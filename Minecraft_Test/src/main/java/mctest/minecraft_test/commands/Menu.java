@@ -76,7 +76,7 @@ public class Menu implements Listener, CommandExecutor {
             }
         }else if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "infected")){
             for(String keys : con.getConfig().getKeys(false)){
-                if(Objects.equals(con.getConfig().getConfigurationSection(keys + ".type").getString(keys + ".type"), "infected")){
+                if(Objects.equals(con.getConfig().getString(keys + ".type"), "infected")){
                     inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                     index++;
                 }
