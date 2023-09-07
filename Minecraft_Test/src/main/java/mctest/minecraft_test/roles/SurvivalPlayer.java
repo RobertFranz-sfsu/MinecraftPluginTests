@@ -121,7 +121,7 @@ public class SurvivalPlayer implements Listener{
     public void setInfection(Player player) {
         Bukkit.getLogger().info("Size: " + statusMap.size());
         Bukkit.getLogger().info(player.getName() + " has been infected!");
-//        statusMap.put(player.getUniqueId(), "infected");
+        statusMap.put(player.getUniqueId(), "infected");
 //        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
         this.setSpeed(player, .6f);
@@ -142,8 +142,8 @@ public class SurvivalPlayer implements Listener{
 
     public void setSurvivor(Player player) {
         Bukkit.getLogger().info(player.getName() + " is a survivor!");
-//        setPlaying(true);
-//        statusMap.put(player.getUniqueId(), "survivor");
+        setPlaying(true);
+        statusMap.put(player.getUniqueId(), "survivor");
 //        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
         this.setSpeed(player, .2f);

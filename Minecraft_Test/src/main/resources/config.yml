@@ -1,3 +1,4 @@
+#Main settings
 wait-timer:
   - 60
 respawn-timer:

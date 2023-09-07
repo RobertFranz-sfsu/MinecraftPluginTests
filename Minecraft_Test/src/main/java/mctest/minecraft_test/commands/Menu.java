@@ -57,46 +57,37 @@ public class Menu implements Listener, CommandExecutor {
         Player player = (Player) sender;
         ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
         Inventory inv = Bukkit.createInventory(player, 9 * 6, invName);
+        int index = 0;
 
         if(sender.isOp()){
-            int index = 0;
-
             for(String keys : con.getConfig().getKeys(false)){
                 inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                 index++;
             }
-
-            player.openInventory(inv);
-        }else if(Objects.equals(gamer.getStatusMap().get(player), "infected")){
-            int index = 0;
-
+        }else if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "infected")){
             for(String keys : con.getConfig().getKeys(false)){
-                if(Objects.equals(con.getConfig().getConfigurationSection(keys + ".type"), "infected")){
+                if(Objects.equals(con.getConfig().getConfigurationSection(keys + ".type").getString(keys + ".type"), "infected")){
                     inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                     index++;
                 }
             }
-
-            player.openInventory(inv);
-        }else if(Objects.equals(gamer.getStatusMap().get(player), "survivor")){
-            int index = 0;
-
+        }else if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "survivor")){
             for(String keys : con.getConfig().getKeys(false)){
-                if(Objects.equals(con.getConfig().getConfigurationSection(keys + ".type"), "survivor")){
+                if(Objects.equals(con.getConfig().getString(keys + ".type"), "survivor")){
                     inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                     index++;
                 }
             }
-
-            player.openInventory(inv);
         }
 //        Inventory inv = Bukkit.createInventory(player, 9 * 3, invName);
 
-//        inv.setItem(11, getItem(new ItemStack(Material.IRON_SWORD), "&9Infected", "&aClick to become infected"));
-//        inv.setItem(13, getItem(new ItemStack(Material.BOW), "&9Survivor", "&aClick to become a survivor"));
-//        inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to leave the game"));
+        // TODO
+        //  Remove after testing
+        inv.setItem(11, getItem(new ItemStack(Material.IRON_SWORD), "&9Infected", "&aClick to become infected"));
+        inv.setItem(13, getItem(new ItemStack(Material.BOW), "&9Survivor", "&aClick to become a survivor"));
+        inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to leave the game"));
 
-//        player.openInventory(inv);
+        player.openInventory(inv);
 
         return true;
     }
