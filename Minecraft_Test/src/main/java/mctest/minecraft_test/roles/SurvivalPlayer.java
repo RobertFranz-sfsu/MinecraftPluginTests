@@ -48,6 +48,7 @@ public class SurvivalPlayer implements Listener{
     private int infectedCnt = 0;
     private int survivorCnt = 0;
     private Boolean playing = false;
+    private int time = -2;
 
     public void setPlaying(Boolean playing) {
         this.playing = playing;
@@ -55,71 +56,104 @@ public class SurvivalPlayer implements Listener{
     public Boolean getPlaying() {
         return this.playing;
     }
+    public void setTimer(int amount) {
+        this.time = amount;
+    }
+    public int getTimer() {
+        return this.time;
+    }
+    public HashMap<UUID, String> getStatusMap(){
+        return this.statusMap;
+    }
 
     public SurvivalPlayer(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+            // if timer is set, start counting down
+            if (this.getTimer() > 0) {
+                Bukkit.getLogger().info("Timer: " + this.getTimer());
+                statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Timer: " + this.getTimer()));
+                setTimer(this.getTimer()-1);
+            }
+            // if minimum amount of players have joined, start timer
+            if (statusMap.size() == 1 && !this.getPlaying() && this.getTimer() == -2) {
+                Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
+                setTimer(3);
+            }
+            // if max amount of players have joined or if the timer has hit 0, start the game
+            if ((statusMap.size() == 2 && !this.getPlaying()) || (this.getTimer() == 0 && !this.getPlaying())) {
+                Bukkit.getLogger().info("Game Starting");
+                statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Game starting"));
+                gameInit();
+            }
+            // start the game
             if (this.getPlaying()) {
                 this.setInfectedCnt();
                 this.setSurvivorCnt();
-                statusMap.forEach((key, value) -> this.setBoard(Bukkit.getPlayer(key)));
+                statusMap.forEach((key, value) -> this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
                 statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
-                Bukkit.getLogger().info("Survivors: " + this.getSurvivorCnt());
-                int test = this.getSurvivorCnt() + this.getInfectedCnt();
-                Bukkit.getLogger().info(test + " == " + 0 + " : " + (test == 0));
+                Bukkit.getLogger().info("Game in session");
+                Bukkit.getLogger().info(this.getInfectedCnt() + " == " + statusMap.size() + " : " + (this.getInfectedCnt() == statusMap.size()));
 
+                // if everyone is infected, end game
                 if (this.getInfectedCnt() == statusMap.size()) {
                     this.endGame();
+                    this.setTimer(-2);
                 }
             }
 
-        }, 0L, 50L);
+        }, 0L, 40L);
     }
 
-    public void gameInit() { // Maybe rename to start? startGame?
-        //TODO
-        // -Check if enough people are playing,-
-        // -Set players as infected or survivor,-
-        // Start countdown,
+    public void gameInit() {
+        //TODO Check if enough people are playing,
+        // Set players as infected or survivor depending on amount playing,
         // Start timer,
         // Set infected/survivor counts: possibly add unassigned role,
-        // Set Scoreboards,
-        // Bring up loadouts menu
+        // Set Scoreboards (might not need to do here),
         // Start game
+        // THIS MIGHT ALL NEED TO BE IN SurvivalPlayer ABOVE ^^^^
+
         try{
-            // TODO
-            //  Change when implementing MV to only be allowed to run in specified worlds
-            //  mv.get world or something
-            if((int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players") > Bukkit.getOnlinePlayers().size()){
-                Bukkit.broadcastMessage("There were not enough people to start a game!");
-                Bukkit.broadcastMessage("Waiting for more people to join.");
-            }else{
-                PlayerHandler pl = new PlayerHandler(Minecraft_Test.getPlugin(Minecraft_Test.class));
-                ArrayList<UUID> chosen = new ArrayList<>();
+//            PlayerHandler pl = new PlayerHandler(Minecraft_Test.getPlugin(Minecraft_Test.class));
+//            ArrayList<UUID> chosen = new ArrayList<>();
+//
+//            //Randomly select number of players from list to be infected by index num
+//            Bukkit.getLogger().info("Min: " + (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players"));
+//            for(int i = 0; i < (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"); i++){
+//                chosen.add(pl.getPlayers().get((int)(Math.random() *
+//                        (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"))));
+//            }
+//
+//            // Populate the map and assign roles
+//            for(UUID p : pl.getPlayers()){
+//                if(chosen.contains(p) && p != null){
+//                    statusMap.put(p, "infected");
+//                    setInfection(Bukkit.getPlayer(p));
+//                }else if(p != null){
+//                    statusMap.put(p, "survivor");
+//                    setSurvivor(Bukkit.getPlayer(p));
+//                }
+//            }
+            Random rand = new Random();
 
-                //Randomly select number of players from list to be infected by index num
-                for(int i = 0; i < (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"); i++){
-                    chosen.add(pl.getPlayers().get((int)(Math.random() *
-                            (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"))));
-                }
-
-                // Populate the map and assign roles
-                for(UUID p : pl.getPlayers()){
-                    if(chosen.contains(p) && p != null){
-                        statusMap.put(p, "infected");
-                        setInfection(Bukkit.getPlayer(p));
-                    }else if(p != null){
-                        statusMap.put(p, "survivor");
-                        setSurvivor(Bukkit.getPlayer(p));
-                    }
-                }
-
-                this.setPlaying(true);
+            Set<Integer> infectedSet = new HashSet<>();
+            for (int i = 0; i < 2; i++) {
+                infectedSet.add(rand.nextInt(statusMap.size()));
             }
-        }catch(Exception e){
+
+            int it = 0;
+            for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
+                Bukkit.getLogger().info("cnt: " + it + " " + infectedSet.contains(it));
+                entry.setValue((infectedSet.contains(it++)) ? "infected" : "survivor");
+            }
+
+            statusMap.forEach((key, value) -> this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
+            this.setPlaying(true);
+
+        } catch (Exception e){
             Bukkit.getLogger().info("Something went wrong trying to initialize the game.");
-            e.printStackTrace();
         }
     }
 
@@ -127,7 +161,7 @@ public class SurvivalPlayer implements Listener{
         Bukkit.getLogger().info("Size: " + statusMap.size());
         Bukkit.getLogger().info(player.getName() + " has been infected!");
         statusMap.put(player.getUniqueId(), "infected");
-//        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+        //statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
         this.setSpeed(player, .6f);
         this.setMaxHealth(player, 4);
@@ -148,9 +182,9 @@ public class SurvivalPlayer implements Listener{
 
     public void setSurvivor(Player player) {
         Bukkit.getLogger().info(player.getName() + " is a survivor!");
-        setPlaying(true);
+        //setPlaying(true);
         statusMap.put(player.getUniqueId(), "survivor");
-//        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+        //statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
         this.setSpeed(player, .2f);
         this.setMaxHealth(player, 20);
@@ -182,6 +216,12 @@ public class SurvivalPlayer implements Listener{
         player.sendMessage("No longer playing");
         //TODO Store players' items and give them back
     }
+
+    public void setUnassigned(Player player) {
+        Bukkit.getLogger().info("Set as unassigned");
+        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+        statusMap.put(player.getUniqueId(), "unassigned");
+    }
     private void setSpeed(Player player, Float speed) {
         player.setWalkSpeed(speed);
     }
@@ -199,10 +239,6 @@ public class SurvivalPlayer implements Listener{
     }
     private Double getHealth(Player player) {
         return player.getHealth();
-    }
-
-    public HashMap<UUID, String> getStatusMap(){
-        return this.statusMap;
     }
     @EventHandler
     private void onPlayerDeath(PlayerDeathEvent event) {
@@ -222,12 +258,9 @@ public class SurvivalPlayer implements Listener{
         Bukkit.getLogger().info(player.getName() + " set as infected");
         this.setInfection(player);
 
-        //TODO Figure out where and when to check how many left.
-        // Note: currently if everyone is infected and no one respawns game never ends.
-        // Or if the last person never respawns game doesnt end either
-        this.setInfectedCnt();
-        this.setSurvivorCnt();
-        Bukkit.getLogger().info("Survivors: " + this.getSurvivorCnt() + "  Infected: " + this.getInfectedCnt());
+//        this.setInfectedCnt();
+//        this.setSurvivorCnt();
+//        Bukkit.getLogger().info("Survivors: " + this.getSurvivorCnt() + "  Infected: " + this.getInfectedCnt());
 //        if (Collections.frequency(statusMap.values(), "survivor") == 0) {
 //            this.endGame();
 //        }
@@ -248,26 +281,26 @@ public class SurvivalPlayer implements Listener{
             Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<UUID, String> entry = it.next();
-                Bukkit.getPlayer(entry.getKey()).getInventory().clear();
 
+                Bukkit.getPlayer(entry.getKey()).getInventory().clear();
                 Bukkit.getPlayer(entry.getKey()).getInventory().setHelmet(null);
                 Bukkit.getPlayer(entry.getKey()).getInventory().setChestplate(null);
                 Bukkit.getPlayer(entry.getKey()).getInventory().setLeggings(null);
                 Bukkit.getPlayer(entry.getKey()).getInventory().setBoots(null);
 
-                Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + "  successfully exited the game");
+                Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
                 Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
                 if (entry.getKey() == null) {
                     it.remove();
                 } else {
-                    this.setNotPlaying(Bukkit.getPlayer(entry.getKey()));
+                    this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 }
-
             }
 
-            setPlaying(false);
+//            this.setPlaying(false);
 
-        }, 10 * 0);
+        }, 20 * 0);
+        this.setPlaying(false);
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
     }
 
@@ -291,17 +324,13 @@ public class SurvivalPlayer implements Listener{
 //            Bukkit.getLogger().info("*****PROJECTILE FRIENDLY FIRE*****");
             event.setCancelled(true);
         }
-
-        if (attacker instanceof Player && damaged instanceof Player) {
-            // Bukkit.getLogger().info("****Entity damaged by entity event called****");
-//            Bukkit.getLogger().info("Attacker: " + statusMap.get(attacker.getUniqueId()) + "  Damaged: " + statusMap.get(damaged.getUniqueId()));
-
-            // if both are on the same team or if a survivor is hit by a projectile: cancel the attack
-            if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
+        //if (attacker instanceof Player && damaged instanceof Player) {
+        // if both are on the same team or if a survivor is hit by a projectile: cancel the attack
+        else if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
 //                Bukkit.getLogger().info("*****FRIENDLY FIRE*****");
-                event.setCancelled(true);
-            }
+            event.setCancelled(true);
         }
+        //}
     }
 
     public void setSurvivorCnt() {
@@ -353,7 +382,7 @@ public class SurvivalPlayer implements Listener{
             return null;
         }
     }
-//    public ItemStack infectedWeapons() {
+    //    public ItemStack infectedWeapons() {
 //        Minecraft_Test pl = new Minecraft_Test();
 //        Map<String, Object> test2 = pl.getConfig().getConfigurationSection("loadouts").getValues(true);
 //
@@ -384,7 +413,6 @@ public class SurvivalPlayer implements Listener{
         ItemMeta meta = item.getItemMeta();
 
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-//        meta.setUnbreakable(true);
 
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         meta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
