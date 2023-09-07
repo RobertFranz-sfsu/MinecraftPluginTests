@@ -160,8 +160,8 @@ public class Loadout implements CommandExecutor {
                                     pl.getInventory().setItem(slot, item);
                                 }
                             }
+
                         } catch (Exception e) {
-                            sender.sendMessage("Something went wrong. Please check the console.");
                             e.printStackTrace();
                         }
                     }
