@@ -175,6 +175,9 @@ public class Loadout implements CommandExecutor {
                             }else{
                                 ArrayList<String> lore = new ArrayList<>();
                                 StringBuilder loreArr = new StringBuilder();
+
+                                // TODO
+                                //  Figure out why this is being set to null???
                                 String l = String.valueOf(con.getConfig().getConfigurationSection(args[1] + ".description"));
                                 String[] arr = l.split(" ");
 
