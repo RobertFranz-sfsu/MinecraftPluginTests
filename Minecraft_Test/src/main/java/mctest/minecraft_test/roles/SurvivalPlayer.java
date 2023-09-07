@@ -13,7 +13,8 @@
 *  Implement multiverse
 *    Must change playerhandler
 *    Add world checks to every command
-*  Test command to reload main config
+*  Teleport players on game end after a countdown
+*    Announce winners
 *  Figure out why it kicks for spam for no reason
 *  Move code to fresh repo lol
 *
@@ -69,24 +70,37 @@ public class SurvivalPlayer implements Listener{
     public SurvivalPlayer(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
-        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        int waitGame = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             // if timer is set, start counting down
             if (this.getTimer() > 0) {
                 Bukkit.getLogger().info("Timer: " + this.getTimer());
                 statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Timer: " + this.getTimer()));
                 setTimer(this.getTimer()-1);
             }
+
+            int maxPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("max-players").toString().replaceAll("[\\[\\],]",""));
+            int minPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players").toString().replaceAll("[\\[\\],]",""));
+            int waitTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("wait-timer").toString().replaceAll("[\\[\\],]",""));
+
+//            int test = Integer.valueOf(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getString("max-players"));
+
+//            Bukkit.getLogger().info("MAX: " + test);
+//            Bukkit.getLogger().info("MIN: " + minPl);
+//            Bukkit.getLogger().info("STARTING INFECTED: " + Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getString("num-starting-infected"));
+
             // if minimum amount of players have joined, start timer
-            if (statusMap.size() == 1 && !this.getPlaying() && this.getTimer() == -2) {
+            if (statusMap.size() == minPl && !this.getPlaying() && this.getTimer() == -2) {
                 Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
-                setTimer(3);
+                setTimer(waitTime);
             }
+
             // if max amount of players have joined or if the timer has hit 0, start the game
-            if ((statusMap.size() == 2 && !this.getPlaying()) || (this.getTimer() == 0 && !this.getPlaying())) {
+            if ((statusMap.size() == maxPl && !this.getPlaying()) || (this.getTimer() == 0 && !this.getPlaying())) {
                 Bukkit.getLogger().info("Game Starting");
                 statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Game starting"));
                 gameInit();
             }
+
             // start the game
             if (this.getPlaying()) {
                 this.setInfectedCnt();
@@ -137,16 +151,31 @@ public class SurvivalPlayer implements Listener{
 //                }
 //            }
             Random rand = new Random();
+            int startInf = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected").toString().replaceAll("[\\[\\],]",""));
+
+            Bukkit.getLogger().info("Status map size: " + statusMap.size());
 
             Set<Integer> infectedSet = new HashSet<>();
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < startInf; i++) {
                 infectedSet.add(rand.nextInt(statusMap.size()));
             }
+
+            Bukkit.getLogger().info("INF SET: " + infectedSet);
 
             int it = 0;
             for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
                 Bukkit.getLogger().info("cnt: " + it + " " + infectedSet.contains(it));
-                entry.setValue((infectedSet.contains(it++)) ? "infected" : "survivor");
+//                entry.setValue((infectedSet.contains(it++)) ? "infected" : "survivor");
+                if(infectedSet.contains(it)){
+                    entry.setValue("infected");
+                    Bukkit.getLogger().info("INF : " + Bukkit.getPlayer(entry.getKey()));
+                    setInfection(Bukkit.getPlayer(entry.getKey()));
+                    it++;
+                }else{
+                    entry.setValue("survivor");
+                    Bukkit.getLogger().info("SUR : " + Bukkit.getPlayer(entry.getKey()));
+                    setSurvivor(Bukkit.getPlayer(entry.getKey()));
+                }
             }
 
             statusMap.forEach((key, value) -> this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
@@ -154,6 +183,7 @@ public class SurvivalPlayer implements Listener{
 
         } catch (Exception e){
             Bukkit.getLogger().info("Something went wrong trying to initialize the game.");
+            e.printStackTrace();
         }
     }
 
@@ -274,32 +304,26 @@ public class SurvivalPlayer implements Listener{
         Bukkit.getLogger().info("Player:  " + player.getName() + "  has disconnected");
         this.setNotPlaying(player);
     }
+
     private void endGame() {
-        //Bukkit.getLogger().info("No more survivors!!!");
-        new DelayedTask(() -> {
-            //https://stackoverflow.com/questions/2351331/iterating-over-and-deleting-from-hashtable-in-java
-            Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<UUID, String> entry = it.next();
+        Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, String> entry = it.next();
 
-                Bukkit.getPlayer(entry.getKey()).getInventory().clear();
-                Bukkit.getPlayer(entry.getKey()).getInventory().setHelmet(null);
-                Bukkit.getPlayer(entry.getKey()).getInventory().setChestplate(null);
-                Bukkit.getPlayer(entry.getKey()).getInventory().setLeggings(null);
-                Bukkit.getPlayer(entry.getKey()).getInventory().setBoots(null);
+            Bukkit.getPlayer(entry.getKey()).getInventory().clear();
+            Bukkit.getPlayer(entry.getKey()).getInventory().setHelmet(null);
+            Bukkit.getPlayer(entry.getKey()).getInventory().setChestplate(null);
+            Bukkit.getPlayer(entry.getKey()).getInventory().setLeggings(null);
+            Bukkit.getPlayer(entry.getKey()).getInventory().setBoots(null);
 
-                Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
-                Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
-                if (entry.getKey() == null) {
-                    it.remove();
-                } else {
-                    this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-                }
+            Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
+            Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
+            if (entry.getKey() == null) {
+                it.remove();
+            } else {
+                this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
             }
-
-//            this.setPlaying(false);
-
-        }, 20 * 0);
+        }
         this.setPlaying(false);
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
     }
@@ -350,38 +374,38 @@ public class SurvivalPlayer implements Listener{
      * Items and Inventories
      *
      */
-    public ItemStack giveWeapons(String role){
-
-        Map<String, Object> config = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getConfigurationSection("loadouts").getValues(true);
-
-        if(role.equals("infected")){
-            ItemStack weapon = new ItemStack(Material.matchMaterial(config.get("infected.item").toString()), Integer.valueOf(config.get("infected.itemAmount").toString().replaceAll("[\\[\\],]","")));
-            getItem(weapon, config.get("infected.itemName").toString().replaceAll("[\\[\\],]",""), config.get("infected.lore").toString().replaceAll("[\\[\\],]",""));
-
-            if((config.get("infected.enchantment") != null) && (config.get("infected.enchantmentLevel") != null)){
-                ItemMeta meta = weapon.getItemMeta();
-                meta.addEnchant(Enchantment.getByName(config.get("infected.enchantment").toString().replaceAll("[\\[\\],]","")),
-                        Integer.valueOf(config.get("infected.enchantmentLevel").toString().replaceAll("[\\[\\],]","")), true);
-                weapon.setItemMeta(meta);
-            }
-
-            return weapon;
-        }else if(role.equals("survivor")){
-            ItemStack weapon = new ItemStack(Material.matchMaterial(config.get("survivor.item").toString()), Integer.valueOf(config.get("survivor.itemAmount").toString().replaceAll("[\\[\\],]","")));
-            getItem(weapon, config.get("survivor.itemName").toString().replaceAll("[\\[\\],]",""),
-                    config.get("survivor.lore").toString().replaceAll("[\\[\\],]",""));
-            if((config.get("survivor.enchantment") != null) && (config.get("survivor.enchantmentLevel") != null)){
-                ItemMeta meta = weapon.getItemMeta();
-                meta.addEnchant(Enchantment.getByName(config.get("survivor.enchantment").toString().replaceAll("[\\[\\],]","")),
-                        Integer.valueOf(config.get("survivor.enchantmentLevel").toString().replaceAll("[\\[\\],]","")), true);
-                weapon.setItemMeta(meta);
-            }
-
-            return weapon;
-        }else{
-            return null;
-        }
-    }
+//    public ItemStack giveWeapons(String role){
+//
+//        Map<String, Object> config = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getConfigurationSection("loadouts").getValues(true);
+//
+//        if(role.equals("infected")){
+//            ItemStack weapon = new ItemStack(Material.matchMaterial(config.get("infected.item").toString()), Integer.valueOf(config.get("infected.itemAmount").toString().replaceAll("[\\[\\],]","")));
+//            getItem(weapon, config.get("infected.itemName").toString().replaceAll("[\\[\\],]",""), config.get("infected.lore").toString().replaceAll("[\\[\\],]",""));
+//
+//            if((config.get("infected.enchantment") != null) && (config.get("infected.enchantmentLevel") != null)){
+//                ItemMeta meta = weapon.getItemMeta();
+//                meta.addEnchant(Enchantment.getByName(config.get("infected.enchantment").toString().replaceAll("[\\[\\],]","")),
+//                        Integer.valueOf(config.get("infected.enchantmentLevel").toString().replaceAll("[\\[\\],]","")), true);
+//                weapon.setItemMeta(meta);
+//            }
+//
+//            return weapon;
+//        }else if(role.equals("survivor")){
+//            ItemStack weapon = new ItemStack(Material.matchMaterial(config.get("survivor.item").toString()), Integer.valueOf(config.get("survivor.itemAmount").toString().replaceAll("[\\[\\],]","")));
+//            getItem(weapon, config.get("survivor.itemName").toString().replaceAll("[\\[\\],]",""),
+//                    config.get("survivor.lore").toString().replaceAll("[\\[\\],]",""));
+//            if((config.get("survivor.enchantment") != null) && (config.get("survivor.enchantmentLevel") != null)){
+//                ItemMeta meta = weapon.getItemMeta();
+//                meta.addEnchant(Enchantment.getByName(config.get("survivor.enchantment").toString().replaceAll("[\\[\\],]","")),
+//                        Integer.valueOf(config.get("survivor.enchantmentLevel").toString().replaceAll("[\\[\\],]","")), true);
+//                weapon.setItemMeta(meta);
+//            }
+//
+//            return weapon;
+//        }else{
+//            return null;
+//        }
+//    }
     //    public ItemStack infectedWeapons() {
 //        Minecraft_Test pl = new Minecraft_Test();
 //        Map<String, Object> test2 = pl.getConfig().getConfigurationSection("loadouts").getValues(true);
@@ -399,15 +423,15 @@ public class SurvivalPlayer implements Listener{
 //
 //        return weapon;
 //    }
-    public ItemStack silverArrow() {
-        ItemStack weapon = new ItemStack(Material.ARROW, 1);
-        getItem(weapon, "&9Silver Arrows", "&7Shiny");
-        ItemMeta meta = weapon.getItemMeta();
-        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
-        weapon.setItemMeta(meta);
-
-        return weapon;
-    }
+//    public ItemStack silverArrow() {
+//        ItemStack weapon = new ItemStack(Material.ARROW, 1);
+//        getItem(weapon, "&9Silver Arrows", "&7Shiny");
+//        ItemMeta meta = weapon.getItemMeta();
+//        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+//        weapon.setItemMeta(meta);
+//
+//        return weapon;
+//    }
 
     private ItemStack getItem(ItemStack item, String name, String ... lore) {
         ItemMeta meta = item.getItemMeta();
