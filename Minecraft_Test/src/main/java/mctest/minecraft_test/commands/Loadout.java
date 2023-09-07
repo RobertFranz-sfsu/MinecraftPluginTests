@@ -32,11 +32,20 @@ public class Loadout implements CommandExecutor {
                                 sender.sendMessage("A loadout with this name already exists!");
                             }else{
                                 con.getConfig().createSection(String.valueOf(args[1]));
-
-                                ItemStack weapon = new ItemStack(Material.matchMaterial("IRON_SWORD"), 1);
-                                con.getConfig().set(args[1] + ".placeholder", weapon);
                                 con.getConfig().set(args[1] + ".description", "A loadout.");
 
+                                ItemStack item = new ItemStack(Material.matchMaterial("IRON_SWORD"), 1);
+                                ItemMeta im = item.getItemMeta();
+                                im.setDisplayName(String.valueOf(args[1]));
+
+                                ArrayList<String> lore = new ArrayList<>();
+
+                                lore.add("A loadout.");
+
+                                im.setLore(lore);
+                                item.setItemMeta(im);
+
+                                con.getConfig().set(args[1] + ".placeholder", item);
                                 con.save();
 
                                 sender.sendMessage("New loadout created with name: " + args[1]);
@@ -164,9 +173,26 @@ public class Loadout implements CommandExecutor {
                             if(!con.getConfig().contains(args[1])){
                                 sender.sendMessage("This loadout does not exist!");
                             }else{
+                                ArrayList<String> lore = new ArrayList<>();
+                                StringBuilder loreArr = new StringBuilder();
+                                String l = String.valueOf(con.getConfig().getConfigurationSection(args[1] + ".description"));
+                                String[] arr = l.split(" ");
+
+                                sender.sendMessage("" + con.getConfig().getConfigurationSection(args[1] + ".description"));
+
+                                for(int i = 0; i < arr.length; i++){
+                                    if(i == arr.length/2){
+                                        lore.add(loreArr.toString());
+                                        loreArr.setLength(0);
+                                    }
+                                    loreArr.append(arr[i] + " ");
+                                }
+                                lore.add(loreArr.toString());
+
                                 ItemStack item = player.getInventory().getItemInHand();
                                 ItemMeta im = item.getItemMeta();
                                 im.setDisplayName(String.valueOf(args[1]));
+                                im.setLore(lore);
                                 item.setItemMeta(im);
 
                                 con.getConfig().set(args[1] + ".placeholder", item);

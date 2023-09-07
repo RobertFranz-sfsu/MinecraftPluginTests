@@ -192,6 +192,10 @@ public class SurvivalPlayer implements Listener{
     private Double getHealth(Player player) {
         return player.getHealth();
     }
+
+    public HashMap<UUID, String> getStatusMap(){
+        return this.statusMap;
+    }
     @EventHandler
     private void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
