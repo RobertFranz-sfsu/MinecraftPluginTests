@@ -176,19 +176,18 @@ public class Loadout implements CommandExecutor {
                                 ArrayList<String> lore = new ArrayList<>();
                                 StringBuilder loreArr = new StringBuilder();
 
-                                // TODO
-                                //  Figure out why this is being set to null???
-                                String l = String.valueOf(con.getConfig().getConfigurationSection(args[1] + ".description"));
+                                String l = con.getConfig().getString(args[1] + ".description");
                                 String[] arr = l.split(" ");
 
-                                sender.sendMessage("" + con.getConfig().getConfigurationSection(args[1] + ".description"));
-
+                                int count = 0;
                                 for(int i = 0; i < arr.length; i++){
-                                    if(i == arr.length/2){
+                                    if(count > 4){
                                         lore.add(loreArr.toString());
                                         loreArr.setLength(0);
+                                        count = 0;
                                     }
                                     loreArr.append(arr[i] + " ");
+                                    count++;
                                 }
                                 lore.add(loreArr.toString());
 
