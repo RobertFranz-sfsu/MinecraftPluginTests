@@ -6,6 +6,8 @@
 *  Init game
 *  Make menu give correct loadout
 *  Scoreboard styling
+*  Add support for spaces in names
+*  Add support for color in names/lore
 *  Custom guns/fix accuracy
 *  Make loadout list prettier
 *  Implement multiverse

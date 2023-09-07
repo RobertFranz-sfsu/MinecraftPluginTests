@@ -1,1 +1,14 @@
 #Survivor settings
+spawn:
+  x:
+    - t
+  y:
+    - t
+  z:
+    - t
+speed:
+  - t
+health:
+  - t
+exampleBuff:
+  - LEVEL

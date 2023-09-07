@@ -3,6 +3,7 @@ package mctest.minecraft_test.commands;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -36,6 +37,7 @@ public class Loadout implements CommandExecutor {
                                 ItemStack item = new ItemStack(Material.matchMaterial("IRON_SWORD"), 1);
                                 ItemMeta im = item.getItemMeta();
                                 im.setDisplayName(String.valueOf(args[1]));
+//                                im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1])));
 
                                 ArrayList<String> lore = new ArrayList<>();
 
