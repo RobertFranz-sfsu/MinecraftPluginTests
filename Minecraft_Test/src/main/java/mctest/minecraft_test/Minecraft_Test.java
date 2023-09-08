@@ -20,7 +20,6 @@ public final class Minecraft_Test extends JavaPlugin {
         Bukkit.getLogger().info("Server Started");
         this.saveDefaultConfig();
 
-
         ConfigUtil config = new ConfigUtil(this, "Loadouts.yml");
         config.save();
 
