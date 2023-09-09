@@ -20,8 +20,6 @@ public class Loadout implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
-//        ConfigUtil con = new ConfigUtil("Loadouts.yml");
-
 
         if(args.length != 0){
             switch(args[0].toLowerCase()){

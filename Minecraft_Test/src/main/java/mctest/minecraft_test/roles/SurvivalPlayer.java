@@ -113,7 +113,6 @@ public class SurvivalPlayer implements Listener{
             // start the game
             if (this.getPlaying()) {
                 if (this.getTimer() == Integer.MIN_VALUE) {
-                    //Bukkit.getLogger().info("Setting game time: " + gameTime);
                     this.setTimer(getGameTime());
                 }
                 this.setInfectedCnt();
@@ -128,6 +127,7 @@ public class SurvivalPlayer implements Listener{
 //                    statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("INFECTED WON!"));
 //                    this.endGame();
 //                }
+
                 // if timer runs out, survivors won
                 if (this.getTimer() == 0) {
                     statusMap.forEach((key, value) ->  {
@@ -154,26 +154,6 @@ public class SurvivalPlayer implements Listener{
         // THIS MIGHT ALL NEED TO BE IN SurvivalPlayer ABOVE ^^^^
 
         try{
-//            PlayerHandler pl = new PlayerHandler(Minecraft_Test.getPlugin(Minecraft_Test.class));
-//            ArrayList<UUID> chosen = new ArrayList<>();
-//
-//            //Randomly select number of players from list to be infected by index num
-//            Bukkit.getLogger().info("Min: " + (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players"));
-//            for(int i = 0; i < (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"); i++){
-//                chosen.add(pl.getPlayers().get((int)(Math.random() *
-//                        (int)Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected"))));
-//            }
-//
-//            // Populate the map and assign roles
-//            for(UUID p : pl.getPlayers()){
-//                if(chosen.contains(p) && p != null){
-//                    statusMap.put(p, "infected");
-//                    setInfection(Bukkit.getPlayer(p));
-//                }else if(p != null){
-//                    statusMap.put(p, "survivor");
-//                    setSurvivor(Bukkit.getPlayer(p));
-//                }
-//            }
             Random rand = new Random();
 
             Set<Integer> infectedSet = new HashSet<>();
@@ -203,22 +183,13 @@ public class SurvivalPlayer implements Listener{
             int health = con.getConfig().getInt("health");
             float speed = Float.parseFloat(con.getConfig().get("speed").toString().replaceAll("[\\[\\],]",""));
 
-//            player.sendMessage("Health: " + con.getConfig().getInt("health"));
-//            Bukkit.getLogger().info("Health: " + con.getConfig().getValues(false));
-//            player.sendMessage("Speed: " + speed);
-
-//            this.setAttributes(player, .6f, 4, 4);
             this.setAttributes(player, speed, health, health);
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are infected!"));
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
             ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
             int health = con.getConfig().getInt("health");
             float speed = Float.parseFloat(con.getConfig().get("speed").toString().replaceAll("[\\[\\],]",""));
-//
-//            player.sendMessage("Health: " + health);
-//            player.sendMessage("Speed: " + speed);
 
-//            this.setAttributes(player, .2f, 20, 20);
             this.setAttributes(player, speed, health, health);
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are a survivor!"));
         }
@@ -234,7 +205,6 @@ public class SurvivalPlayer implements Listener{
     public void setInfection(Player player) {
         Bukkit.getLogger().info(player.getName() + " has been infected!");
         statusMap.put(player.getUniqueId(), "infected");
-        //statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
 
         this.setAttributes(player, .2f, 20, 20);
 
@@ -348,7 +318,6 @@ public class SurvivalPlayer implements Listener{
 
         //If survivor and hit by arrow, cancel damage
         if (Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
-//            Bukkit.getLogger().info("*****PROJECTILE FRIENDLY FIRE*****");
             event.setCancelled(true);
         }
         // if both are on the same team or if a survivor is hit by a projectile: cancel the attack
@@ -364,6 +333,10 @@ public class SurvivalPlayer implements Listener{
 //        }
 //    }
 
+    /**
+     * Setters/Getters for config stuff
+     */
+
     public void setSurvivorCnt() {
         this.survivorCnt = Collections.frequency(statusMap.values(), "survivor");
     }
@@ -377,90 +350,6 @@ public class SurvivalPlayer implements Listener{
         return this.infectedCnt;
     }
 
-    /**
-     * Items and Inventories
-     *
-     */
-//    public ItemStack giveWeapons(String role){
-//
-//        Map<String, Object> config = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getConfigurationSection("loadouts").getValues(true);
-//
-//        if(role.equals("infected")){
-//            ItemStack weapon = new ItemStack(Material.matchMaterial(config.get("infected.item").toString()), Integer.valueOf(config.get("infected.itemAmount").toString().replaceAll("[\\[\\],]","")));
-//            getItem(weapon, config.get("infected.itemName").toString().replaceAll("[\\[\\],]",""), config.get("infected.lore").toString().replaceAll("[\\[\\],]",""));
-//
-//            if((config.get("infected.enchantment") != null) && (config.get("infected.enchantmentLevel") != null)){
-//                ItemMeta meta = weapon.getItemMeta();
-//                meta.addEnchant(Enchantment.getByName(config.get("infected.enchantment").toString().replaceAll("[\\[\\],]","")),
-//                        Integer.valueOf(config.get("infected.enchantmentLevel").toString().replaceAll("[\\[\\],]","")), true);
-//                weapon.setItemMeta(meta);
-//            }
-//
-//            return weapon;
-//        }else if(role.equals("survivor")){
-//            ItemStack weapon = new ItemStack(Material.matchMaterial(config.get("survivor.item").toString()), Integer.valueOf(config.get("survivor.itemAmount").toString().replaceAll("[\\[\\],]","")));
-//            getItem(weapon, config.get("survivor.itemName").toString().replaceAll("[\\[\\],]",""),
-//                    config.get("survivor.lore").toString().replaceAll("[\\[\\],]",""));
-//            if((config.get("survivor.enchantment") != null) && (config.get("survivor.enchantmentLevel") != null)){
-//                ItemMeta meta = weapon.getItemMeta();
-//                meta.addEnchant(Enchantment.getByName(config.get("survivor.enchantment").toString().replaceAll("[\\[\\],]","")),
-//                        Integer.valueOf(config.get("survivor.enchantmentLevel").toString().replaceAll("[\\[\\],]","")), true);
-//                weapon.setItemMeta(meta);
-//            }
-//
-//            return weapon;
-//        }else{
-//            return null;
-//        }
-//    }
-//    public ItemStack infectedWeapons() {
-//        Minecraft_Test pl = new Minecraft_Test();
-//        Map<String, Object> test2 = pl.getConfig().getConfigurationSection("loadouts").getValues(true);
-//
-//        ItemStack weapon = new ItemStack(Material.IRON_SWORD, 1);
-//        getItem(weapon, "&9Infected Claw", "&9Infect the uninfected!");
-//        return weapon;
-//    }
-//    public ItemStack survivorWeapons() {
-//        ItemStack weapon = new ItemStack(Material.BOW, 1);
-//        getItem(weapon, "&9Infected Slayer", "&8Kill the infected!");
-//        ItemMeta meta = weapon.getItemMeta();
-//        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
-//        weapon.setItemMeta(meta);
-//
-//        return weapon;
-//    }
-//    public ItemStack silverArrow() {
-//        ItemStack weapon = new ItemStack(Material.ARROW, 1);
-//        getItem(weapon, "&9Silver Arrows", "&7Shiny");
-//        ItemMeta meta = weapon.getItemMeta();
-//        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
-//        weapon.setItemMeta(meta);
-//
-//        return weapon;
-//    }
-
-//    private ItemStack getItem(ItemStack item, String name, String ... lore) {
-//        ItemMeta meta = item.getItemMeta();
-//
-//        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-//
-//        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-//        meta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
-//
-//        List<String> lores = new ArrayList<>();
-//        for(String s : lore) {
-//            lores.add(ChatColor.translateAlternateColorCodes('&', s));
-//        }
-//        meta.setLore(lores);
-//        item.setItemMeta(meta);
-//
-//        return item;
-//    }
-
-    /**
-     * Setters/Getters for config stuff
-     */
     private void setWaitTime(){
         this.waitTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("wait-timer").toString().replaceAll("[\\[\\],]",""));
     }

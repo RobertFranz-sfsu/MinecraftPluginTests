@@ -72,7 +72,7 @@ public class Menu implements Listener, CommandExecutor {
         }
 
         Player player = (Player) sender;
-        ConfigUtil con = new ConfigUtil("Loadouts.yml");
+        ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
         Inventory inv = Bukkit.createInventory(player, 9 * 6, invName);
         int index = 0;
 

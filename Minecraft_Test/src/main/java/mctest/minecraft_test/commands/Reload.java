@@ -13,9 +13,6 @@ public class Reload implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try{
             Minecraft_Test.getPlugin(Minecraft_Test.class).reloadConfig();
-//            SurvivalPlayer s = new SurvivalPlayer(Minecraft_Test.getPlugin(Minecraft_Test.class));
-//            s.setWaitTime();
-//            s.setGameTime();
             Bukkit.getLogger().info("Reloading config.yml.");
 
             ConfigUtil c1 = new ConfigUtil("Infected.yml");
