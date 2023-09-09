@@ -17,6 +17,10 @@
  *  Teleport players on game end after a countdown
  *    Announce winners
  *  Figure out why it kicks for spam for no reason
+ *  Add command to manually set role
+ *  Add command to manually start/end matches
+ *
+ *
  *  Move code to fresh repo lol
  *
  * */
