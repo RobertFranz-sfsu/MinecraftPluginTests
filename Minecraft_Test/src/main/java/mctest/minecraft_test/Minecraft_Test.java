@@ -20,8 +20,18 @@ public final class Minecraft_Test extends JavaPlugin {
         Bukkit.getLogger().info("Server Started");
         this.saveDefaultConfig();
 
-        ConfigUtil config = new ConfigUtil(this, "Loadouts.yml");
-        config.save();
+        // Create these yml files and don't replace if present already
+        saveResource("Loadouts.yml", false);
+        ConfigUtil c1 = new ConfigUtil("Loadouts.yml");
+        c1.save();
+
+        saveResource("Survivor.yml", false);
+        ConfigUtil c2 = new ConfigUtil("Loadouts.yml");
+        c2.save();
+
+        saveResource("Infected.yml", false);
+        ConfigUtil c3 = new ConfigUtil("Loadouts.yml");
+        c3.save();
 
         SpawnUtil spawnUtil = new SpawnUtil(this);
 

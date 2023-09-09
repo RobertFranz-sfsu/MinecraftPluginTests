@@ -1,14 +1,14 @@
 #Main settings
 wait-timer:
-  - 10
+  - 5
 respawn-timer:
-  - 10
+  - 5
 match-length:
-  - 500
-max-players:
   - 20
-min-players:
+max-players:
   - 2
+min-players:
+  - 1
 num-starting-infected:
   - 1
 allowed-worlds:

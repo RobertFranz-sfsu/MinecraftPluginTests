@@ -8,6 +8,7 @@
  *  Scoreboard styling
  *  Add support for spaces in names
  *  Add support for color in names/lore
+ *  Implement respawn timer
  *  Custom guns/fix accuracy
  *  Make loadout list prettier
  *  Implement multiverse
@@ -23,7 +24,7 @@
 package mctest.minecraft_test.roles;
 
 import mctest.minecraft_test.Minecraft_Test;
-import mctest.minecraft_test.util.DelayedTask;
+import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -50,10 +51,13 @@ public class SurvivalPlayer implements Listener{
     private int survivorCnt = 0;
     private Boolean playing = false;
     private int time = Integer.MIN_VALUE;
-    private final int maxPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("max-players").toString().replaceAll("[\\[\\],]",""));
-    private final int minPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players").toString().replaceAll("[\\[\\],]",""));
-    private final int waitTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("wait-timer").toString().replaceAll("[\\[\\],]",""));
-    private final int gameTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("match-length").toString().replaceAll("[\\[\\],]",""));
+    private int maxPl;
+    private int minPl;
+    private int waitTime;
+    private int gameTime;
+    private int respawnTime;
+
+    private int numStartInf;
 
     public void setPlaying(Boolean playing) {
         this.playing = playing;
@@ -87,13 +91,13 @@ public class SurvivalPlayer implements Listener{
                     statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Timer: " + this.getTimer()));
                 }
                 // if minimum amount of players have joined, start timer
-                if (statusMap.size() == minPl &&  this.getTimer() == Integer.MIN_VALUE) {
+                if (statusMap.size() == this.getMinPl() &&  this.getTimer() == Integer.MIN_VALUE) {
                     Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
-                    setTimer(waitTime);
+                    setTimer(getWaitTime());
                 }
                 statusMap.forEach((key, value) -> this.waitBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
                 // if max amount of players have joined or if the timer has hit 0, start the game
-                if (statusMap.size() == maxPl || this.getTimer() == 0) {
+                if (statusMap.size() == this.getMaxPl() || this.getTimer() == 0) {
                     Bukkit.getLogger().info("Game Starting");
                     statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Game starting"));
                     gameInit();
@@ -105,13 +109,15 @@ public class SurvivalPlayer implements Listener{
             if (this.getPlaying()) {
                 if (this.getTimer() == Integer.MIN_VALUE) {
                     //Bukkit.getLogger().info("Setting game time: " + gameTime);
-                    this.setTimer(gameTime);
+                    this.setTimer(getGameTime());
                 }
                 this.setInfectedCnt();
                 this.setSurvivorCnt();
                 statusMap.forEach((key, value) -> this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
                 Bukkit.getLogger().info("Game in session");
 
+                // TODO
+                //  infected win
                 // if everyone is infected, infected won
 //                if (this.getInfectedCnt() == statusMap.size()) {
 //                    statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("INFECTED WON!"));
@@ -166,7 +172,7 @@ public class SurvivalPlayer implements Listener{
             Random rand = new Random();
 
             Set<Integer> infectedSet = new HashSet<>();
-            for (int i = 0; i < statusMap.size(); i++) {
+            for (int i = 0; i < this.getNumStartInf(); i++) {
                 infectedSet.add(rand.nextInt(statusMap.size()));
             }
 
@@ -188,9 +194,28 @@ public class SurvivalPlayer implements Listener{
 
     public void setRole(Player player) {
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
-            this.setAttributes(player, .6f, 4, 4);
+            ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
+            int health = con.getConfig().getInt("health");
+            float speed = Float.parseFloat(con.getConfig().get("speed").toString().replaceAll("[\\[\\],]",""));
+
+//            player.sendMessage("Health: " + con.getConfig().getInt("health"));
+//            Bukkit.getLogger().info("Health: " + con.getConfig().getValues(false));
+//            player.sendMessage("Speed: " + speed);
+
+//            this.setAttributes(player, .6f, 4, 4);
+            this.setAttributes(player, speed, health, health);
+            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are infected!"));
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
-            this.setAttributes(player, .2f, 20, 20);
+            ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
+            int health = con.getConfig().getInt("health");
+            float speed = Float.parseFloat(con.getConfig().get("speed").toString().replaceAll("[\\[\\],]",""));
+//
+//            player.sendMessage("Health: " + health);
+//            player.sendMessage("Speed: " + speed);
+
+//            this.setAttributes(player, .2f, 20, 20);
+            this.setAttributes(player, speed, health, health);
+            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are a survivor!"));
         }
         Bukkit.dispatchCommand(player, "m");
         //this.setBoard(player);
@@ -410,23 +435,76 @@ public class SurvivalPlayer implements Listener{
 //        return weapon;
 //    }
 
-    private ItemStack getItem(ItemStack item, String name, String ... lore) {
-        ItemMeta meta = item.getItemMeta();
+//    private ItemStack getItem(ItemStack item, String name, String ... lore) {
+//        ItemMeta meta = item.getItemMeta();
+//
+//        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+//
+//        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+//        meta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
+//
+//        List<String> lores = new ArrayList<>();
+//        for(String s : lore) {
+//            lores.add(ChatColor.translateAlternateColorCodes('&', s));
+//        }
+//        meta.setLore(lores);
+//        item.setItemMeta(meta);
+//
+//        return item;
+//    }
 
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
-
-        List<String> lores = new ArrayList<>();
-        for(String s : lore) {
-            lores.add(ChatColor.translateAlternateColorCodes('&', s));
-        }
-        meta.setLore(lores);
-        item.setItemMeta(meta);
-
-        return item;
+    /**
+     * Setters/Getters for config stuff
+     */
+    private void setWaitTime(){
+        this.waitTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("wait-timer").toString().replaceAll("[\\[\\],]",""));
     }
+    private int getWaitTime(){
+        setWaitTime();
+        return this.waitTime;
+    }
+
+    // Match length
+    private void setGameTime(){
+        this.gameTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("match-length").toString().replaceAll("[\\[\\],]",""));
+    }
+    private int getGameTime(){
+        setGameTime();
+        return this.gameTime;
+    }
+
+    private void setMaxPl(){
+        this.maxPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("max-players").toString().replaceAll("[\\[\\],]",""));
+    }
+    private int getMaxPl(){
+        setMaxPl();
+        return this.maxPl;
+    }
+
+    private void setMinPl(){
+        this.minPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players").toString().replaceAll("[\\[\\],]",""));
+    }
+    private int getMinPl(){
+        setMinPl();
+        return this.minPl;
+    }
+
+    private void setNumStartInf(){
+        this.numStartInf = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected").toString().replaceAll("[\\[\\],]",""));
+    }
+    private int getNumStartInf(){
+        setNumStartInf();
+        return this.numStartInf;
+    }
+
+    private void setRespawnTime(){
+        this.respawnTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("respawn-timer").toString().replaceAll("[\\[\\],]",""));
+    }
+    private int getRespawnTime(){
+        setRespawnTime();
+        return this.respawnTime;
+    }
+
     /**
      * Scoreboard
      */
@@ -458,6 +536,7 @@ public class SurvivalPlayer implements Listener{
         player.setScoreboard(scoreboard);
     }
     private void waitBoard(Player player) {
+
         if (!statusMap.containsKey(player.getUniqueId())) {
             return;
         }
@@ -470,18 +549,18 @@ public class SurvivalPlayer implements Listener{
 
         Score newLine1 = objective.getScore("");
         newLine1.setScore(5);
-        if (statusMap.size() == minPl) {
+        if (statusMap.size() == getMinPl()) {
             String minutes = String.valueOf(this.getTimer() / 60);
             String seconds = ((this.getTimer()%60 < 10) ? "0" : "") + this.getTimer()%60 ;
             Score timer = objective.getScore("Time left: " + minutes + ":" + seconds);
             timer.setScore(4);
         } else {
-            Score waiting = objective.getScore("Waiting for at least " + (minPl - statusMap.size()) + " more player(s).");
+            Score waiting = objective.getScore("Waiting for at least " + (this.getMinPl() - statusMap.size()) + " more player(s).");
             waiting.setScore(4);
         }
-        Score amount = objective.getScore("Players: " + statusMap.size() + " / " + maxPl);
+        Score amount = objective.getScore("Players: " + statusMap.size() + " / " + this.getMaxPl());
         amount.setScore(3);
-        Score min = objective.getScore("Minimum required to start: " + minPl);
+        Score min = objective.getScore("Minimum required to start: " + this.getMinPl());
         min.setScore(2);
 
         player.setScoreboard(scoreboard);
