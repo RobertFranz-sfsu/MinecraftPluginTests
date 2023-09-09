@@ -3,7 +3,6 @@
  *  Remove old tests/code
  *  Add YML configurability
  *    Infected/Survivor Buffs
- *  Init game
  *  Make menu give correct loadout
  *  Scoreboard styling
  *  Add support for spaces in names
@@ -16,6 +15,8 @@
  *    Add world checks to every command
  *  Teleport players on game end after a countdown
  *    Announce winners
+ *  Implement economy
+ *  Implement scores
  *  Figure out why it kicks for spam for no reason
  *  Add command to manually set role
  *  Add command to manually start/end matches
