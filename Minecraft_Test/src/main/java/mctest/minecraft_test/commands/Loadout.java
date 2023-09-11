@@ -19,9 +19,10 @@ public class Loadout implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
 
         if(args.length != 0){
+            ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
+
             switch(args[0].toLowerCase()){
                 case "create": case "c":
                     if(args.length < 2){
@@ -201,7 +202,7 @@ public class Loadout implements CommandExecutor {
                                 }
                                 lore.add(loreArr.toString());
 
-                                ItemStack item = player.getInventory().getItemInHand();
+                                ItemStack item = player.getInventory().getItemInHand().clone();
                                 ItemMeta im = item.getItemMeta();
                                 im.setDisplayName(String.valueOf(args[1]));
                                 im.setLore(lore);

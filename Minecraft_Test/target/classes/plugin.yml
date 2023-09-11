@@ -23,21 +23,15 @@ commands:
     aliases: lo
     permission: infected.loadout
     permission-message: You do not have permission to run this command
-  infectedMenu:
-    description: Loadout menu for infected
-    usage: /infectedMenu
-    aliases: im
-    permission: infected.infectedmenu
-    permission-message: You do not have permission to run this command
-  survivorMenu:
-    description: Loadout menu for suirvivors
-    usage: /survivorMenu
-    aliases: sm
-    permission: infected.survivormenu
-    permission-message: You do not have permission to run this command
   reload:
     description: Reload config
-    usage: /infected reload
+    usage: '/infected reload'
     aliases: ir
     permission: infected.reload
+    permission-message: You do not have permission to run this command
+  infected:
+    description: Basic plugin commands
+    usage: /infected
+    aliases: in
+    permission: infected
     permission-message: You do not have permission to run this command

@@ -20,6 +20,7 @@
  *  Figure out why it kicks for spam for no reason
  *  Add command to manually set role
  *  Add command to manually start/end matches
+ *  Have scoreboard showing the entire time in the server/world/match
  *
  *
  *  Move code to fresh repo lol
@@ -154,11 +155,12 @@ public class SurvivalPlayer implements Listener{
         // THIS MIGHT ALL NEED TO BE IN SurvivalPlayer ABOVE ^^^^
 
         try{
+            Bukkit.getLogger().info("NUM START INF: " + this.getNumStartInf());
             Random rand = new Random();
 
             Set<Integer> infectedSet = new HashSet<>();
             for (int i = 0; i < this.getNumStartInf(); i++) {
-                infectedSet.add(rand.nextInt(statusMap.size()));
+                infectedSet.add(rand.nextInt(this.getNumStartInf()));
             }
 
             int it = 0;
@@ -201,6 +203,7 @@ public class SurvivalPlayer implements Listener{
         player.setMaxHealth(maxHealth);
         player.setHealth(health);
     }
+
     //TODO delete setInfection and setSurvivor
     public void setInfection(Player player) {
         Bukkit.getLogger().info(player.getName() + " has been infected!");
@@ -249,10 +252,14 @@ public class SurvivalPlayer implements Listener{
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
         statusMap.put(player.getUniqueId(), "unassigned");
     }
-    private void endGame() {
+    public void endGame() {
+        Bukkit.getLogger().info("1");
         this.setTimer(Integer.MIN_VALUE);
+        Bukkit.getLogger().info("2");
         Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
+        Bukkit.getLogger().info("3");
         while (it.hasNext()) {
+            Bukkit.getLogger().info("4");
             Map.Entry<UUID, String> entry = it.next();
 
             Bukkit.getPlayer(entry.getKey()).getInventory().clear();
@@ -266,7 +273,9 @@ public class SurvivalPlayer implements Listener{
             if (entry.getKey() == null) {
                 it.remove();
             } else {
+                Bukkit.getLogger().info("5");
                 this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                Bukkit.getLogger().info("6");
             }
         }
         this.setPlaying(false);

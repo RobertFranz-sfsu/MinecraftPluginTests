@@ -40,6 +40,7 @@ public final class Minecraft_Test extends JavaPlugin {
         getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil));
         getCommand("loadout").setExecutor(new Loadout());
         getCommand("reload").setExecutor(new Reload());
+        getCommand("infected").setExecutor(new Infected());
 
         new PlayerHandler(this);
         new DelayedTask(this);
