@@ -91,7 +91,7 @@ public class SurvivalPlayer implements Listener{
             }
 
             if (!this.getPlaying()) {
-                //Send countdown time
+                // Send countdown time
                 if (this.getTimer() != Integer.MIN_VALUE) {
                     statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Timer: " + this.getTimer()));
                 }
@@ -459,6 +459,7 @@ public class SurvivalPlayer implements Listener{
 
         player.setScoreboard(scoreboard);
     }
+    
     private void removeBoard(Player player) {
         if (!statusMap.containsKey(player.getUniqueId())) {
             return;
