@@ -62,8 +62,10 @@ public class SurvivalPlayer implements Listener{
     private int waitTime;
     private int gameTime;
     private int respawnTime;
-
     private int numStartInf;
+    private Location infSpawn;
+    private Location surSpawn;
+    private Location defaultSpawn;
 
     public void setPlaying(Boolean playing) {
         this.playing = playing;
@@ -168,6 +170,10 @@ public class SurvivalPlayer implements Listener{
                 entry.setValue((infectedSet.contains(it++)) ? "infected" : "survivor");
                 this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+
+                if(entry.getKey() != null){
+                    Bukkit.dispatchCommand(Bukkit.getPlayer(entry.getKey()), "m");
+                }
             }
 
             Bukkit.getLogger().info(statusMap.toString());
@@ -188,6 +194,8 @@ public class SurvivalPlayer implements Listener{
 
             this.setAttributes(player, speed, health, health);
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are infected!"));
+
+            player.teleport(this.getInfSpawn());
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
             ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
             int health = con.getConfig().getInt("health");
@@ -195,8 +203,10 @@ public class SurvivalPlayer implements Listener{
 
             this.setAttributes(player, speed, health, health);
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are a survivor!"));
+
+            player.teleport(this.getSurSpawn());
         }
-        Bukkit.dispatchCommand(player, "m");
+//        Bukkit.dispatchCommand(player, "m");
         //this.setBoard(player);
     }
     private void setAttributes(Player player, Float speed, int maxHealth, int health) {
@@ -282,15 +292,7 @@ public class SurvivalPlayer implements Listener{
         this.setPlaying(false);
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
     }
-    @EventHandler
-    private void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        if (!statusMap.containsKey(player.getUniqueId())) {
-            return;
-        }
-        Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
-        event.getDrops().clear();
-    }
+
     @EventHandler
     private void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
@@ -335,6 +337,37 @@ public class SurvivalPlayer implements Listener{
             event.setCancelled(true);
         }
     }
+
+    @EventHandler
+    private void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        if (!statusMap.containsKey(player.getUniqueId())) {
+            return;
+        }
+        Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+    }
+
+    @EventHandler
+    private void onDamage(EntityDamageEvent event){
+        if(event.getEntity() instanceof Player){
+            Player player = (Player) event.getEntity();
+            if(event.getDamage() >= player.getHealth()){
+                event.setCancelled(true);
+                if (!statusMap.containsKey(player.getUniqueId())) {
+                    return;
+                }
+
+                Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+                if(Objects.equals(statusMap.get(player.getUniqueId()).toLowerCase(), "survivor")){
+                    statusMap.put(player.getUniqueId(), "infected");
+                }
+
+                setRole(player);
+                player.teleport(getInfSpawn());
+            }
+        }
+    }
+
     //TODO Possibly use this
 //    @EventHandler
 //    private void onFoodDepletion(FoodLevelChangeEvent event) {
@@ -361,7 +394,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setWaitTime(){
-        this.waitTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("wait-timer").toString().replaceAll("[\\[\\],]",""));
+        this.waitTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("wait-timer");
     }
     private int getWaitTime(){
         setWaitTime();
@@ -370,7 +403,7 @@ public class SurvivalPlayer implements Listener{
 
     // Match length
     private void setGameTime(){
-        this.gameTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("match-length").toString().replaceAll("[\\[\\],]",""));
+        this.gameTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("match-length");
     }
     private int getGameTime(){
         setGameTime();
@@ -378,7 +411,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setMaxPl(){
-        this.maxPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("max-players").toString().replaceAll("[\\[\\],]",""));
+        this.maxPl = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("max-players");
     }
     private int getMaxPl(){
         setMaxPl();
@@ -386,7 +419,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setMinPl(){
-        this.minPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players").toString().replaceAll("[\\[\\],]",""));
+        this.minPl = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("min-players");
     }
     private int getMinPl(){
         setMinPl();
@@ -394,7 +427,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setNumStartInf(){
-        this.numStartInf = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected").toString().replaceAll("[\\[\\],]",""));
+        this.numStartInf = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("num-starting-infected");
     }
     private int getNumStartInf(){
         setNumStartInf();
@@ -402,11 +435,59 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setRespawnTime(){
-        this.respawnTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("respawn-timer").toString().replaceAll("[\\[\\],]",""));
+        this.respawnTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("respawn-timer");
     }
     private int getRespawnTime(){
         setRespawnTime();
         return this.respawnTime;
+    }
+
+    private void setInfSpawn(){
+        ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
+
+        infSpawn = new Location(
+            Bukkit.getWorld(infConfig.getConfig().getString("spawn.world")),
+            infConfig.getConfig().getDouble("spawn.x"),
+            infConfig.getConfig().getDouble("spawn.y"),
+            infConfig.getConfig().getDouble("spawn.z"),
+            (float) infConfig.getConfig().getDouble("spawn.yaw"),
+            (float) infConfig.getConfig().getDouble("spawn.pitch")
+        );
+    }
+    public Location getInfSpawn(){
+        setInfSpawn();
+        return this.infSpawn;
+    }
+
+    private void setSurSpawn() {
+        ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
+        surSpawn = new Location(
+            Bukkit.getWorld(surConfig.getConfig().getString("spawn.world")),
+            surConfig.getConfig().getDouble("spawn.x"),
+            surConfig.getConfig().getDouble("spawn.y"),
+            surConfig.getConfig().getDouble("spawn.z"),
+            (float) surConfig.getConfig().getDouble("spawn.yaw"),
+            (float) surConfig.getConfig().getDouble("spawn.pitch")
+        );
+    }
+    public Location getSurSpawn(){
+        setSurSpawn();
+        return this.surSpawn;
+    }
+
+    private void setDefaultSpawn(){
+        defaultSpawn = new Location(
+            Bukkit.getWorld(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getString("default-spawn.world")),
+            Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.x"),
+            Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.y"),
+            Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.z"),
+            (float) Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.pitch"),
+            (float) Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.yaw")
+        );
+    }
+    public Location getDefaultSpawn(){
+        setDefaultSpawn();
+        return this.defaultSpawn;
     }
 
     /**

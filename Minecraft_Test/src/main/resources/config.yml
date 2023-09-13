@@ -1,16 +1,16 @@
 #Main settings
-wait-timer:
-  - 5
-respawn-timer:
-  - 5
-match-length:
-  - 20
-max-players:
-  - 2
-min-players:
-  - 1
-num-starting-infected:
-  - 1
+wait-timer: 5
+
+respawn-timer: 5
+
+match-length: 20
+
+max-players: 2
+
+min-players: 1
+
+num-starting-infected: 1
+
 allowed-worlds:
   - example world name
 default-spawn:

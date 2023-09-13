@@ -23,15 +23,6 @@ public class Spawn implements CommandExecutor {
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String [] args) {
-//        if (!(sender instanceof Player)) {
-//            sender.sendMessage("Only players can use this command.");
-//            return true;
-//        }
-
-//        Player player = (Player) sender;
-//        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bSent to spawn."));
-//        spawnUtil.teleport(player);
-
         try{
             Player player = null;
 
@@ -44,50 +35,11 @@ public class Spawn implements CommandExecutor {
             }
 
             if(Objects.equals(pl.getStatusMap().get(player.getUniqueId()), "infected")){
-                sender.sendMessage("1");
-
-                ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
-
-                Location loc = new Location(
-                        Bukkit.getWorld(infConfig.getConfig().getString("spawn.world")),
-                        infConfig.getConfig().getDouble("spawn.x"),
-                        infConfig.getConfig().getDouble("spawn.y"),
-                        infConfig.getConfig().getDouble("spawn.z"),
-                        (float) infConfig.getConfig().getDouble("spawn.yaw"),
-                        (float) infConfig.getConfig().getDouble("spawn.pitch")
-                );
-
-                player.teleport(loc);
+                player.teleport(pl.getInfSpawn());
             }else if(Objects.equals(pl.getStatusMap().get(player.getUniqueId()), "survivor")) {
-                sender.sendMessage("2");
-
-                ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
-
-                Location loc = new Location(
-                        Bukkit.getWorld(surConfig.getConfig().getString("spawn.world")),
-                        surConfig.getConfig().getDouble("spawn.x"),
-                        surConfig.getConfig().getDouble("spawn.y"),
-                        surConfig.getConfig().getDouble("spawn.z"),
-                        (float) surConfig.getConfig().getDouble("spawn.yaw"),
-                        (float) surConfig.getConfig().getDouble("spawn.pitch")
-                );
-
-                player.teleport(loc);
+                player.teleport(pl.getSurSpawn());
             }else {
-                sender.sendMessage("3");
-
-                Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig();
-
-                Location loc = new Location(
-                        Bukkit.getWorld(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getString("default-spawn.world")),
-                        Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.x"),
-                        Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.y"),
-                        Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.z"),
-                        (float) Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.yaw"),
-                        (float) Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.pitch")
-                );
-
-                player.teleport(loc);
+                player.teleport(pl.getDefaultSpawn());
             }
         }catch(Exception e){
             sender.sendMessage("Something went wrong, please check the console.");
