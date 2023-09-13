@@ -1,5 +1,7 @@
 package mctest.minecraft_test.commands;
 
+import mctest.minecraft_test.Minecraft_Test;
+import mctest.minecraft_test.util.ConfigUtil;
 import mctest.minecraft_test.util.SpawnUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -22,7 +24,6 @@ public class SetSpawn implements CommandExecutor {
 
         Player player = (Player) sender;
         spawnUtil.set(player.getLocation());
-
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSet the server spawn."));
 
         return true;

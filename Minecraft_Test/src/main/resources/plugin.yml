@@ -9,14 +9,15 @@ commands:
     aliases: m
     permission: infected.menu
     permission-message: You do not have permission to open the menu
-  setSpawn:
+  setSpawn: #remove this
     description: Sets the spawn
     usage: /setSpawn
     permission: spawn.set
   spawn:
     description: Teleports you to spawn
-    usage: /spawn
-    permission: spawn.teleport
+    usage: /ispawn
+    aliases: is
+    permission: infected.spawn
   loadout:
     description: Loadout editor commands.
     usage: /loadout
@@ -25,7 +26,7 @@ commands:
     permission-message: You do not have permission to run this command
   reload:
     description: Reload config
-    usage: '/infected reload'
+    usage: /ir
     aliases: ir
     permission: infected.reload
     permission-message: You do not have permission to run this command

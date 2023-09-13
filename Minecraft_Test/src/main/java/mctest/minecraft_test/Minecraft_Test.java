@@ -34,9 +34,10 @@ public final class Minecraft_Test extends JavaPlugin {
         c3.save();
 
         SpawnUtil spawnUtil = new SpawnUtil(this);
+        SurvivalPlayer pl = new SurvivalPlayer(this);
 
-        getCommand("menu").setExecutor(new Menu(this, new SurvivalPlayer(this)));
-        getCommand("spawn").setExecutor(new Spawn(spawnUtil));
+        getCommand("menu").setExecutor(new Menu(this, pl));
+        getCommand("spawn").setExecutor(new Spawn(spawnUtil, pl));
         getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil));
         getCommand("loadout").setExecutor(new Loadout());
         getCommand("reload").setExecutor(new Reload());

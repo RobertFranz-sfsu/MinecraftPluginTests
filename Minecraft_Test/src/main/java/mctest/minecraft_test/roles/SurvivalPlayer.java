@@ -153,7 +153,6 @@ public class SurvivalPlayer implements Listener{
         // Set Scoreboards (might not need to do here),
         // Start game
         // THIS MIGHT ALL NEED TO BE IN SurvivalPlayer ABOVE ^^^^
-
         try{
             Bukkit.getLogger().info("NUM START INF: " + this.getNumStartInf());
             Random rand = new Random();
@@ -170,6 +169,8 @@ public class SurvivalPlayer implements Listener{
                 this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
             }
+
+            Bukkit.getLogger().info(statusMap.toString());
 
             this.setPlaying(true);
 

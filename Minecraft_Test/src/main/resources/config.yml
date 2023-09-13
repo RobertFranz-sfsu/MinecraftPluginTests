@@ -13,3 +13,10 @@ num-starting-infected:
   - 1
 allowed-worlds:
   - example world name
+default-spawn:
+  world: placeholder
+  x: placeholder
+  y: placeholder
+  z: placeholder
+  pitch: placeholder
+  yaw: placeholder
