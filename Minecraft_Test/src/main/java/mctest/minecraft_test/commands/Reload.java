@@ -15,15 +15,15 @@ public class Reload implements CommandExecutor {
             Minecraft_Test.getPlugin(Minecraft_Test.class).reloadConfig();
             Bukkit.getLogger().info("Reloading config.yml.");
 
-            ConfigUtil c1 = new ConfigUtil("Infected.yml");
+            ConfigUtil c1 = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
             Bukkit.getLogger().info("Reloading Infected.yml.");
             c1.save();
 
-            ConfigUtil c2 = new ConfigUtil("Survivor.yml");
+            ConfigUtil c2 = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
             Bukkit.getLogger().info("Reloading Survivor.yml.");
             c2.save();
 
-            ConfigUtil c3 = new ConfigUtil("Loadouts.yml");
+            ConfigUtil c3 = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
             Bukkit.getLogger().info("Reloading Loadouts.yml.");
             c3.save();
 

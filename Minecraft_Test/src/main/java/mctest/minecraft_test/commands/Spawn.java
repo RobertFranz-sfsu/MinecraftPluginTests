@@ -28,10 +28,8 @@ public class Spawn implements CommandExecutor {
 
             if(args.length > 0){
                 player = Bukkit.getPlayer(args[0]);
-                Bukkit.getLogger().info("Player: " + player);
             }else if(sender instanceof Player){
                 player = (Player) sender;
-                Bukkit.getLogger().info("Player: " + player);
             }
 
             if(Objects.equals(pl.getStatusMap().get(player.getUniqueId()), "infected")){

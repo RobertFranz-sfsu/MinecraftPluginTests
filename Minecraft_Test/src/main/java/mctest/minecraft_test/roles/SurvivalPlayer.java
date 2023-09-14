@@ -3,14 +3,13 @@
  *  Remove old tests/code
  *  Add YML configurability
  *    Infected/Survivor Buffs
- *  Make menu give correct loadout
  *  Scoreboard styling
  *  Add support for spaces in names
  *  Add support for color in names/lore
  *  Implement respawn timer
  *  Custom guns/fix accuracy
  *  Make loadout list prettier
- *  Implement multiverse
+ *  Implement optional multiverse
  *    Must change playerhandler
  *    Add world checks to every command
  *  Teleport players on game end after a countdown
@@ -18,10 +17,10 @@
  *  Implement economy
  *  Implement scores
  *  Figure out why it kicks for spam for no reason
+ *  Switch /spawn to /ispawn
  *  Add command to manually set role
  *  Add command to manually start/end matches
  *  Have scoreboard showing the entire time in the server/world/match
- *
  *
  *  Move code to fresh repo lol
  *
@@ -51,6 +50,8 @@ import org.bukkit.scoreboard.*;
 import java.util.*;
 
 public class SurvivalPlayer implements Listener{
+    ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
+    ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
     private World world;
     private final HashMap<UUID, String> statusMap = new HashMap<>();
     private int infectedCnt = 0;
@@ -66,6 +67,10 @@ public class SurvivalPlayer implements Listener{
     private Location infSpawn;
     private Location surSpawn;
     private Location defaultSpawn;
+    private int surHealth;
+    private float surSpeed;
+    private int infHealth;
+    private float infSpeed;
 
     public void setPlaying(Boolean playing) {
         this.playing = playing;
@@ -96,8 +101,10 @@ public class SurvivalPlayer implements Listener{
             if (!this.getPlaying()) {
                 // Send countdown time
                 if (this.getTimer() != Integer.MIN_VALUE) {
-                    statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Timer: " + this.getTimer()));
+                    int realTime = this.getTimer()+1;
+                    statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Game starts in: " + realTime));
                 }
+
                 // if minimum amount of players have joined, start timer
                 if (statusMap.size() == this.getMinPl() &&  this.getTimer() == Integer.MIN_VALUE) {
                     Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
@@ -157,23 +164,20 @@ public class SurvivalPlayer implements Listener{
         // THIS MIGHT ALL NEED TO BE IN SurvivalPlayer ABOVE ^^^^
         try{
             Bukkit.getLogger().info("NUM START INF: " + this.getNumStartInf());
-            Random rand = new Random();
 
-            Set<Integer> infectedSet = new HashSet<>();
-            for (int i = 0; i < this.getNumStartInf(); i++) {
-                infectedSet.add(rand.nextInt(this.getNumStartInf()));
+            ArrayList<Integer> playerList = new ArrayList<>();
+            for (int i = 0; i < statusMap.size(); i++) {
+                playerList.add(i);
             }
 
-            int it = 0;
+            Collections.shuffle(playerList);
+            List pList = playerList.subList(0, getNumStartInf());
+            int iter = 0;
             for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
-                Bukkit.getLogger().info("cnt: " + it + " " + infectedSet.contains(it));
-                entry.setValue((infectedSet.contains(it++)) ? "infected" : "survivor");
+                entry.setValue((pList.contains(iter++)) ? "infected" : "survivor");
                 this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-
-                if(entry.getKey() != null){
-                    Bukkit.dispatchCommand(Bukkit.getPlayer(entry.getKey()), "m");
-                }
+                Bukkit.dispatchCommand(Bukkit.getPlayer(entry.getKey()), "m");
             }
 
             Bukkit.getLogger().info(statusMap.toString());
@@ -188,25 +192,18 @@ public class SurvivalPlayer implements Listener{
 
     public void setRole(Player player) {
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
-            ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
-            int health = con.getConfig().getInt("health");
-            float speed = Float.parseFloat(con.getConfig().get("speed").toString().replaceAll("[\\[\\],]",""));
+            this.setAttributes(player, this.getInfSpeed(), this.getInfHealth(), this.getInfHealth());
 
-            this.setAttributes(player, speed, health, health);
-            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are infected!"));
+            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&bYou are &cinfected&b!"));
 
             player.teleport(this.getInfSpawn());
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
-            ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
-            int health = con.getConfig().getInt("health");
-            float speed = Float.parseFloat(con.getConfig().get("speed").toString().replaceAll("[\\[\\],]",""));
+            this.setAttributes(player, this.getSurSpeed(), this.getSurHealth(), this.getSurHealth());
 
-            this.setAttributes(player, speed, health, health);
-            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are a survivor!"));
+            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&bYou are a &asurvivor&b!"));
 
             player.teleport(this.getSurSpawn());
         }
-//        Bukkit.dispatchCommand(player, "m");
         //this.setBoard(player);
     }
     private void setAttributes(Player player, Float speed, int maxHealth, int health) {
@@ -264,13 +261,9 @@ public class SurvivalPlayer implements Listener{
         statusMap.put(player.getUniqueId(), "unassigned");
     }
     public void endGame() {
-        Bukkit.getLogger().info("1");
-        this.setTimer(Integer.MIN_VALUE);
-        Bukkit.getLogger().info("2");
         Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
-        Bukkit.getLogger().info("3");
+
         while (it.hasNext()) {
-            Bukkit.getLogger().info("4");
             Map.Entry<UUID, String> entry = it.next();
 
             Bukkit.getPlayer(entry.getKey()).getInventory().clear();
@@ -281,15 +274,17 @@ public class SurvivalPlayer implements Listener{
 
             Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
             Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
+
             if (entry.getKey() == null) {
                 it.remove();
             } else {
-                Bukkit.getLogger().info("5");
                 this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-                Bukkit.getLogger().info("6");
             }
         }
+
         this.setPlaying(false);
+        this.setTimer(Integer.MIN_VALUE);
+
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
     }
 
@@ -443,8 +438,6 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setInfSpawn(){
-        ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
-
         infSpawn = new Location(
             Bukkit.getWorld(infConfig.getConfig().getString("spawn.world")),
             infConfig.getConfig().getDouble("spawn.x"),
@@ -460,8 +453,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setSurSpawn() {
-        ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
-        surSpawn = new Location(
+            surSpawn = new Location(
             Bukkit.getWorld(surConfig.getConfig().getString("spawn.world")),
             surConfig.getConfig().getDouble("spawn.x"),
             surConfig.getConfig().getDouble("spawn.y"),
@@ -488,6 +480,38 @@ public class SurvivalPlayer implements Listener{
     public Location getDefaultSpawn(){
         setDefaultSpawn();
         return this.defaultSpawn;
+    }
+
+    private void setSurHealth(){
+        this.surHealth = surConfig.getConfig().getInt("health");
+    }
+    public int getSurHealth(){
+        setSurHealth();
+        return this.surHealth;
+    }
+
+    private void setSurSpeed(){
+        this.surSpeed = surConfig.getConfig().getInt("speed");
+    }
+    public float getSurSpeed(){
+        setSurSpeed();
+        return this.surSpeed;
+    }
+
+    private void setInfHealth(){
+        this.infHealth = infConfig.getConfig().getInt("health");
+    }
+    public int getInfHealth(){
+        setInfHealth();
+        return this.infHealth;
+    }
+
+    private void setInfSpeed(){
+        this.infSpeed = infConfig.getConfig().getInt("speed");
+    }
+    public float getInfSpeed() {
+        setInfSpeed();
+        return this.infSpeed;
     }
 
     /**
