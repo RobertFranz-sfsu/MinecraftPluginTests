@@ -37,13 +37,7 @@ public class Menu implements Listener, CommandExecutor {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
 
-        if (slot == 11) {
-            gamer.setInfection(player);
-            event.setCancelled(true);
-        } else if (slot == 13) {
-            gamer.setSurvivor(player);
-            event.setCancelled(true);
-        } else if(slot == 15){
+        if(slot == 15){
             gamer.setNotPlaying(player);
             event.setCancelled(true);
         } else if (slot == 4) {
@@ -97,8 +91,6 @@ public class Menu implements Listener, CommandExecutor {
             }
         }
 
-        inv.setItem(11, getItem(new ItemStack(Material.IRON_SWORD), "&9Infected", "&aClick to become infected"));
-        inv.setItem(13, getItem(new ItemStack(Material.BOW), "&9Survivor", "&aClick to become a survivor"));
         inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to leave the game"));
         inv.setItem(4, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9START GAME", "&aClick to start the game"));
         inv.setItem(6, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9Unassigned", "&aClick to set role as unassigned"));
