@@ -102,7 +102,10 @@ public class SurvivalPlayer implements Listener{
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             // if timer is set, start counting down
             if (this.getTimer() > 0) {
-                Bukkit.getLogger().info("Timer: " + this.getTimer());
+                if (this.getTimer() % 5 == 0) {
+                    String str = (this.getPlaying() ? "Game " : "Queue ");
+                    Bukkit.getLogger().info(str + "Timer: " + this.getTimer());
+                }
                 setTimer(this.getTimer()-1);
             }
 
@@ -163,10 +166,7 @@ public class SurvivalPlayer implements Listener{
                     });
                     this.endGame();
                 }
-
-
             }
-
         }, 0L, 20L);
     }
 
@@ -350,10 +350,6 @@ public class SurvivalPlayer implements Listener{
         if (Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
             event.setCancelled(true);
         }
-
-        //TODO Possibly prevent damage while game not in session
-        // might be better to check if in hashmap as unassigned instead of using getPlaying
-        if (!this.getPlaying()) event.setCancelled(true);
 
         // if both are on the same team: cancel the attack
         else if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
