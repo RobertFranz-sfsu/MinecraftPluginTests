@@ -9,6 +9,7 @@ commands:
     aliases: m
     permission: infected.menu
     permission-message: You do not have permission to open the menu
+    default: true
   setSpawn: #remove this
     description: Sets the spawn
     usage: /setSpawn
@@ -24,15 +25,18 @@ commands:
     aliases: lo
     permission: infected.loadout
     permission-message: You do not have permission to run this command
+    default: op
   reload:
     description: Reload config
     usage: /ir
     aliases: ir
     permission: infected.reload
     permission-message: You do not have permission to run this command
+    default: op
   infected:
     description: Basic plugin commands
     usage: /infected
     aliases: in
     permission: infected
     permission-message: You do not have permission to run this command
+    default: op

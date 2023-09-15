@@ -11,8 +11,11 @@ min-players: 1
 
 num-starting-infected: 1
 
+lobby-worlds:
+  - world #this is an example
+
 allowed-worlds:
-  - example world name
+  - world #this is an example
 
 default-spawn:
   world: placeholder

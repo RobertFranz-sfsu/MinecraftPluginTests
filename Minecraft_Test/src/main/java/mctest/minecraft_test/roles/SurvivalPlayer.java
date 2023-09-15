@@ -4,8 +4,9 @@
  *     Add YML configurability
  *       Infected/Survivor effects
  *     Custom guns
- *     Support for spaces in names
- *     Add lobby world for broadcast
+ *     Add lobby worlds for broadcasts
+ *     Make loadout list prettier
+ *     Scoreboard styling
  *   R:
  *     Implement respawn timer
  *     Infected join
@@ -15,8 +16,6 @@
  *     Command to manually set role
  *
  *
- *  Scoreboard styling
- *  Make loadout list prettier
  *  Implement allowed worlds
  *    Must change playerhandler
  *    Add world checks to every command
@@ -116,8 +115,26 @@ public class SurvivalPlayer implements Listener{
                 }
                 // if minimum amount of players have joined, start timer
                 if (statusMap.size() == this.getMinPl() &&  this.getTimer() == Integer.MIN_VALUE) {
+                    List<String> val = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
                     Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
                     setTimer(getWaitTime());
+
+                    String current = "";
+                    for(UUID i : statusMap.keySet()){
+                        if((Bukkit.getPlayer(i) != null) && !val.contains(Bukkit.getPlayer(i).getWorld().getName())){
+                            current = Bukkit.getPlayer(i).getWorld().getName();
+                            break;
+                        }
+                    }
+
+                    // Print that a queue has begun
+                    String msg = ChatColor.translateAlternateColorCodes ('&', "&aAn &cInfected &aqueue has begun in " + current + "!");
+
+                    for(String w : val){
+                        if(Bukkit.getWorld(w) != null){
+                            Bukkit.getWorld(w).getPlayers().forEach(player -> player.sendMessage(msg));
+                        }
+                    }
                 }
                 statusMap.forEach((key, value) -> this.waitBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
                 // if max amount of players have joined or if the timer has hit 0, start the game
@@ -203,6 +220,8 @@ public class SurvivalPlayer implements Listener{
 
     public void setRole(Player player) {
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
+            this.setAttributes(player, this.getInfSpeed(), this.getInfHealth(), this.getInfHealth());
+
             if(!Objects.equals(infConfig.getConfig().get("effects"), null)){
                 setEffects(player);
             }else{
@@ -214,7 +233,6 @@ public class SurvivalPlayer implements Listener{
             player.teleport(this.getInfSpawn());
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
             this.setAttributes(player, this.getSurSpeed(), this.getSurHealth(), this.getSurHealth());
-            Bukkit.getLogger().info("SPEED: " + this.getSurSpeed());
 
             if(!Objects.equals(surConfig.getConfig().get("effects"), null)){
                 setEffects(player);
@@ -223,6 +241,8 @@ public class SurvivalPlayer implements Listener{
             }
 
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are a survivor!"));
+
+            player.teleport(this.getSurSpawn());
         }
         Bukkit.dispatchCommand(player, "m");
         //this.setBoard(player);
@@ -412,7 +432,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setWaitTime(){
-        this.waitTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("wait-timer").toString().replaceAll("[\\[\\],]",""));
+        this.waitTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("wait-timer");
     }
     private int getWaitTime(){
         this.setWaitTime();
@@ -421,7 +441,7 @@ public class SurvivalPlayer implements Listener{
 
     // Match length
     private void setGameTime(){
-        this.gameTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("match-length").toString().replaceAll("[\\[\\],]",""));
+        this.gameTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("match-length");
     }
     private int getGameTime(){
         this.setGameTime();
@@ -429,7 +449,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setMaxPl(){
-        this.maxPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("max-players").toString().replaceAll("[\\[\\],]",""));
+        this.maxPl = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("max-players");
     }
     private int getMaxPl(){
         this.setMaxPl();
@@ -437,7 +457,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setMinPl(){
-        this.minPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players").toString().replaceAll("[\\[\\],]",""));
+        this.minPl = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("min-players");
     }
     private int getMinPl(){
         this.setMinPl();
@@ -445,7 +465,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setNumStartInf(){
-        this.numStartInf = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected").toString().replaceAll("[\\[\\],]",""));
+        this.numStartInf = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("num-starting-infected");
     }
     private int getNumStartInf(){
         this.setNumStartInf();
@@ -453,7 +473,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setRespawnTime(){
-        this.respawnTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("respawn-timer").toString().replaceAll("[\\[\\],]",""));
+        this.respawnTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("respawn-timer");
     }
     private int getRespawnTime(){
         this.setRespawnTime();

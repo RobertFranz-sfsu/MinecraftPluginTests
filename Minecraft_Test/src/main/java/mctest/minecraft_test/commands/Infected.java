@@ -11,6 +11,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class Infected implements CommandExecutor {
@@ -47,7 +49,7 @@ public class Infected implements CommandExecutor {
                     }
                     break;
 
-                case "setspawn":
+                case "setspawn": case "ss":
                     try{
                         if(args[1] != null){
                             switch(args[1].toLowerCase()){
@@ -98,6 +100,8 @@ public class Infected implements CommandExecutor {
                                     sender.sendMessage("Please specify which spawn you're trying to set! (Infected/Survivor/Default)");
                                     break;
                             }
+                        }else{
+                            sender.sendMessage("Please specify which spawn you're trying to set! (Infected/Survivor/Default)");
                         }
                     }catch(Exception e){
                         sender.sendMessage("Something went wrong, please check the console");
@@ -105,14 +109,99 @@ public class Infected implements CommandExecutor {
                     }
                     break;
 
-                case "spawn":
+                case "setlobby": case "sl":
+                    try{
+                        List<String> val = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
+                        String world = "";
+
+                        if(args.length == 2){
+                            if(Bukkit.getWorld(args[1]) != null){
+                                world = args[1];
+                            }else{
+                                sender.sendMessage("This world does not exist!");
+                                break;
+                            }
+                        }else if(args.length == 1){
+                            world = ((Player) sender).getWorld().getName();
+                        }else{
+                            sender.sendMessage("Correct usage (sets current world as lobby): /infected setLobby");
+                            sender.sendMessage("or /infected setLobby [world name]");
+                            break;
+                        }
+
+                        if(!val.contains(world)){
+                            val.add(world);
+                            Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().set("lobby-worlds", val);
+                            Minecraft_Test.getPlugin(Minecraft_Test.class).saveConfig();
+                            Minecraft_Test.getPlugin(Minecraft_Test.class).reloadConfig();
+
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully &aadded &fworld &a" + ((Player) sender).getWorld().getName() + " &fto list of lobbies."));
+                        }else{
+                            sender.sendMessage("This world is already set as a lobby!");
+                        }
+                    }catch(Exception e){
+                        sender.sendMessage("Something went wrong, please check the console");
+                        e.printStackTrace();
+                    }
+
                     break;
 
+                case "dellobby": case "dl":
+                    try {
+                        if(args.length == 2){
+                            List<String> worlds = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
+
+                            if(worlds.contains(args[1])){
+                                worlds.remove(args[1]);
+                                Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().set("lobby-worlds", worlds);
+                                Minecraft_Test.getPlugin(Minecraft_Test.class).saveConfig();
+                                Minecraft_Test.getPlugin(Minecraft_Test.class).reloadConfig();
+
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully &cremoved &fworld &c" + args[1] + " &ffrom list of lobbies."));
+                            }else{
+                                sender.sendMessage("This world does not exist in lobbies!");
+                            }
+                        }else{
+                            sender.sendMessage("Correct usage: /infected delLobby [world name]");
+                        }
+                    }catch(Exception e){
+                        sender.sendMessage("Something went wrong, please check the console");
+                        e.printStackTrace();
+                    }
+
+                    break;
+
+                case "listlobbies": case "ll":
+                    try{
+                        List<String> worldList = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
+
+                        if(!worldList.isEmpty()){
+                            int count = 1;
+                            for(String x : worldList){
+                                String world = count + ") " + x;
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                        "tellraw " + ((Player) sender).getUniqueId() + " {" +
+                                                "\"text\": \"" + world + "\"," +
+                                                "\"hoverEvent\": {" +
+                                                "\"action\": \"show_text\"," +
+                                                "\"value\": \"Shift click to copy to chat\"" +
+                                                "}," +
+                                                "\"insertion\": \"" + x + "\"" +
+                                                "}");
+                                count++;
+                            }
+                        }
+                    }catch(Exception e){
+                        sender.sendMessage("Something went wrong, please check the console");
+                        e.printStackTrace();
+                    }
+
+                    break;
                 default:
-                    sender.sendMessage("Valid sub commands: start, end, setSpawn.");
+                    sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl), listLobbies (ll).");
             }
         }else{
-            sender.sendMessage("Valid sub commands: start, end, setSpawn.");
+            sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl), listLobbies (ll).");
         }
 
         return true;

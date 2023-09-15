@@ -6,6 +6,7 @@ import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -170,7 +171,7 @@ public class Loadout implements CommandExecutor {
                         }
                     }
                     break;
-                case "list":
+                case "list": case "l":
                     Map<String, Object> config =
                             con.getConfig().getValues(false);
 
@@ -184,16 +185,19 @@ public class Loadout implements CommandExecutor {
                     Player pl = (Player) sender;
 
                     if(!config.isEmpty()){
+                        int count = 1;
+
                         for(String x : config.keySet()){
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                                     "tellraw " + pl.getUniqueId() + " {" +
-                                            "\"text\": \"" + ChatColor.translateAlternateColorCodes ('&', x.replaceAll("_", " ")) + "\"," +
+                                            "\"text\": \"" + ChatColor.translateAlternateColorCodes ('&', count + ") " + x.replaceAll("_", " ")) + "\"," +
                                             "\"hoverEvent\": {" +
                                             "\"action\": \"show_text\"," +
                                             "\"value\": \"Shift click to copy to chat\"" +
                                             "}," +
                                             "\"insertion\": \"" + x + "\"" +
                                             "}");
+                            count++;
                         }
                     }else{
                         sender.sendMessage("There are no configs!");
@@ -310,7 +314,7 @@ public class Loadout implements CommandExecutor {
                     break;
             }
         }else{
-            sender.sendMessage("Valid sub commands: create, save, delete, list, give, setPlaceholder, setDescription, setType.");
+            sender.sendMessage("Valid sub commands: create (c), save, delete (del), list (l), give, setPlaceholder (sp), setDescription (sd), setType (st).");
         }
 
         return true;
