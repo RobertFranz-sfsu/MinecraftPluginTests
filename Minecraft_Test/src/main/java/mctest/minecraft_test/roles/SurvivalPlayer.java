@@ -19,6 +19,8 @@
  *  Implement economy
  *  Implement scores
  *  Implement permissions for sub-commands
+ *  Implement per world timer
+ *      Add command to set wait time. If world is specified set that otherwise set for world they're in
  *  Implement PAPI
  *  Figure out why it kicks for spam for no reason
  *  Add command to manually set role
@@ -384,6 +386,8 @@ public class SurvivalPlayer implements Listener{
                 this.removeEffects(player);
                 this.setRole(player);
                 player.teleport(getInfSpawn());
+
+
             }
         }
     }
