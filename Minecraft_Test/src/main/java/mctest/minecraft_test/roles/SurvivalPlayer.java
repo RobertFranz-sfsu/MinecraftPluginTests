@@ -2,9 +2,8 @@
  * TODO
  *   S:
  *     Add YML configurability
- *       Infected/Survivor Buffs
+ *       Infected/Survivor effects
  *     Custom guns
- *     Support for colors in lore/names
  *     Support for spaces in names
  *     Add lobby world for broadcast
  *   R:
@@ -18,13 +17,14 @@
  *
  *  Scoreboard styling
  *  Make loadout list prettier
- *  Implement multiverse
+ *  Implement allowed worlds
  *    Must change playerhandler
  *    Add world checks to every command
  *  Teleport players on game end after a countdown
  *    Announce winners
  *  Implement economy
  *  Implement scores
+ *    Save to player data so save as a file with the UUID as the file name (similar to essentials)
  *  Implement permissions for sub-commands
  *  Set which permissions should be given by default
  *  Implement per world timer

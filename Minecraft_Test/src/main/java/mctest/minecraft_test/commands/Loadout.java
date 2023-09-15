@@ -1,5 +1,6 @@
 package mctest.minecraft_test.commands;
 
+import com.google.gson.stream.JsonReader;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.Bukkit;
@@ -15,8 +16,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class Loadout implements CommandExecutor {
+import static net.md_5.bungee.api.chat.ClickEvent.Action.COPY_TO_CLIPBOARD;
 
+public class Loadout implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -37,8 +39,7 @@ public class Loadout implements CommandExecutor {
 
                                 ItemStack item = new ItemStack(Material.matchMaterial("IRON_SWORD"), 1);
                                 ItemMeta im = item.getItemMeta();
-                                im.setDisplayName(String.valueOf(args[1]));
-//                                im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1])));
+                                im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1])));
 
                                 ArrayList<String> lore = new ArrayList<>();
 
@@ -172,7 +173,32 @@ public class Loadout implements CommandExecutor {
                 case "list":
                     Map<String, Object> config =
                             con.getConfig().getValues(false);
-                    sender.sendMessage("" + config.keySet());
+
+                    if(!(sender instanceof Player)){
+                        for(String x : config.keySet()){
+                            Bukkit.getLogger().info(x);
+                        }
+                        break;
+                    }
+
+                    Player pl = (Player) sender;
+
+                    if(!config.isEmpty()){
+                        for(String x : config.keySet()){
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                    "tellraw " + pl.getUniqueId() + " {" +
+                                            "\"text\": \"" + ChatColor.translateAlternateColorCodes ('&', x) + "\"," +
+                                            "\"hoverEvent\": {" +
+                                            "\"action\": \"show_text\"," +
+                                            "\"value\": \"Shift click to copy to chat\"" +
+                                            "}," +
+                                            "\"insertion\": \"" + x + "\"" +
+                                            "}");
+                        }
+                    }else{
+                        sender.sendMessage("There are no configs!");
+                    }
+
                     break;
                 case "setplaceholder": case "sp":
                     if(args.length < 2){
@@ -204,7 +230,7 @@ public class Loadout implements CommandExecutor {
 
                                 ItemStack item = player.getInventory().getItemInHand().clone();
                                 ItemMeta im = item.getItemMeta();
-                                im.setDisplayName(String.valueOf(args[1]));
+                                im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1])));
                                 im.setLore(lore);
                                 item.setItemMeta(im);
 
@@ -235,7 +261,7 @@ public class Loadout implements CommandExecutor {
                                         lore.add(loreArr.toString());
                                         loreArr.setLength(0);
                                     }
-                                    loreArr.append(args[i] + " ");
+                                    loreArr.append(ChatColor.translateAlternateColorCodes ('&', args[i] + " "));
                                 }
                                 lore.add(loreArr.toString());
 
