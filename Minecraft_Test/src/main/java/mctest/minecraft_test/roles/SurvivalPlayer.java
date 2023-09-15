@@ -30,6 +30,9 @@
  *  Implement per world timer
  *      Add command to set wait time. If world is specified set that otherwise set for world they're in
  *  Implement PAPI
+ *  Multiple spawn locations
+ *  Fix /spawn to /ispawn
+ *  Scaling infected amount (?)
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
