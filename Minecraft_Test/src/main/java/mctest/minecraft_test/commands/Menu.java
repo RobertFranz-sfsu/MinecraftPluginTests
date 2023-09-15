@@ -50,9 +50,6 @@ public class Menu implements Listener, CommandExecutor {
 
         ItemStack loadout = event.getCurrentItem();
         String name = loadout.getItemMeta().getDisplayName().replace('§', '&');
-//        String name = ChatColor.translateAlternateColorCodes ('§', loadout.getItemMeta().getDisplayName());
-
-//        player.sendMessage(name);
 
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Bukkit.getPlayer(player.getUniqueId()).getName() + " " + name);
         event.setCancelled(true);

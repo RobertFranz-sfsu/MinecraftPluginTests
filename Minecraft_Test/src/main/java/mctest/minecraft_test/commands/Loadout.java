@@ -39,7 +39,7 @@ public class Loadout implements CommandExecutor {
 
                                 ItemStack item = new ItemStack(Material.matchMaterial("IRON_SWORD"), 1);
                                 ItemMeta im = item.getItemMeta();
-                                im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1])));
+                                im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1].replaceAll("_", " "))));
 
                                 ArrayList<String> lore = new ArrayList<>();
 
@@ -176,7 +176,7 @@ public class Loadout implements CommandExecutor {
 
                     if(!(sender instanceof Player)){
                         for(String x : config.keySet()){
-                            Bukkit.getLogger().info(x);
+                            Bukkit.getLogger().info(x.replaceAll("_", " "));
                         }
                         break;
                     }
@@ -187,7 +187,7 @@ public class Loadout implements CommandExecutor {
                         for(String x : config.keySet()){
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                                     "tellraw " + pl.getUniqueId() + " {" +
-                                            "\"text\": \"" + ChatColor.translateAlternateColorCodes ('&', x) + "\"," +
+                                            "\"text\": \"" + ChatColor.translateAlternateColorCodes ('&', x.replaceAll("_", " ")) + "\"," +
                                             "\"hoverEvent\": {" +
                                             "\"action\": \"show_text\"," +
                                             "\"value\": \"Shift click to copy to chat\"" +
@@ -230,7 +230,7 @@ public class Loadout implements CommandExecutor {
 
                                 ItemStack item = player.getInventory().getItemInHand().clone();
                                 ItemMeta im = item.getItemMeta();
-                                im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1])));
+                                im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1].replaceAll("_", " "))));
                                 im.setLore(lore);
                                 item.setItemMeta(im);
 
