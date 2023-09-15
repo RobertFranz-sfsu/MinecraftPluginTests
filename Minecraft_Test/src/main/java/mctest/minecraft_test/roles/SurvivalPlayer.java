@@ -4,7 +4,6 @@
  *     Add YML configurability
  *       Infected/Survivor effects
  *     Custom guns
- *     Add lobby worlds for broadcasts
  *     Make loadout list prettier
  *     Scoreboard styling
  *   R:
