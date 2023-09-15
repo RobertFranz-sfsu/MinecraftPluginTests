@@ -1,16 +1,22 @@
 #Infected settings
 spawn:
-  world: placeholder
-  x: placeholder
-  y: placeholder
-  z: placeholder
-  pitch: placeholder
-  yaw: placeholder
+  world: exampleWorld
+  x: 0
+  y: 0
+  z: 0
+  pitch: 0
+  yaw: 0
 
 #The default walk speed for vanilla is .2, must enter a value between -1 and 1
 speed: .6
 
 health: 4
 
-exampleBuff:
-  - LEVEL
+# To enable effects, remove the # in front of the next section.
+# Remove the example or you will get an error.
+# For an infinite effect use INFINITE_DURATION.
+
+#effects:
+#  EFFECT-NAME:
+#    - DURATION
+#    - LEVEL

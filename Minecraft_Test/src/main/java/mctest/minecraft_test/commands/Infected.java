@@ -15,20 +15,22 @@ import java.util.Objects;
 
 public class Infected implements CommandExecutor {
 
-    private SpawnUtil spawnUtil;
+    private SurvivalPlayer s;
+
+    public Infected(SurvivalPlayer s){
+        this.s = s;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(args.length != 0){
-            SurvivalPlayer s = new SurvivalPlayer(Minecraft_Test.getPlugin(Minecraft_Test.class));
             Player player = (Player) sender;
 
             switch (args[0].toLowerCase()){
                 case "start":
                     try{
                         sender.sendMessage("Starting match.");
-                        s.getStatusMap().forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Game starting"));
-                        s.gameInit();
+                        s.setTimer(0);
                     }catch(Exception e){
                         sender.sendMessage("Something went wrong, please check the console");
                         e.printStackTrace();
@@ -38,7 +40,7 @@ public class Infected implements CommandExecutor {
                 case "end":
                     try{
                         sender.sendMessage("Ending match.");
-                        s.endGame();
+                        s.setTimer(-42);
                     }catch(Exception e){
                         sender.sendMessage("Something went wrong, please check the console");
                         e.printStackTrace();

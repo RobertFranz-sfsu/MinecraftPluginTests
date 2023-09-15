@@ -21,27 +21,19 @@ public final class Minecraft_Test extends JavaPlugin {
         this.saveDefaultConfig();
 
         // Create these yml files and don't replace if present already
-        saveResource("Loadouts.yml", false);
-        ConfigUtil c1 = new ConfigUtil("Loadouts.yml");
-        c1.save();
-
-        saveResource("Survivor.yml", false);
-        ConfigUtil c2 = new ConfigUtil("Loadouts.yml");
-        c2.save();
-
         saveResource("Infected.yml", false);
-        ConfigUtil c3 = new ConfigUtil("Loadouts.yml");
-        c3.save();
+        saveResource("Survivor.yml", false);
+        saveResource("Loadouts.yml", false);
 
         SpawnUtil spawnUtil = new SpawnUtil(this);
-        SurvivalPlayer pl = new SurvivalPlayer(this);
+        SurvivalPlayer sp = new SurvivalPlayer(this);
 
-        getCommand("menu").setExecutor(new Menu(this, pl));
-        getCommand("spawn").setExecutor(new Spawn(spawnUtil, pl));
-        getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil));
+        getCommand("menu").setExecutor(new Menu(this, sp));
+        getCommand("spawn").setExecutor(new Spawn(spawnUtil, sp));
+        getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil)); //remove later
         getCommand("loadout").setExecutor(new Loadout());
-        getCommand("reload").setExecutor(new Reload());
-        getCommand("infected").setExecutor(new Infected());
+        getCommand("reload").setExecutor(new Reload(sp));
+        getCommand("infected").setExecutor(new Infected(sp));
 
         new PlayerHandler(this);
         new DelayedTask(this);

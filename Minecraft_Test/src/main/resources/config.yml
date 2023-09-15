@@ -3,7 +3,7 @@ wait-timer: 5
 
 respawn-timer: 5
 
-match-length: 20
+match-length: 10
 
 max-players: 2
 
@@ -13,6 +13,7 @@ num-starting-infected: 1
 
 allowed-worlds:
   - example world name
+
 default-spawn:
   world: placeholder
   x: placeholder

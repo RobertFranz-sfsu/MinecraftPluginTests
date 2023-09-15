@@ -9,6 +9,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public class Reload implements CommandExecutor {
+
+    SurvivalPlayer s;
+
+    public Reload(SurvivalPlayer s){
+        this.s = s;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try{
@@ -26,6 +33,8 @@ public class Reload implements CommandExecutor {
             ConfigUtil c3 = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
             Bukkit.getLogger().info("Reloading Loadouts.yml.");
             c3.save();
+
+            s.reloadConfigs();
 
             sender.sendMessage("Config files have been reloaded.");
         }catch(Exception e){

@@ -3,6 +3,7 @@
  *  Remove old tests/code
  *  Add YML configurability
  *    Infected/Survivor Buffs
+ *  Add lobby world to config for game queue broadcast
  *  Scoreboard styling
  *  Add support for spaces in names
  *  Add support for color in names/lore
@@ -16,6 +17,8 @@
  *    Announce winners
  *  Implement economy
  *  Implement scores
+ *  Implement permissions for sub-commands
+ *  Implement PAPI
  *  Figure out why it kicks for spam for no reason
  *  Switch /spawn to /ispawn
  *  Add command to manually set role
@@ -31,20 +34,16 @@ package mctest.minecraft_test.roles;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scoreboard.*;
 
 import java.util.*;
@@ -132,7 +131,7 @@ public class SurvivalPlayer implements Listener{
 
                 // TODO
                 //  infected win
-                // if everyone is infected, infected won
+                //  if everyone is infected, infected won
 //                if (this.getInfectedCnt() == statusMap.size()) {
 //                    statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("INFECTED WON!"));
 //                    this.endGame();
@@ -149,6 +148,16 @@ public class SurvivalPlayer implements Listener{
                     });
                     this.endGame();
                 }
+
+                // Game ended by admin
+                if (this.getTimer() == -42){
+                    statusMap.forEach((key, value) ->  {
+                        Bukkit.getPlayer(key).sendMessage("Game has been manually ended.");
+                    });
+                    this.endGame();
+                }
+
+
             }
 
         }, 0L, 20L);
@@ -194,11 +203,24 @@ public class SurvivalPlayer implements Listener{
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
             this.setAttributes(player, this.getInfSpeed(), this.getInfHealth(), this.getInfHealth());
 
+            if(!Objects.equals(infConfig.getConfig().get("effects"), null)){
+                setEffects(player);
+            }else{
+                Bukkit.getLogger().info("No infected effects to apply.");
+            }
+
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&bYou are &cinfected&b!"));
 
             player.teleport(this.getInfSpawn());
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
             this.setAttributes(player, this.getSurSpeed(), this.getSurHealth(), this.getSurHealth());
+            Bukkit.getLogger().info("SPEED: " + this.getSurSpeed());
+
+            if(!Objects.equals(surConfig.getConfig().get("effects"), null)){
+                setEffects(player);
+            }else{
+                Bukkit.getLogger().info("No survivor effects to apply.");
+            }
 
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&bYou are a &asurvivor&b!"));
 
@@ -212,6 +234,22 @@ public class SurvivalPlayer implements Listener{
         player.setHealth(health);
     }
 
+    private void setEffects(Player player){
+        if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
+
+        } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
+
+        }
+    }
+
+    private void removeEffects(Player player){
+        ArrayList<PotionEffect> pe = new ArrayList<>(player.getActivePotionEffects());
+
+        for(PotionEffect x : pe){
+            player.removePotionEffect(x.getType());
+        }
+    }
+
     //TODO delete setInfection and setSurvivor
     public void setInfection(Player player) {
         Bukkit.getLogger().info(player.getName() + " has been infected!");
@@ -223,11 +261,11 @@ public class SurvivalPlayer implements Listener{
         this.setBoard(player);
         player.sendMessage("YOU ARE INFECTED!");
     }
-    public Location infectSpawn(Player player) {
-        world = player.getLocation().getWorld();
-
-        return new Location(world, 22.5, 67, -36, 0f, 0f);
-    }
+//    public Location infectSpawn(Player player) {
+//        world = player.getLocation().getWorld();
+//
+//        return new Location(world, 22.5, 67, -36, 0f, 0f);
+//    }
 
     public void setSurvivor(Player player) {
         Bukkit.getLogger().info(player.getName() + " is a survivor!");
@@ -251,6 +289,7 @@ public class SurvivalPlayer implements Listener{
 
         this.removeBoard(player);
         statusMap.remove(player.getUniqueId());
+        removeEffects(player);
         player.sendMessage("No longer playing");
         //TODO Store players' items and give them back
     }
@@ -266,11 +305,18 @@ public class SurvivalPlayer implements Listener{
         while (it.hasNext()) {
             Map.Entry<UUID, String> entry = it.next();
 
-            Bukkit.getPlayer(entry.getKey()).getInventory().clear();
-            Bukkit.getPlayer(entry.getKey()).getInventory().setHelmet(null);
-            Bukkit.getPlayer(entry.getKey()).getInventory().setChestplate(null);
-            Bukkit.getPlayer(entry.getKey()).getInventory().setLeggings(null);
-            Bukkit.getPlayer(entry.getKey()).getInventory().setBoots(null);
+            if(Bukkit.getPlayer(entry.getKey()) != null){
+                Bukkit.getPlayer(entry.getKey()).getInventory().clear();
+                Bukkit.getPlayer(entry.getKey()).getInventory().setHelmet(null);
+                Bukkit.getPlayer(entry.getKey()).getInventory().setChestplate(null);
+                Bukkit.getPlayer(entry.getKey()).getInventory().setLeggings(null);
+                Bukkit.getPlayer(entry.getKey()).getInventory().setBoots(null);
+
+                Inventory inv = Bukkit.getPlayer(entry.getKey()).getInventory();
+                inv.clear();
+
+                removeEffects(Bukkit.getPlayer(entry.getKey()));
+            }
 
             Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
             Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
@@ -304,6 +350,7 @@ public class SurvivalPlayer implements Listener{
         if (!statusMap.containsKey(player.getUniqueId())) {
             return;
         }
+
         Bukkit.getLogger().info("Player:  " + player.getName() + "  has disconnected");
         this.setNotPlaying(player);
     }
@@ -357,7 +404,8 @@ public class SurvivalPlayer implements Listener{
                     statusMap.put(player.getUniqueId(), "infected");
                 }
 
-                setRole(player);
+                this.removeEffects(player);
+                this.setRole(player);
                 player.teleport(getInfSpawn());
             }
         }
@@ -437,6 +485,11 @@ public class SurvivalPlayer implements Listener{
         return this.respawnTime;
     }
 
+    public void reloadConfigs(){
+        surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
+        infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
+    }
+
     private void setInfSpawn(){
         infSpawn = new Location(
             Bukkit.getWorld(infConfig.getConfig().getString("spawn.world")),
@@ -491,7 +544,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setSurSpeed(){
-        this.surSpeed = surConfig.getConfig().getInt("speed");
+        this.surSpeed = (float) surConfig.getConfig().getDouble("speed");
     }
     public float getSurSpeed(){
         setSurSpeed();
@@ -507,7 +560,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setInfSpeed(){
-        this.infSpeed = infConfig.getConfig().getInt("speed");
+        this.infSpeed = (float) infConfig.getConfig().getDouble("speed");
     }
     public float getInfSpeed() {
         setInfSpeed();
