@@ -4,13 +4,14 @@
  *  Add YML configurability
  *    Infected/Survivor Buffs
  *  Add lobby world to config for game queue broadcast
+ *  Make menu give correct loadout
  *  Scoreboard styling
  *  Add support for spaces in names
  *  Add support for color in names/lore
  *  Implement respawn timer
  *  Custom guns/fix accuracy
  *  Make loadout list prettier
- *  Implement optional multiverse
+ *  Implement multiverse
  *    Must change playerhandler
  *    Add world checks to every command
  *  Teleport players on game end after a countdown
@@ -20,10 +21,10 @@
  *  Implement permissions for sub-commands
  *  Implement PAPI
  *  Figure out why it kicks for spam for no reason
- *  Switch /spawn to /ispawn
  *  Add command to manually set role
  *  Add command to manually start/end matches
  *  Have scoreboard showing the entire time in the server/world/match
+ *
  *
  *  Move code to fresh repo lol
  *
@@ -100,10 +101,8 @@ public class SurvivalPlayer implements Listener{
             if (!this.getPlaying()) {
                 // Send countdown time
                 if (this.getTimer() != Integer.MIN_VALUE) {
-                    int realTime = this.getTimer()+1;
-                    statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Game starts in: " + realTime));
+                    //statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Timer: " + this.getTimer()));
                 }
-
                 // if minimum amount of players have joined, start timer
                 if (statusMap.size() == this.getMinPl() &&  this.getTimer() == Integer.MIN_VALUE) {
                     Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
@@ -186,8 +185,21 @@ public class SurvivalPlayer implements Listener{
                 entry.setValue((pList.contains(iter++)) ? "infected" : "survivor");
                 this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-                Bukkit.dispatchCommand(Bukkit.getPlayer(entry.getKey()), "m");
             }
+
+//            Random rand = new Random();
+//            Set<Integer> infectedSet = new HashSet<>();
+//            for (int i = 0; i < this.getNumStartInf(); i++) {
+//                infectedSet.add(rand.nextInt(this.getNumStartInf()));
+//            }
+
+//            int it = 0;
+//            for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
+//                Bukkit.getLogger().info("cnt: " + it + " " + infectedSet.contains(it));
+//                entry.setValue((infectedSet.contains(it++)) ? "infected" : "survivor");
+//                this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+//                this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+//            }
 
             Bukkit.getLogger().info(statusMap.toString());
 
@@ -201,8 +213,6 @@ public class SurvivalPlayer implements Listener{
 
     public void setRole(Player player) {
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
-            this.setAttributes(player, this.getInfSpeed(), this.getInfHealth(), this.getInfHealth());
-
             if(!Objects.equals(infConfig.getConfig().get("effects"), null)){
                 setEffects(player);
             }else{
@@ -222,10 +232,9 @@ public class SurvivalPlayer implements Listener{
                 Bukkit.getLogger().info("No survivor effects to apply.");
             }
 
-            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&bYou are a &asurvivor&b!"));
-
-            player.teleport(this.getSurSpawn());
+            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are a survivor!"));
         }
+        Bukkit.dispatchCommand(player, "m");
         //this.setBoard(player);
     }
     private void setAttributes(Player player, Float speed, int maxHealth, int health) {
@@ -249,36 +258,6 @@ public class SurvivalPlayer implements Listener{
             player.removePotionEffect(x.getType());
         }
     }
-
-    //TODO delete setInfection and setSurvivor
-    public void setInfection(Player player) {
-        Bukkit.getLogger().info(player.getName() + " has been infected!");
-        statusMap.put(player.getUniqueId(), "infected");
-
-        this.setAttributes(player, .2f, 20, 20);
-
-        Bukkit.dispatchCommand(player, "m");
-        this.setBoard(player);
-        player.sendMessage("YOU ARE INFECTED!");
-    }
-//    public Location infectSpawn(Player player) {
-//        world = player.getLocation().getWorld();
-//
-//        return new Location(world, 22.5, 67, -36, 0f, 0f);
-//    }
-
-    public void setSurvivor(Player player) {
-        Bukkit.getLogger().info(player.getName() + " is a survivor!");
-        statusMap.put(player.getUniqueId(), "survivor");
-        //statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
-
-        this.setAttributes(player, .2f, 20, 20);
-
-        Bukkit.dispatchCommand(player, "m");
-        this.setBoard(player);
-        player.sendMessage("YOU ARE A SURVIVOR!");
-    }
-
     public void setNotPlaying(Player player) {
         Bukkit.getLogger().info(player.getName() + " is no longer playing!");
 
@@ -295,13 +274,11 @@ public class SurvivalPlayer implements Listener{
     }
 
     public void setUnassigned(Player player) {
-        Bukkit.getLogger().info("Set as unassigned");
         statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
         statusMap.put(player.getUniqueId(), "unassigned");
     }
     public void endGame() {
         Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
-
         while (it.hasNext()) {
             Map.Entry<UUID, String> entry = it.next();
 
@@ -320,20 +297,34 @@ public class SurvivalPlayer implements Listener{
 
             Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
             Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
-
             if (entry.getKey() == null) {
                 it.remove();
             } else {
                 this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
             }
         }
-
         this.setPlaying(false);
         this.setTimer(Integer.MIN_VALUE);
-
-        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
     }
 
+    /**
+     * Event Handlers
+     * @param event
+     *
+     * onPlayerDeath makes sure players' items dont drop on the ground.
+     * onPlayerRespawn sets players who have died to infected.
+     * onPlayerDisconnect removes players who have disconnected from the game.
+     * onPlayerAttack cancels friendly fire.
+     */
+    @EventHandler
+    private void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        if (!statusMap.containsKey(player.getUniqueId())) {
+            return;
+        }
+        Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+        event.getDrops().clear();
+    }
     @EventHandler
     private void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
@@ -355,11 +346,6 @@ public class SurvivalPlayer implements Listener{
         this.setNotPlaying(player);
     }
 
-    /**
-     *
-     * @param event
-     * Cancels friendly fire
-     */
     @EventHandler
     private void onPlayerAttack(EntityDamageByEntityEvent event) {
         Entity attacker = event.getDamager();
@@ -370,23 +356,14 @@ public class SurvivalPlayer implements Listener{
             return;
         }
 
-        //If survivor and hit by arrow, cancel damage
+        //If survivor and hit by projectile: cancel the damage
         if (Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
             event.setCancelled(true);
         }
-        // if both are on the same team or if a survivor is hit by a projectile: cancel the attack
+        // if both are on the same team: cancel the attack
         else if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
             event.setCancelled(true);
         }
-    }
-
-    @EventHandler
-    private void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        if (!statusMap.containsKey(player.getUniqueId())) {
-            return;
-        }
-        Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
     }
 
     @EventHandler
@@ -416,6 +393,7 @@ public class SurvivalPlayer implements Listener{
 //    private void onFoodDepletion(FoodLevelChangeEvent event) {
 //        if (statusMap.containsKey(event.getEntity().getUniqueId())) {
 //            event.setCancelled(true);
+//            //event.getEntity().setFoodLevel(20);
 //        }
 //    }
 
@@ -437,51 +415,51 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setWaitTime(){
-        this.waitTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("wait-timer");
+        this.waitTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("wait-timer").toString().replaceAll("[\\[\\],]",""));
     }
     private int getWaitTime(){
-        setWaitTime();
+        this.setWaitTime();
         return this.waitTime;
     }
 
     // Match length
     private void setGameTime(){
-        this.gameTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("match-length");
+        this.gameTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("match-length").toString().replaceAll("[\\[\\],]",""));
     }
     private int getGameTime(){
-        setGameTime();
+        this.setGameTime();
         return this.gameTime;
     }
 
     private void setMaxPl(){
-        this.maxPl = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("max-players");
+        this.maxPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("max-players").toString().replaceAll("[\\[\\],]",""));
     }
     private int getMaxPl(){
-        setMaxPl();
+        this.setMaxPl();
         return this.maxPl;
     }
 
     private void setMinPl(){
-        this.minPl = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("min-players");
+        this.minPl = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("min-players").toString().replaceAll("[\\[\\],]",""));
     }
     private int getMinPl(){
-        setMinPl();
+        this.setMinPl();
         return this.minPl;
     }
 
     private void setNumStartInf(){
-        this.numStartInf = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("num-starting-infected");
+        this.numStartInf = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("num-starting-infected").toString().replaceAll("[\\[\\],]",""));
     }
     private int getNumStartInf(){
-        setNumStartInf();
+        this.setNumStartInf();
         return this.numStartInf;
     }
 
     private void setRespawnTime(){
-        this.respawnTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("respawn-timer");
+        this.respawnTime = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("respawn-timer").toString().replaceAll("[\\[\\],]",""));
     }
     private int getRespawnTime(){
-        setRespawnTime();
+        this.setRespawnTime();
         return this.respawnTime;
     }
 
@@ -598,7 +576,6 @@ public class SurvivalPlayer implements Listener{
         player.setScoreboard(scoreboard);
     }
     private void waitBoard(Player player) {
-
         if (!statusMap.containsKey(player.getUniqueId())) {
             return;
         }

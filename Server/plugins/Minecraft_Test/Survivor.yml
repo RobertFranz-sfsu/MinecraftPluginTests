@@ -1,0 +1,16 @@
+#Survivor settings
+spawn:
+  world: placeholder
+  x: placeholder
+  y: placeholder
+  z: placeholder
+  pitch: placeholder
+  yaw: placeholder
+
+#The default walk speed for vanilla is .2, must enter a value between -1 and 1
+speed: .6
+
+health: 4
+
+exampleBuff:
+  - LEVEL
