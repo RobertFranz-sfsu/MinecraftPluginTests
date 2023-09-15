@@ -32,6 +32,7 @@
  *  Multiple spawn locations
  *  Fix /spawn to /ispawn
  *  Scaling infected amount (?)
+ *  Change map in queue broadcast to map name which can be set in a config
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
@@ -119,23 +120,29 @@ public class SurvivalPlayer implements Listener{
                     Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
                     setTimer(getWaitTime());
 
-                    String current = "";
-                    for(UUID i : statusMap.keySet()){
-                        if((Bukkit.getPlayer(i) != null) && !val.contains(Bukkit.getPlayer(i).getWorld().getName())){
-                            current = Bukkit.getPlayer(i).getWorld().getName();
-                            break;
+                    // Print message that queue has begun in specified world as long as broadcast is enabled in config
+                    if(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("queue-start-broadcast-enabled")){
+                        String current = "";
+
+                        // TODO
+                        //  Change this to map name
+                        for(UUID i : statusMap.keySet()){
+                            if((Bukkit.getPlayer(i) != null) && !val.contains(Bukkit.getPlayer(i).getWorld().getName())){
+                                current = Bukkit.getPlayer(i).getWorld().getName();
+                                break;
+                            }
                         }
-                    }
 
-                    // Print that a queue has begun
-                    String msg = ChatColor.translateAlternateColorCodes ('&', "&aAn &cInfected &aqueue has begun in " + current + "!");
+                        String msg = ChatColor.translateAlternateColorCodes ('&', "&aAn &cInfected &aqueue has begun in " + current + "!");
 
-                    for(String w : val){
-                        if(Bukkit.getWorld(w) != null){
-                            Bukkit.getWorld(w).getPlayers().forEach(player -> player.sendMessage(msg));
+                        for(String w : val){
+                            if(Bukkit.getWorld(w) != null){
+                                Bukkit.getWorld(w).getPlayers().forEach(player -> player.sendMessage(msg));
+                            }
                         }
                     }
                 }
+
                 statusMap.forEach((key, value) -> this.waitBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
                 // if max amount of players have joined or if the timer has hit 0, start the game
                 if (statusMap.size() == this.getMaxPl() || this.getTimer() == 0) {

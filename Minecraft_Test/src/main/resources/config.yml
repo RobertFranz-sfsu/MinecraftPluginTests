@@ -14,6 +14,8 @@ num-starting-infected: 1
 lobby-worlds:
   - world #this is an example
 
+queue-start-broadcast-enabled: TRUE
+
 allowed-worlds:
   - world #this is an example
 
