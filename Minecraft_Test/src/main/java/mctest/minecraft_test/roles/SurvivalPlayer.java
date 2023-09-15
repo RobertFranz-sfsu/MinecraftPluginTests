@@ -1,15 +1,22 @@
 /*
  * TODO
- *  Remove old tests/code
- *  Add YML configurability
- *    Infected/Survivor Buffs
- *  Add lobby world to config for game queue broadcast
- *  Make menu give correct loadout
+ *   S:
+ *     Add YML configurability
+ *       Infected/Survivor Buffs
+ *     Custom guns
+ *     Support for colors in lore/names
+ *     Support for spaces in names
+ *     Add lobby world for broadcast
+ *   R:
+ *     Implement respawn timer
+ *     Infected join
+ *       optional argument to specify which queue they want to join for multiple maps
+ *       if no argument, then send them to any queue with people
+ *       if no queue with people send to random map
+ *     Command to manually set role
+ *
+ *
  *  Scoreboard styling
- *  Add support for spaces in names
- *  Add support for color in names/lore
- *  Implement respawn timer
- *  Custom guns/fix accuracy
  *  Make loadout list prettier
  *  Implement multiverse
  *    Must change playerhandler
@@ -19,15 +26,12 @@
  *  Implement economy
  *  Implement scores
  *  Implement permissions for sub-commands
+ *  Set which permissions should be given by default
  *  Implement per world timer
  *      Add command to set wait time. If world is specified set that otherwise set for world they're in
  *  Implement PAPI
- *  Figure out why it kicks for spam for no reason
- *  Add command to manually set role
- *  Add command to manually start/end matches
- *  Have scoreboard showing the entire time in the server/world/match
  *
- *
+ *  Remove old tests/code
  *  Move code to fresh repo lol
  *
  * */
@@ -188,20 +192,6 @@ public class SurvivalPlayer implements Listener{
                 this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
             }
-
-//            Random rand = new Random();
-//            Set<Integer> infectedSet = new HashSet<>();
-//            for (int i = 0; i < this.getNumStartInf(); i++) {
-//                infectedSet.add(rand.nextInt(this.getNumStartInf()));
-//            }
-
-//            int it = 0;
-//            for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
-//                Bukkit.getLogger().info("cnt: " + it + " " + infectedSet.contains(it));
-//                entry.setValue((infectedSet.contains(it++)) ? "infected" : "survivor");
-//                this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-//                this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-//            }
 
             Bukkit.getLogger().info(statusMap.toString());
 

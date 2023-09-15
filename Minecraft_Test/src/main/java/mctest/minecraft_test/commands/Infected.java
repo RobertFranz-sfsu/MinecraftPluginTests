@@ -63,7 +63,6 @@ public class Infected implements CommandExecutor {
 
                                     infConfig.save();
 
-//                                    spawnUtil.set(player.getLocation());
                                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bSet the &cinfected &bspawn."));
 
                                     break;
@@ -79,7 +78,6 @@ public class Infected implements CommandExecutor {
 
                                     surConfig.save();
 
-//                                    spawnUtil.set(player.getLocation());
                                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bSet the &asurvivor &bspawn."));
 
                                     break;
