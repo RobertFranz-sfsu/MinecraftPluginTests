@@ -54,7 +54,6 @@ import java.util.*;
 public class SurvivalPlayer implements Listener{
     ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
     ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
-    private World world;
     private final HashMap<UUID, String> statusMap = new HashMap<>();
     private int infectedCnt = 0;
     private int survivorCnt = 0;
@@ -132,13 +131,13 @@ public class SurvivalPlayer implements Listener{
 
                 // TODO
                 //  infected win
-                //  if everyone is infected, infected won
+                //  If everyone is infected, infected won
 //                if (this.getInfectedCnt() == statusMap.size()) {
 //                    statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("INFECTED WON!"));
 //                    this.endGame();
 //                }
 
-                // if timer runs out, survivors won
+                // If timer runs out, survivors won
                 if (this.getTimer() == 0) {
                     statusMap.forEach((key, value) ->  {
                         Bukkit.getPlayer(key).sendMessage("SURVIVORS WON!");
@@ -165,13 +164,9 @@ public class SurvivalPlayer implements Listener{
     }
 
     public void gameInit() {
-        //TODO Check if enough people are playing,
+        //TODO
         // Set players as infected or survivor depending on amount playing,
-        // Start timer,
-        // Set infected/survivor counts: possibly add unassigned role,
-        // Set Scoreboards (might not need to do here),
-        // Start game
-        // THIS MIGHT ALL NEED TO BE IN SurvivalPlayer ABOVE ^^^^
+
         try{
             Bukkit.getLogger().info("NUM START INF: " + this.getNumStartInf());
 
@@ -362,6 +357,11 @@ public class SurvivalPlayer implements Listener{
         if (Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
             event.setCancelled(true);
         }
+
+        //TODO Possibly prevent damage while game not in session
+        // might be better to check if in hashmap as unassigned instead of using getPlaying
+        if (!this.getPlaying()) event.setCancelled(true);
+
         // if both are on the same team: cancel the attack
         else if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
             event.setCancelled(true);
@@ -372,6 +372,10 @@ public class SurvivalPlayer implements Listener{
     private void onDamage(EntityDamageEvent event){
         if(event.getEntity() instanceof Player){
             Player player = (Player) event.getEntity();
+            //Makes sure both are playing the game, else return
+            if (!statusMap.containsKey(player.getUniqueId())) {
+                return;
+            }
             if(event.getDamage() >= player.getHealth()){
                 event.setCancelled(true);
                 if (!statusMap.containsKey(player.getUniqueId())) {
@@ -550,7 +554,10 @@ public class SurvivalPlayer implements Listener{
     }
 
     /**
-     * Scoreboard
+     * Scoreboards
+     * setBoard is the in-game scoreboard.
+     * waitBoard is the scoreboard for while in game lobby.
+     * removeBoard removes the current scoreboard.
      */
     private void setBoard(Player player) {
         if (!statusMap.containsKey(player.getUniqueId())) {
@@ -592,7 +599,7 @@ public class SurvivalPlayer implements Listener{
 
         Score newLine1 = objective.getScore("");
         newLine1.setScore(5);
-        if (statusMap.size() == getMinPl()) {
+        if (statusMap.size() >= getMinPl()) {
             String minutes = String.valueOf(this.getTimer() / 60);
             String seconds = ((this.getTimer()%60 < 10) ? "0" : "") + this.getTimer()%60 ;
             Score timer = objective.getScore("Time left: " + minutes + ":" + seconds);
