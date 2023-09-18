@@ -197,11 +197,99 @@ public class Infected implements CommandExecutor {
                     }
 
                     break;
+                case "setworld": case "sw":
+                    try{
+                        List<String> vals = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
+                        String world = "";
+
+                        if(args.length == 2){
+                            if(Bukkit.getWorld(args[1]) != null){
+                                world = args[1];
+                            }else{
+                                sender.sendMessage("This world does not exist!");
+                                break;
+                            }
+                        }else if(args.length == 1){
+                            world = ((Player) sender).getWorld().getName();
+                        }else{
+                            sender.sendMessage("Correct usage (sets current world as enabled): /infected setWorld");
+                            sender.sendMessage("or /infected setWorld [world name]");
+                            break;
+                        }
+
+                        if(!vals.contains(world)){
+                            vals.add(world);
+                            Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().set("allowed-worlds", vals);
+                            Minecraft_Test.getPlugin(Minecraft_Test.class).saveConfig();
+                            Minecraft_Test.getPlugin(Minecraft_Test.class).reloadConfig();
+
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully &aadded &fworld &a" + ((Player) sender).getWorld().getName() + " &fto list of allowed worlds."));
+                        }else{
+                            sender.sendMessage("This world is already set as a lobby!");
+                        }
+                    }catch(Exception e){
+                        sender.sendMessage("Something went wrong, please check the console");
+                        e.printStackTrace();
+                    }
+
+                    break;
+
+                case "delworld": case "dw":
+                    try {
+                        if(args.length == 2){
+                            List<String> worlds = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
+
+                            if(worlds.contains(args[1])){
+                                worlds.remove(args[1]);
+                                Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().set("allowed-worlds", worlds);
+                                Minecraft_Test.getPlugin(Minecraft_Test.class).saveConfig();
+                                Minecraft_Test.getPlugin(Minecraft_Test.class).reloadConfig();
+
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully &cremoved &fworld &c" + args[1] + " &ffrom allowed worlds."));
+                            }else{
+                                sender.sendMessage("This world does not exist in allowed-worlds!");
+                            }
+                        }else{
+                            sender.sendMessage("Correct usage: /infected delWorld [world name]");
+                        }
+                    }catch(Exception e){
+                        sender.sendMessage("Something went wrong, please check the console");
+                        e.printStackTrace();
+                    }
+
+                    break;
+
+                case "listworlds": case "lw":
+                    try{
+                        List<String> worlds = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
+
+                        if(!worlds.isEmpty()){
+                            int count = 1;
+                            for(String x : worlds){
+                                String world = count + ") " + x;
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                        "tellraw " + ((Player) sender).getUniqueId() + " {" +
+                                                "\"text\": \"" + world + "\"," +
+                                                "\"hoverEvent\": {" +
+                                                "\"action\": \"show_text\"," +
+                                                "\"value\": \"Shift click to copy to chat\"" +
+                                                "}," +
+                                                "\"insertion\": \"" + x + "\"" +
+                                                "}");
+                                count++;
+                            }
+                        }
+                    }catch(Exception e){
+                        sender.sendMessage("Something went wrong, please check the console");
+                        e.printStackTrace();
+                    }
+
+                    break;
                 default:
-                    sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl), listLobbies (ll).");
+                    sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl), listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw).");
             }
         }else{
-            sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl), listLobbies (ll).");
+            sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl), listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw).");
         }
 
         return true;

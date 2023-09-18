@@ -3,9 +3,11 @@
  *   S:
  *     Add YML configurability
  *       Infected/Survivor effects
- *     Custom guns
  *     Make loadout list prettier
  *     Scoreboard styling
+ *     Teleport players on game end after a countdown
+ *     Implement permissions for sub-commands
+ *     Set which permissions should be given by default
  *   R:
  *     Implement respawn timer
  *     Infected join
@@ -18,13 +20,11 @@
  *  Implement allowed worlds
  *    Must change playerhandler
  *    Add world checks to every command
- *  Teleport players on game end after a countdown
  *    Announce winners
  *  Implement economy
  *  Implement scores
  *    Save to player data so save as a file with the UUID as the file name (similar to essentials)
- *  Implement permissions for sub-commands
- *  Set which permissions should be given by default
+ *
  *  Implement per world timer
  *      Add command to set wait time. If world is specified set that otherwise set for world they're in
  *  Implement PAPI
@@ -78,6 +78,7 @@ public class SurvivalPlayer implements Listener{
     private float surSpeed;
     private int infHealth;
     private float infSpeed;
+    private List<String> allowedWorlds;
 
     public void setPlaying(Boolean playing) {
         this.playing = playing;
@@ -99,6 +100,7 @@ public class SurvivalPlayer implements Listener{
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+
             // if timer is set, start counting down
             if (this.getTimer() > 0) {
                 if (this.getTimer() % 5 == 0) {
@@ -290,9 +292,14 @@ public class SurvivalPlayer implements Listener{
     }
 
     public void setUnassigned(Player player) {
-        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
-        statusMap.put(player.getUniqueId(), "unassigned");
+        if(getAllowedWorlds().contains(player.getWorld().getName())){
+            statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+            statusMap.put(player.getUniqueId(), "unassigned");
+        } else {
+            player.sendMessage("You can't do that here.");
+        }
     }
+
     public void endGame() {
         Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
         while (it.hasNext()) {
@@ -566,6 +573,14 @@ public class SurvivalPlayer implements Listener{
     public float getInfSpeed() {
         setInfSpeed();
         return this.infSpeed;
+    }
+
+    private void setAllowedWorlds(){
+        this.allowedWorlds = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
+    }
+    private List<String> getAllowedWorlds(){
+        setAllowedWorlds();
+        return this.allowedWorlds;
     }
 
     /**
