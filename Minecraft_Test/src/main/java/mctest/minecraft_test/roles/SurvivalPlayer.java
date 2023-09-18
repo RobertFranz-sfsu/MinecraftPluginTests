@@ -8,7 +8,6 @@
  *     Teleport players on game end after a countdown
  *     Implement permissions for sub-commands
  *     Set which permissions should be given by default
- *     Scaling infected amount (?)
  *   R:
  *     Implement respawn timer
  *     Infected join
@@ -31,7 +30,8 @@
  *  Multiple spawn locations
  *  Fix /spawn to /ispawn
  *  Change map in queue broadcast to map name which can be set in a config
- *  Add queue selector
+ *  Add queue selector menu
+ *  Add lobby selector menu
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol

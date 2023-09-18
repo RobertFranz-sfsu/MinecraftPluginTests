@@ -2,14 +2,16 @@ name: Minecraft_Test
 version: '${project.version}'
 main: mctest.minecraft_test.Minecraft_Test
 api-version: '1.19'
+authors: [DeathsValentine, Mithraea]
+Prefix: Infected
+
 commands:
   menu:
     description: Opens the Server Menu
     usage: /menu
-    aliases: m
+    aliases: [m, im]
     permission: infected.menu
     permission-message: You do not have permission to open the menu
-    default: true
   setSpawn: #remove this
     description: Sets the spawn
     usage: /setSpawn
@@ -19,24 +21,22 @@ commands:
     usage: /ispawn
     aliases: is
     permission: infected.spawn
+    permission-message: You do not have permission to run this command
   loadout:
     description: Loadout editor commands.
     usage: /loadout
-    aliases: lo
+    aliases: [lo, ilo]
     permission: infected.loadout
     permission-message: You do not have permission to run this command
-    default: op
   reload:
     description: Reload config
-    usage: /ir
+    usage: /infectedreload
     aliases: ir
     permission: infected.reload
     permission-message: You do not have permission to run this command
-    default: op
   infected:
     description: Basic plugin commands
     usage: /infected
     aliases: in
     permission: infected
     permission-message: You do not have permission to run this command
-    default: op
