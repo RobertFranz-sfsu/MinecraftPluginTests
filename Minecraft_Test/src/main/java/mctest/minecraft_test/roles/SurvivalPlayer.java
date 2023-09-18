@@ -8,6 +8,7 @@
  *     Teleport players on game end after a countdown
  *     Implement permissions for sub-commands
  *     Set which permissions should be given by default
+ *     Scaling infected amount (?)
  *   R:
  *     Implement respawn timer
  *     Infected join
@@ -19,7 +20,6 @@
  *
  *  Implement allowed worlds
  *    Must change playerhandler
- *    Add world checks to every command
  *    Announce winners
  *  Implement economy
  *  Implement scores
@@ -30,8 +30,8 @@
  *  Implement PAPI
  *  Multiple spawn locations
  *  Fix /spawn to /ispawn
- *  Scaling infected amount (?)
  *  Change map in queue broadcast to map name which can be set in a config
+ *  Add queue selector
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
@@ -79,6 +79,8 @@ public class SurvivalPlayer implements Listener{
     private int infHealth;
     private float infSpeed;
     private List<String> allowedWorlds;
+    private boolean scalingInf;
+    private int infRatio;
 
     public void setPlaying(Boolean playing) {
         this.playing = playing;
@@ -200,15 +202,22 @@ public class SurvivalPlayer implements Listener{
         // Set players as infected or survivor depending on amount playing,
 
         try{
-            Bukkit.getLogger().info("NUM START INF: " + this.getNumStartInf());
-
             ArrayList<Integer> playerList = new ArrayList<>();
             for (int i = 0; i < statusMap.size(); i++) {
                 playerList.add(i);
             }
 
+            List pList;
+
             Collections.shuffle(playerList);
-            List pList = playerList.subList(0, getNumStartInf());
+            if(isScalingInf() && getInfRatio() <= statusMap.size()){
+                Bukkit.getLogger().info("RATIO: " + getInfRatio());
+                pList = playerList.subList(0, getInfRatio());
+            }else{
+                Bukkit.getLogger().info("STARTING INF: " + getNumStartInf());
+                pList = playerList.subList(0, getNumStartInf());
+            }
+
             int iter = 0;
             for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
                 entry.setValue((pList.contains(iter++)) ? "infected" : "survivor");
@@ -219,7 +228,6 @@ public class SurvivalPlayer implements Listener{
             Bukkit.getLogger().info(statusMap.toString());
 
             this.setPlaying(true);
-
         } catch (Exception e){
             Bukkit.getLogger().info("Something went wrong trying to initialize the game.");
             e.printStackTrace();
@@ -293,41 +301,64 @@ public class SurvivalPlayer implements Listener{
 
     public void setUnassigned(Player player) {
         if(getAllowedWorlds().contains(player.getWorld().getName())){
-            statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
-            statusMap.put(player.getUniqueId(), "unassigned");
+            try{
+                statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+                statusMap.put(player.getUniqueId(), "unassigned");
+
+                Bukkit.getPlayer(player.getUniqueId()).getInventory().clear();
+                Bukkit.getPlayer(player.getUniqueId()).getInventory().setHelmet(null);
+                Bukkit.getPlayer(player.getUniqueId()).getInventory().setChestplate(null);
+                Bukkit.getPlayer(player.getUniqueId()).getInventory().setLeggings(null);
+                Bukkit.getPlayer(player.getUniqueId()).getInventory().setBoots(null);
+
+                Inventory inv = Bukkit.getPlayer(player.getUniqueId()).getInventory();
+                inv.clear();
+
+                removeEffects(Bukkit.getPlayer(player.getUniqueId()));
+            }catch (Exception e){
+                Bukkit.getLogger().info("Something went wrong");
+                e.printStackTrace();
+            }
         } else {
             player.sendMessage("You can't do that here.");
         }
     }
 
     public void endGame() {
-        Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, String> entry = it.next();
+        try{
+            Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<UUID, String> entry = it.next();
 
-            if(Bukkit.getPlayer(entry.getKey()) != null){
-                Bukkit.getPlayer(entry.getKey()).getInventory().clear();
-                Bukkit.getPlayer(entry.getKey()).getInventory().setHelmet(null);
-                Bukkit.getPlayer(entry.getKey()).getInventory().setChestplate(null);
-                Bukkit.getPlayer(entry.getKey()).getInventory().setLeggings(null);
-                Bukkit.getPlayer(entry.getKey()).getInventory().setBoots(null);
+                if (entry.getKey() == null) {
+                    it.remove();
+                } else {
+                    Bukkit.getPlayer(entry.getKey()).getInventory().clear();
+                    Bukkit.getPlayer(entry.getKey()).getInventory().setHelmet(null);
+                    Bukkit.getPlayer(entry.getKey()).getInventory().setChestplate(null);
+                    Bukkit.getPlayer(entry.getKey()).getInventory().setLeggings(null);
+                    Bukkit.getPlayer(entry.getKey()).getInventory().setBoots(null);
 
-                Inventory inv = Bukkit.getPlayer(entry.getKey()).getInventory();
-                inv.clear();
+                    Inventory inv = Bukkit.getPlayer(entry.getKey()).getInventory();
+                    inv.clear();
 
-                removeEffects(Bukkit.getPlayer(entry.getKey()));
+                    removeEffects(Bukkit.getPlayer(entry.getKey()));
+
+                    Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn());
+
+                    this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+
+                    Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
+                    Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
+                }
             }
 
-            Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
-            Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
-            if (entry.getKey() == null) {
-                it.remove();
-            } else {
-                this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-            }
+            this.setPlaying(false);
+            this.setTimer(Integer.MIN_VALUE);
+        }catch (Exception e){
+            Bukkit.getLogger().info("Something went wrong.");
+            e.printStackTrace();
         }
-        this.setPlaying(false);
-        this.setTimer(Integer.MIN_VALUE);
     }
 
     /**
@@ -581,6 +612,31 @@ public class SurvivalPlayer implements Listener{
     private List<String> getAllowedWorlds(){
         setAllowedWorlds();
         return this.allowedWorlds;
+    }
+
+    private void setScalingInf(){
+        this.scalingInf = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("use-scaling-infected");
+    }
+    private boolean isScalingInf(){
+        setScalingInf();
+        return this.scalingInf;
+    }
+
+    private void setInfRatio(){
+        String str = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getString("infected-ratio");
+        String[] ratio = str.split("-");
+
+        if(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("ratio-rounds-up")){
+            Bukkit.getLogger().info("ROUNDING UP");
+            this.infRatio = (int) Math.ceil((Double.parseDouble(ratio[1])/Double.parseDouble(ratio[0])));
+        }else{
+            Bukkit.getLogger().info("ROUNDING DOWN");
+            this.infRatio = (int) Math.floor((Double.parseDouble(ratio[1])/Double.parseDouble(ratio[0])));
+        }
+    }
+    private int getInfRatio(){
+        setInfRatio();
+        return infRatio;
     }
 
     /**

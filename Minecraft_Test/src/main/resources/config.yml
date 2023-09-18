@@ -1,24 +1,44 @@
 #Main settings
+
+# Queue length in seconds
 wait-timer: 5
 
+# Respawn timer for infected in seconds
 respawn-timer: 5
 
+# Game length in seconds
 match-length: 10
 
+# Maximum amount of players for a game
 max-players: 2
 
+# Minimum amount of players needed to begin a countdown for a game
 min-players: 1
 
+# Number of starting infected
 num-starting-infected: 1
-
-lobby-worlds:
-  - world #this is an example
 
 queue-start-broadcast-enabled: TRUE
 
+# IF enabled, number of starting infected will scale based on the number of players
+# This will only work if the ratio is less than or equal to the number of people playing
+# Otherwise it will default to num-starting-infected
+use-scaling-infected: FALSE
+
+# Ratio of starting infected to survivors
+infected-ratio: 1-10 # This means 1 infected for every 10 players, must use "-" to separate numbers
+ratio-rounds-up: FALSE # If enabled, the plugin will round up for number of starting infected
+
+# Worlds that can get an announcement on the beginning of a queue if
+# queue-start-broadcast-enabled is true.
+lobby-worlds:
+  - world #this is an example
+
+# Worlds where a match can be held
 allowed-worlds:
   - world #this is an example
 
+# Default spawn for those not playing/without an infected/survivor role
 default-spawn:
   world: placeholder
   x: placeholder
