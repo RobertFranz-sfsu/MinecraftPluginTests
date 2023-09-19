@@ -169,8 +169,6 @@ public class SurvivalPlayer implements Listener{
                 }
                 this.setInfectedCnt();
                 this.setSurvivorCnt();
-                statusMap.forEach((key, value) -> this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
-                Bukkit.getLogger().info("Game in session");
                 statusMap.forEach((key, value) -> {
                     if (Objects.equals(healthMap.get(key), "alive")) {
                         this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key)));
@@ -386,6 +384,9 @@ public class SurvivalPlayer implements Listener{
             Bukkit.getLogger().info("Something went wrong.");
             e.printStackTrace();
         }
+<<<<<<< Updated upstream
+=======
+        healthMap.clear();
         this.setPlaying(false);
         this.setTimer(Integer.MIN_VALUE);
         Bukkit.getLogger().info(this.plugin.getName());
