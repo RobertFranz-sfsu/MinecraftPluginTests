@@ -42,6 +42,8 @@ package mctest.minecraft_test.roles;
 
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.ConfigUtil;
+import mctest.minecraft_test.util.CountdownTimer;
+import mctest.minecraft_test.util.DelayedTask;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -49,6 +51,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
@@ -61,6 +64,7 @@ public class SurvivalPlayer implements Listener{
     ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
     ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
     private final HashMap<UUID, String> statusMap = new HashMap<>();
+    private final HashMap<UUID, String> healthMap = new HashMap<>();
     private int infectedCnt = 0;
     private int survivorCnt = 0;
     private Boolean playing = false;
@@ -97,9 +101,11 @@ public class SurvivalPlayer implements Listener{
     public HashMap<UUID, String> getStatusMap(){
         return this.statusMap;
     }
+    private Minecraft_Test plugin;
 
     public SurvivalPlayer(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
+        this.plugin = plugin;
 
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
 
@@ -165,6 +171,13 @@ public class SurvivalPlayer implements Listener{
                 this.setSurvivorCnt();
                 statusMap.forEach((key, value) -> this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
                 Bukkit.getLogger().info("Game in session");
+                statusMap.forEach((key, value) -> {
+                    if (Objects.equals(healthMap.get(key), "alive")) {
+                        this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key)));
+                    }
+
+                });
+                //Bukkit.getLogger().info("Game in session");
 
                 // TODO
                 //  infected win
@@ -237,7 +250,10 @@ public class SurvivalPlayer implements Listener{
     public void setRole(Player player) {
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
             this.setAttributes(player, this.getInfSpeed(), this.getInfHealth(), this.getInfHealth());
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
             if(!Objects.equals(infConfig.getConfig().get("effects"), null)){
                 setEffects(player);
             }else{
@@ -246,7 +262,7 @@ public class SurvivalPlayer implements Listener{
 
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&bYou are &cinfected&b!"));
 
-            player.teleport(this.getInfSpawn());
+            //player.teleport(this.getInfSpawn());
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
             this.setAttributes(player, this.getSurSpeed(), this.getSurHealth(), this.getSurHealth());
 
@@ -300,10 +316,21 @@ public class SurvivalPlayer implements Listener{
     }
 
     public void setUnassigned(Player player) {
+<<<<<<< Updated upstream
         if(getAllowedWorlds().contains(player.getWorld().getName())){
             try{
                 statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
                 statusMap.put(player.getUniqueId(), "unassigned");
+=======
+        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+        statusMap.put(player.getUniqueId(), "unassigned");
+        healthMap.put(player.getUniqueId(), "alive");
+    }
+    public void endGame() {
+        Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, String> entry = it.next();
+>>>>>>> Stashed changes
 
                 Bukkit.getPlayer(player.getUniqueId()).getInventory().clear();
                 Bukkit.getPlayer(player.getUniqueId()).getInventory().setHelmet(null);
@@ -359,6 +386,10 @@ public class SurvivalPlayer implements Listener{
             Bukkit.getLogger().info("Something went wrong.");
             e.printStackTrace();
         }
+        this.setPlaying(false);
+        this.setTimer(Integer.MIN_VALUE);
+        Bukkit.getLogger().info(this.plugin.getName());
+>>>>>>> Stashed changes
     }
 
     /**
@@ -431,9 +462,6 @@ public class SurvivalPlayer implements Listener{
             }
             if(event.getDamage() >= player.getHealth()){
                 event.setCancelled(true);
-                if (!statusMap.containsKey(player.getUniqueId())) {
-                    return;
-                }
 
                 Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
                 if(Objects.equals(statusMap.get(player.getUniqueId()).toLowerCase(), "survivor")){
@@ -442,9 +470,47 @@ public class SurvivalPlayer implements Listener{
 
                 this.removeEffects(player);
                 this.setRole(player);
-                player.teleport(getInfSpawn());
+                //player.teleport(getInfSpawn());
+                //healthMap.put(player.getUniqueId(), "dead");
+
+                new CountdownTimer(this.plugin, this.getRespawnTime(),
+                        // What happens at the start
+                        () -> {
+                            healthMap.put(player.getUniqueId(), "dead");
+                            player.setWalkSpeed(0);
+                        },
+                        // What happens at the end
+                        () -> {
+                            if (this.getPlaying()) {
+                                healthMap.put(player.getUniqueId(), "alive");
+                                player.setWalkSpeed(this.getInfSpeed());
+                            }
+                        },
+                        // What happens during each tick
+                        (t) -> {
+                            if (this.getPlaying()) {
+                                this.respawnBoard(player, t.getSecondsLeft());
+                            }
+                        }).scheduleTimer();
+
+//                new DelayedTask(() -> {
+//                    healthMap.put(player.getUniqueId(), "alive");
+//                    player.setWalkSpeed(this.getInfSpeed());
+//                }, 20L * this.getRespawnTime());
 
 
+            }
+        }
+    }
+
+    @EventHandler
+    private void disableMovement(PlayerMoveEvent event) {
+        if (!statusMap.containsKey(event.getPlayer().getUniqueId())) {
+            return;
+        }
+        if (Objects.equals(healthMap.get(event.getPlayer().getUniqueId()), "dead")) {
+            if (event.getTo().getY() > event.getFrom().getY()) {
+                event.setCancelled(true);
             }
         }
     }
@@ -657,10 +723,56 @@ public class SurvivalPlayer implements Listener{
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         Score newLine1 = objective.getScore("");
-        newLine1.setScore(5);
+        newLine1.setScore(6);
+
+//        if (Objects.equals(healthMap.get(player.getUniqueId()), "dead")) {
+//            String ellipsis = ".";
+//            ellipsis =  new String(new char[3-(this.getTimer() % 4)]).replace("\0", ellipsis);
+//            Score wait = objective.getScore("Waiting to respawn" + ellipsis);
+//            wait.setScore(5);
+//        }
+
+
         String minutes = String.valueOf(this.getTimer() / 60);
         String seconds = ((this.getTimer()%60 < 10) ? "0" : "") + this.getTimer()%60 ;
-        Score timer = objective.getScore("Time left: " + minutes + ":" + seconds);
+        Score timer = objective.getScore("Time left in game: " + minutes + ":" + seconds);
+        timer.setScore(4);
+        Score newLine2 = objective.getScore("");
+        newLine2.setScore(3);
+
+        Score survivorScore = objective.getScore(ChatColor.GREEN + "Survivors: " + this.getSurvivorCnt());
+        survivorScore.setScore(2);
+        Score infectedScore = objective.getScore(ChatColor.RED + "Infected:   " + this.getInfectedCnt());
+        infectedScore.setScore(1);
+
+        player.setScoreboard(scoreboard);
+    }
+
+    private  void respawnBoard(Player player, int sec) {
+        if (!statusMap.containsKey(player.getUniqueId())) {
+            return;
+        }
+        if (!statusMap.containsKey(player.getUniqueId())) {
+            return;
+        }
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        Scoreboard scoreboard = manager.getNewScoreboard();
+
+        Objective objective = scoreboard.registerNewObjective("Game Status", "dummy");
+        objective.setDisplayName(ChatColor.GOLD + "Survival Status");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        Score newLine1 = objective.getScore("");
+        newLine1.setScore(6);
+
+        String ellipsis = ".";
+        ellipsis =  new String(new char[3-(this.getTimer() % 4)]).replace("\0", ellipsis);
+        Score wait = objective.getScore("Respawning in: " + sec + ellipsis);
+        wait.setScore(5);
+
+        String minutes = String.valueOf(this.getTimer() / 60);
+        String seconds = ((this.getTimer()%60 < 10) ? "0" : "") + this.getTimer()%60 ;
+        Score timer = objective.getScore("Time left in game: " + minutes + ":" + seconds);
         timer.setScore(4);
         Score newLine2 = objective.getScore("");
         newLine2.setScore(3);

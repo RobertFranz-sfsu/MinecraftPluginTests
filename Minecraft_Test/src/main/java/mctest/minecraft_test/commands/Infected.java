@@ -6,6 +6,8 @@ import mctest.minecraft_test.util.ConfigUtil;
 import mctest.minecraft_test.util.SpawnUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -128,6 +130,22 @@ public class Infected implements CommandExecutor {
                         break;
                     }
 
+                    break;
+                case "join" : case "j":
+                    s.setUnassigned(player);
+                    if (args[1] == null) {
+                        double x = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.x").toString().replaceAll("[\\[\\],]",""));
+                        double y = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.y").toString().replaceAll("[\\[\\],]",""));
+                        double z = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.z").toString().replaceAll("[\\[\\],]",""));
+                        float pitch = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.pitch").toString().replaceAll("[\\[\\],]",""));
+                        float yaw = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.yaw").toString().replaceAll("[\\[\\],]",""));
+                        World world = Bukkit.getServer().getWorld(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.world").toString().replaceAll("[\\[\\],]",""));
+                        Location spawn = new Location(world, x, y, z, yaw, pitch);
+                        player.teleport(spawn);
+                    } else {
+                        //TODO check if in allowed worlds
+                        player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
+                    }
                     break;
 
                 case "setlobby": case "sl":
