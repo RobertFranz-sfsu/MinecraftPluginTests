@@ -169,8 +169,6 @@ public class SurvivalPlayer implements Listener{
                 }
                 this.setInfectedCnt();
                 this.setSurvivorCnt();
-                statusMap.forEach((key, value) -> this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
-                Bukkit.getLogger().info("Game in session");
                 statusMap.forEach((key, value) -> {
                     if (Objects.equals(healthMap.get(key), "alive")) {
                         this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key)));
@@ -250,10 +248,7 @@ public class SurvivalPlayer implements Listener{
     public void setRole(Player player) {
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
             this.setAttributes(player, this.getInfSpeed(), this.getInfHealth(), this.getInfHealth());
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
             if(!Objects.equals(infConfig.getConfig().get("effects"), null)){
                 setEffects(player);
             }else{
@@ -310,44 +305,24 @@ public class SurvivalPlayer implements Listener{
 
         this.removeBoard(player);
         statusMap.remove(player.getUniqueId());
+        healthMap.remove(player.getUniqueId());
         removeEffects(player);
         player.sendMessage("No longer playing");
         //TODO Store players' items and give them back
     }
 
     public void setUnassigned(Player player) {
-<<<<<<< Updated upstream
-        if(getAllowedWorlds().contains(player.getWorld().getName())){
-            try{
+        if (getAllowedWorlds().contains(player.getWorld().getName())) {
+            try {
                 statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
                 statusMap.put(player.getUniqueId(), "unassigned");
-=======
-        statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
-        statusMap.put(player.getUniqueId(), "unassigned");
-        healthMap.put(player.getUniqueId(), "alive");
-    }
-    public void endGame() {
-        Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, String> entry = it.next();
->>>>>>> Stashed changes
-
-                Bukkit.getPlayer(player.getUniqueId()).getInventory().clear();
-                Bukkit.getPlayer(player.getUniqueId()).getInventory().setHelmet(null);
-                Bukkit.getPlayer(player.getUniqueId()).getInventory().setChestplate(null);
-                Bukkit.getPlayer(player.getUniqueId()).getInventory().setLeggings(null);
-                Bukkit.getPlayer(player.getUniqueId()).getInventory().setBoots(null);
-
-                Inventory inv = Bukkit.getPlayer(player.getUniqueId()).getInventory();
-                inv.clear();
-
-                removeEffects(Bukkit.getPlayer(player.getUniqueId()));
-            }catch (Exception e){
-                Bukkit.getLogger().info("Something went wrong");
+            } catch (Exception e) {
+                Bukkit.getLogger().info("Something went wrong.");
                 e.printStackTrace();
             }
-        } else {
-            player.sendMessage("You can't do that here.");
+            statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
+            statusMap.put(player.getUniqueId(), "unassigned");
+            healthMap.put(player.getUniqueId(), "alive");
         }
     }
 
@@ -371,7 +346,7 @@ public class SurvivalPlayer implements Listener{
 
                     removeEffects(Bukkit.getPlayer(entry.getKey()));
 
-                    Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn());
+                    //Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn());
 
                     this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
@@ -386,10 +361,9 @@ public class SurvivalPlayer implements Listener{
             Bukkit.getLogger().info("Something went wrong.");
             e.printStackTrace();
         }
-        this.setPlaying(false);
-        this.setTimer(Integer.MIN_VALUE);
-        Bukkit.getLogger().info(this.plugin.getName());
->>>>>>> Stashed changes
+//        this.setPlaying(false);
+//        this.setTimer(Integer.MIN_VALUE);
+
     }
 
     /**

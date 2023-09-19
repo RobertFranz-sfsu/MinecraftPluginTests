@@ -3,17 +3,12 @@
 # Queue length in seconds
 wait-timer: 5
 
-<<<<<<< Updated upstream
 # Respawn timer for infected in seconds
-respawn-timer: 5
-
-# Game length in seconds
-match-length: 10
-=======
 respawn-timer: 10
 
+# Game length in seconds
 match-length: 30
->>>>>>> Stashed changes
+
 
 # Maximum amount of players for a game
 max-players: 2
