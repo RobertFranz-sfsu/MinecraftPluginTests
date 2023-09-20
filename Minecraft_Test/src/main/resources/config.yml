@@ -20,6 +20,18 @@ currency-symbol: "$"
 
 queue-start-broadcast-enabled: TRUE
 
+# If enabled you can set a specific permission for each loadout if you want them to be seen with certain permissions and
+# not just type.
+# If set to true but no permission is set, it will default to the type
+# The permission will always be set to "infected.loadout.[Your custom permission node]"
+# For this example loadout:
+#   loadout:
+#     placeholder: placeholder
+#     description: placeholder
+#     permission: test
+# The permission node will be: infected.loadout.test
+use-custom-loadout-perms: FALSE
+
 # IF enabled, number of starting infected will scale based on the number of players
 # This will only work if the ratio is less than or equal to the number of people playing
 # Otherwise it will default to num-starting-infected

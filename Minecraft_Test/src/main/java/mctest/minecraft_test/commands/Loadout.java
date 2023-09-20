@@ -54,6 +54,7 @@ public class Loadout implements CommandExecutor {
                                 }
                             }catch(Exception e){
                                 sender.sendMessage("Something went wrong. Please check the console.");
+                                Bukkit.getLogger().warning("Something went wrong trying to create a loadout.");
                                 e.printStackTrace();
                             }
                         }
@@ -79,6 +80,7 @@ public class Loadout implements CommandExecutor {
                                 }
                             }catch(Exception e){
                                 sender.sendMessage("Something went wrong. Please check the console.");
+                                Bukkit.getLogger().warning("Something went wrong trying to delete a loadout.");
                                 e.printStackTrace();
                             }
                         }
@@ -133,6 +135,7 @@ public class Loadout implements CommandExecutor {
                                 }
                             }catch(Exception e){
                                 sender.sendMessage("Something went wrong. Please check the console.");
+                                Bukkit.getLogger().warning("Something went wrong trying to save a loadout.");
                                 e.printStackTrace();
                             }
                         }
@@ -191,6 +194,7 @@ public class Loadout implements CommandExecutor {
                                 }
 
                             } catch (Exception e) {
+                                Bukkit.getLogger().warning("Something went wrong trying to give a loadout.");
                                 e.printStackTrace();
                             }
                         }
@@ -236,7 +240,7 @@ public class Loadout implements CommandExecutor {
                             }
                         }catch (Exception e){
                             sender.sendMessage("Something went wrong, please check console.");
-                            Bukkit.getLogger().info("Something went wrong");
+                            Bukkit.getLogger().warning("Something went wrong trying to list loadouts.");
                             e.printStackTrace();
                         }
                     }else{
@@ -287,6 +291,7 @@ public class Loadout implements CommandExecutor {
                                 }
                             }catch(Exception e){
                                 sender.sendMessage("Something went wrong. Please check the console.");
+                                Bukkit.getLogger().warning("Something went wrong trying to set the placeholder.");
                                 e.printStackTrace();
                             }
                         }
@@ -334,6 +339,7 @@ public class Loadout implements CommandExecutor {
                                 }
                             }catch(Exception e){
                                 sender.sendMessage("Something went wrong. Please check the console.");
+                                Bukkit.getLogger().warning("Something went wrong trying to set the description.");
                                 e.printStackTrace();
                             }
                         }
@@ -358,6 +364,7 @@ public class Loadout implements CommandExecutor {
                                 }
                             }catch(Exception e){
                                 sender.sendMessage("Something went wrong. Please check the console.");
+                                Bukkit.getLogger().warning("Something went wrong trying to set the type.");
                                 e.printStackTrace();
                             }
                         }
@@ -367,12 +374,34 @@ public class Loadout implements CommandExecutor {
                     }
 
                     break;
+                case "setperm": case "perm":
+                    if(sender.hasPermission("infected.loadout.setperm") || sender.hasPermission("infected.loadout.*")){
+                        if(args.length < 3){
+                            sender.sendMessage("Usage: /loadout setPerm/perm [loadoutname] [permission]");
+                            sender.sendMessage("This will make the permission node: infected.loadout.[permission]");
+                        }else{
+                            try{
+                                con.getConfig().set(args[1] + ".permission", args[2].toLowerCase());
+                                con.save();
+                                sender.sendMessage("&fThe permission for " + args[1] + " has been set to " + args[2].toLowerCase());
+                            }catch(Exception e){
+                                sender.sendMessage("Something went wrong. Please check the console.");
+                                Bukkit.getLogger().warning("Something went wrong trying to set the permission.");
+                                e.printStackTrace();
+                            }
+                        }
+                    }else{
+                        sender.sendMessage("You do not have permission to do this!");
+                        break;
+                    }
+                    break;
+
                 default:
                     sender.sendMessage("Please enter a valid loadout name or create one!");
                     break;
             }
         }else{
-            sender.sendMessage("Valid sub commands: create (c), save, delete (del), list (l), give, setPlaceholder (sp), setDescription (sd), setType (st).");
+            sender.sendMessage("Valid sub commands: create (c), save, delete (del), list (l), give, setPlaceholder (sp), setDescription (sd), setType (st), setPerm (perm).");
         }
 
         return true;

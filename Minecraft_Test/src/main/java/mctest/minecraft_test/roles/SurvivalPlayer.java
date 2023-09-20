@@ -6,6 +6,7 @@
  *     Make loadout list prettier
  *     Scoreboard styling
  *     Teleport players on game end after a countdown
+ *     Set up custom loadout permission nodes
  *   R:
  *     Infected join
  *       optional argument to specify which queue they want to join for multiple maps
@@ -28,7 +29,6 @@
  *  Change map in queue broadcast to map name which can be set in a config
  *  Add queue selector menu
  *  Add lobby selector menu
- *  Add custom permission nodes to loadouts
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
@@ -235,6 +235,12 @@ public class SurvivalPlayer implements Listener{
             Bukkit.getLogger().info(statusMap.toString());
 
             this.setPlaying(true);
+
+            for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
+                if(entry.getKey() != null){
+                    Bukkit.dispatchCommand(Bukkit.getPlayer(entry.getKey()), "m");
+                }
+            }
         } catch (Exception e){
             Bukkit.getLogger().warning("Something went wrong trying to initialize the game.");
             e.printStackTrace();
@@ -267,7 +273,7 @@ public class SurvivalPlayer implements Listener{
 
             player.teleport(this.getSurSpawn());
         }
-        Bukkit.dispatchCommand(player, "m");
+//        Bukkit.dispatchCommand(player, "m");
         //this.setBoard(player);
     }
     private void setAttributes(Player player, Float speed, int maxHealth, int health) {

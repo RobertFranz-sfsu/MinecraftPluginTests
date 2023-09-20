@@ -72,18 +72,25 @@ public class Menu implements Listener, CommandExecutor {
                 inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                 index++;
             }
-        }else if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "infected")){
+        }else{
             for(String keys : con.getConfig().getKeys(false)){
-                if(Objects.equals(con.getConfig().getString(keys + ".type"), "infected")){
-                    inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
-                    index++;
-                }
-            }
-        }else if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "survivor")){
-            for(String keys : con.getConfig().getKeys(false)){
-                if(Objects.equals(con.getConfig().getString(keys + ".type"), "survivor")){
-                    inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
-                    index++;
+                if(gamer.getPlaying() && Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("use-custom-loadout-perms") && !Objects.equals(con.getConfig().get(keys + ".permission"), null)){
+                    if(player.hasPermission("infected.loadout." + con.getConfig().getString(keys + ".permission"))){
+                        inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
+                        index++;
+                    }
+                }else{
+                    if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "infected")){
+                        if(Objects.equals(con.getConfig().getString(keys + ".type"), "infected")){
+                            inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
+                            index++;
+                        }
+                    }else if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "survivor")){
+                        if(Objects.equals(con.getConfig().getString(keys + ".type"), "survivor")){
+                            inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
+                            index++;
+                        }
+                    }
                 }
             }
         }
