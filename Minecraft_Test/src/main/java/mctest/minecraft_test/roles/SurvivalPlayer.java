@@ -22,14 +22,13 @@
  *  Implement scores
  *    Save to player data so save as a file with the UUID as the file name (similar to essentials)
  *
- *  Implement per world timer
- *      Add command to set wait time. If world is specified set that otherwise set for world they're in
  *  Implement PAPI
  *  Multiple spawn locations
  *  Fix /spawn to /ispawn
  *  Change map in queue broadcast to map name which can be set in a config
  *  Add queue selector menu
  *  Add lobby selector menu
+ *  Add custom permission nodes to loadouts
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
