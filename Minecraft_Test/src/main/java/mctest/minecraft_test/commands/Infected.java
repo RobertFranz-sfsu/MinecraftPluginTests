@@ -82,6 +82,7 @@ public class Infected implements CommandExecutor {
                                         infConfig.getConfig().set("spawn.yaw", player.getLocation().getYaw());
 
                                         infConfig.save();
+                                        s.reloadConfigs();
 
                                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bSet the &cinfected &bspawn."));
 
@@ -97,6 +98,7 @@ public class Infected implements CommandExecutor {
                                         surConfig.getConfig().set("spawn.yaw", player.getLocation().getYaw());
 
                                         surConfig.save();
+                                        s.reloadConfigs();
 
                                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bSet the &asurvivor &bspawn."));
 
@@ -110,6 +112,7 @@ public class Infected implements CommandExecutor {
                                         Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().set("default-spawn.yaw", player.getLocation().getYaw());
 
                                         Minecraft_Test.getPlugin(Minecraft_Test.class).saveConfig();
+                                        s.reloadConfigs();
 
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bSet the &edefault &bspawn."));
 
