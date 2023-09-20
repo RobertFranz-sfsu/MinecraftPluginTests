@@ -10,9 +10,18 @@ import mctest.minecraft_test.util.DelayedTask;
 import mctest.minecraft_test.util.SpawnUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import net.milkbowl.vault.permission.Permission;
+
 public final class Minecraft_Test extends JavaPlugin {
+    private static Economy econ = null;
+    private static Permission perms = null;
+    private static Chat chat = null;
     public FileConfiguration getDefaultConfig(){
         return this.getConfig();
     }
@@ -21,6 +30,17 @@ public final class Minecraft_Test extends JavaPlugin {
         // Plugin startup logic
         Bukkit.getLogger().info("Server Started");
         this.saveDefaultConfig();
+
+        // Economy
+        if (!setupEconomy() ) {
+            getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }else{
+            getLogger().info("Setting up the economy!");
+            setupPermissions();
+            setupChat();
+        }
 
         // Create these yml files and don't replace if present already
         saveResource("Infected.yml", false);
@@ -47,5 +67,36 @@ public final class Minecraft_Test extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         Bukkit.getLogger().info("Shutting Down");
+    }
+
+    /**
+     * ECONOMY STUFF
+     */
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
+    private boolean setupChat() {
+        RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
+        chat = rsp.getProvider();
+        return chat != null;
+    }
+
+    private boolean setupPermissions() {
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+        return perms != null;
+    }
+
+    public Economy getEcon(){
+        return econ;
     }
 }

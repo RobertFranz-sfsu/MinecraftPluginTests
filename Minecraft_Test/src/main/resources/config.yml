@@ -1,23 +1,22 @@
 #Main settings
 
+# Match settings
 # Queue length in seconds
 wait-timer: 5
-
 # Respawn timer for infected in seconds
-respawn-timer: 10
-
+respawn-timer: 3
 # Game length in seconds
-match-length: 30
-
-
+match-length: 10
 # Maximum amount of players for a game
 max-players: 2
-
 # Minimum amount of players needed to begin a countdown for a game
 min-players: 1
-
 # Number of starting infected
 num-starting-infected: 1
+
+# Reward settings (must have vault and economy handler for money to apply)
+# Rewards for each team member when the team wins
+currency-symbol: "$"
 
 queue-start-broadcast-enabled: TRUE
 

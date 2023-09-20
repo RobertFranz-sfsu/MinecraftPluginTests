@@ -12,6 +12,7 @@ speed: .2
 
 health: 20
 
+can-switch-loadouts-during-match: FALSE;
 # To enable effects, remove the # in front of the next section.
 # Remove the example or you will get an error.
 # For an infinite effect use INFINITE_DURATION.
@@ -20,3 +21,8 @@ health: 20
 #  EFFECT-NAME:
 #    - DURATION
 #    - LEVEL
+
+sur-money-reward: 10.0
+sur-win-commands: #enter the command without the leading /
+  # Use PLAYER_NAME for the player's name
+  - give PLAYER_NAME wood 1

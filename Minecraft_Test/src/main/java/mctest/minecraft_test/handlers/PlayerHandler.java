@@ -1,6 +1,8 @@
 package mctest.minecraft_test.handlers;
 
 import mctest.minecraft_test.Minecraft_Test;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
