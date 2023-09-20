@@ -1,11 +1,18 @@
 #Infected settings
-spawn:
-  world: exampleWorld
-  x: 0
-  y: 0
-  z: 0
-  pitch: 0
-  yaw: 0
+spawns:
+  exampleworld:
+    first:
+      x: 0
+      y: 0
+      z: 0
+      pitch: 0
+      yaw: 0
+    second:
+      x: 0
+      y: 0
+      z: 0
+      pitch: 0
+      yaw: 0
 
 #The default walk speed for vanilla is .2, must enter a value between -1 and 1
 speed: .6

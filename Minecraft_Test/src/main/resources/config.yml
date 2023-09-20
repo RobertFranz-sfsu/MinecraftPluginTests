@@ -6,7 +6,7 @@ wait-timer: 5
 # Respawn timer for infected in seconds
 respawn-timer: 3
 # Game length in seconds
-match-length: 10
+match-length: 45
 # Maximum amount of players for a game
 max-players: 2
 # Minimum amount of players needed to begin a countdown for a game
@@ -51,10 +51,17 @@ allowed-worlds:
   - world #this is an example
 
 # Default spawn for those not playing/without an infected/survivor role
-default-spawn:
-  world: placeholder
-  x: placeholder
-  y: placeholder
-  z: placeholder
-  pitch: placeholder
-  yaw: placeholder
+default-spawns:
+  exampleworld:
+    firstexample:
+      x: 0
+      y: 0
+      z: 0
+      pitch: 0
+      yaw: 0
+    secondexample:
+      x: 0
+      y: 0
+      z: 0
+      pitch: 0
+      yaw: 0

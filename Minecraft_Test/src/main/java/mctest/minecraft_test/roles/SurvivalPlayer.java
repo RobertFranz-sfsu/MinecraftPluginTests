@@ -65,6 +65,7 @@ import java.util.*;
 public class SurvivalPlayer implements Listener{
     ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
     ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
+    private Minecraft_Test pl = Minecraft_Test.getPlugin(Minecraft_Test.class);
     private final HashMap<UUID, String> statusMap = new HashMap<>();
     private final HashMap<UUID, String> healthMap = new HashMap<>();
     private int infectedCnt = 0;
@@ -131,12 +132,12 @@ public class SurvivalPlayer implements Listener{
                 }
                 // if minimum amount of players have joined, start timer
                 if (statusMap.size() == this.getMinPl() &&  this.getTimer() == Integer.MIN_VALUE) {
-                    List<String> val = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
+                    List<String> val = pl.getConfig().getStringList("lobby-worlds");
                     Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
                     setTimer(getWaitTime());
 
                     // Print message that queue has begun in specified world as long as broadcast is enabled in config
-                    if(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("queue-start-broadcast-enabled")){
+                    if(pl.getConfig().getBoolean("queue-start-broadcast-enabled")){
                         // TODO
                         //  Change this to map name
 
@@ -321,17 +322,12 @@ public class SurvivalPlayer implements Listener{
             try {
                 statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
                 statusMap.put(player.getUniqueId(), "unassigned");
+                healthMap.put(player.getUniqueId(), "alive");
                 this.removeEffects(player);
             } catch (Exception e) {
                 Bukkit.getLogger().warning("Something went wrong.");
                 e.printStackTrace();
             }
-
-            // TODO
-            //  Why is this out here?? maybe move health map?
-            statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
-            statusMap.put(player.getUniqueId(), "unassigned");
-            healthMap.put(player.getUniqueId(), "alive");
         }
     }
 
@@ -430,10 +426,10 @@ public class SurvivalPlayer implements Listener{
             reward = 0;
         }
 
-        if(Minecraft_Test.getPlugin(Minecraft_Test.class).getEcon() != null){
+        if(pl.getEcon() != null){
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&fYou have been awarded &a" +
-                    Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getString("currency-symbol") + reward + "&f for winning!"));
-            Minecraft_Test.getPlugin(Minecraft_Test.class).getEcon().depositPlayer(player.getName(), reward);
+                    pl.getConfig().getString("currency-symbol") + reward + "&f for winning!"));
+            pl.getEcon().depositPlayer(player.getName(), reward);
         }
 
         try{
@@ -596,7 +592,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setWaitTime(){
-        this.waitTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("wait-timer");
+        this.waitTime = pl.getConfig().getInt("wait-timer");
     }
     private int getWaitTime(){
         this.setWaitTime();
@@ -605,7 +601,7 @@ public class SurvivalPlayer implements Listener{
 
     // Match length
     private void setGameTime(){
-        this.gameTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("match-length");
+        this.gameTime = pl.getConfig().getInt("match-length");
     }
     private int getGameTime(){
         this.setGameTime();
@@ -613,7 +609,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setMaxPl(){
-        this.maxPl = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("max-players");
+        this.maxPl = pl.getConfig().getInt("max-players");
     }
     private int getMaxPl(){
         this.setMaxPl();
@@ -621,7 +617,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setMinPl(){
-        this.minPl = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("min-players");
+        this.minPl = pl.getConfig().getInt("min-players");
     }
     private int getMinPl(){
         this.setMinPl();
@@ -629,7 +625,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setNumStartInf(){
-        this.numStartInf = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("num-starting-infected");
+        this.numStartInf = pl.getConfig().getInt("num-starting-infected");
     }
     private int getNumStartInf(){
         this.setNumStartInf();
@@ -637,7 +633,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setRespawnTime(){
-        this.respawnTime = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getInt("respawn-timer");
+        this.respawnTime = pl.getConfig().getInt("respawn-timer");
     }
     private int getRespawnTime(){
         this.setRespawnTime();
@@ -645,8 +641,8 @@ public class SurvivalPlayer implements Listener{
     }
 
     public void reloadConfigs(){
-        surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
-        infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
+        surConfig = new ConfigUtil(pl, "Survivor.yml");
+        infConfig = new ConfigUtil(pl, "Infected.yml");
     }
 
     private void setInfSpawn(){
@@ -681,12 +677,12 @@ public class SurvivalPlayer implements Listener{
 
     private void setDefaultSpawn(){
         defaultSpawn = new Location(
-            Bukkit.getWorld(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getString("default-spawn.world")),
-            Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.x"),
-            Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.y"),
-            Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.z"),
-            (float) Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.pitch"),
-            (float) Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getDouble("default-spawn.yaw")
+            Bukkit.getWorld(pl.getConfig().getString("default-spawn.world")),
+                pl.getConfig().getDouble("default-spawn.x"),
+                pl.getConfig().getDouble("default-spawn.y"),
+                pl.getConfig().getDouble("default-spawn.z"),
+            (float) pl.getConfig().getDouble("default-spawn.pitch"),
+            (float) pl.getConfig().getDouble("default-spawn.yaw")
         );
     }
     public Location getDefaultSpawn(){
@@ -727,7 +723,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setAllowedWorlds(){
-        this.allowedWorlds = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
+        this.allowedWorlds = pl.getConfig().getStringList("allowed-worlds");
     }
     private List<String> getAllowedWorlds(){
         setAllowedWorlds();
@@ -735,7 +731,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setScalingInf(){
-        this.scalingInf = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("use-scaling-infected");
+        this.scalingInf = pl.getConfig().getBoolean("use-scaling-infected");
     }
     private boolean isScalingInf(){
         setScalingInf();
@@ -759,10 +755,10 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setInfRatio(){
-        String str = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getString("infected-ratio");
+        String str = pl.getConfig().getString("infected-ratio");
         String[] ratio = str.split("-");
 
-        if(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("ratio-rounds-up")){
+        if(pl.getConfig().getBoolean("ratio-rounds-up")){
             Bukkit.getLogger().info("ROUNDING UP");
             this.infRatio = (int) Math.ceil((Double.parseDouble(ratio[1])/Double.parseDouble(ratio[0])));
         }else{
