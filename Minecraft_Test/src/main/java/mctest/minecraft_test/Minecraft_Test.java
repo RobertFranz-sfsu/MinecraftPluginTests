@@ -2,6 +2,7 @@ package mctest.minecraft_test;
 
 import mctest.minecraft_test.commands.*;
 import mctest.minecraft_test.handlers.PlayerHandler;
+import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
 import mctest.minecraft_test.util.CountdownTimer;
@@ -34,11 +35,10 @@ public final class Minecraft_Test extends JavaPlugin {
         getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil)); //remove later
         getCommand("loadout").setExecutor(new Loadout());
         getCommand("reload").setExecutor(new Reload(sp));
-        getCommand("infected").setExecutor(new Infected(sp));
+        getCommand("infected").setExecutor(new Infected(sp, new GamesList(this)));
 
         new PlayerHandler(this);
         new DelayedTask(this);
-//        new PlagueHandler(this);
         //new SurvivalPlayer(this);
 
     }

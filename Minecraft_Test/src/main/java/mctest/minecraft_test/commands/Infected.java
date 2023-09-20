@@ -1,6 +1,7 @@
 package mctest.minecraft_test.commands;
 
 import mctest.minecraft_test.Minecraft_Test;
+import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
 import mctest.minecraft_test.util.SpawnUtil;
@@ -20,9 +21,11 @@ import java.util.Objects;
 public class Infected implements CommandExecutor {
 
     private SurvivalPlayer s;
+    private GamesList games;
 
-    public Infected(SurvivalPlayer s){
+    public Infected(SurvivalPlayer s, GamesList games){
         this.s = s;
+        this.games = games;
     }
 
     @Override
@@ -134,17 +137,36 @@ public class Infected implements CommandExecutor {
                 case "join" : case "j":
                     s.setUnassigned(player);
                     if (args[1] == null) {
-                        double x = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.x").toString().replaceAll("[\\[\\],]",""));
-                        double y = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.y").toString().replaceAll("[\\[\\],]",""));
-                        double z = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.z").toString().replaceAll("[\\[\\],]",""));
-                        float pitch = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.pitch").toString().replaceAll("[\\[\\],]",""));
-                        float yaw = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.yaw").toString().replaceAll("[\\[\\],]",""));
-                        World world = Bukkit.getServer().getWorld(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.world").toString().replaceAll("[\\[\\],]",""));
-                        Location spawn = new Location(world, x, y, z, yaw, pitch);
-                        player.teleport(spawn);
+//                        double x = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.x").toString().replaceAll("[\\[\\],]",""));
+//                        double y = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.y").toString().replaceAll("[\\[\\],]",""));
+//                        double z = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.z").toString().replaceAll("[\\[\\],]",""));
+//                        float pitch = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.pitch").toString().replaceAll("[\\[\\],]",""));
+//                        float yaw = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.yaw").toString().replaceAll("[\\[\\],]",""));
+//                        World world = Bukkit.getServer().getWorld(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.world").toString().replaceAll("[\\[\\],]",""));
+//                        Location spawn = new Location(world, x, y, z, yaw, pitch);
+//                        player.teleport(spawn);
+                        int it = 0;
+                        for (Map.Entry<String, SurvivalPlayer> entry : games.getGameMap().entrySet()) {
+                            it++;
+                            if (!entry.getValue().getPlaying()) {
+                                entry.getValue().setUnassigned(player);
+                                break;
+                            }
+                            if (it == games.getGameMap().size()) {
+                                player.sendMessage("All games are full");
+                            }
+                        }
                     } else {
                         //TODO check if in allowed worlds
-                        player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
+                        //player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
+                        if (games.getGameMap().containsKey(args[1])) {
+                            if (!games.getGameMap().get(args[1]).getPlaying()) {
+                                games.getGameMap().get(args[1]).setUnassigned(player);
+                            } else {
+                                player.sendMessage("Game is already in session.");
+                            }
+
+                        }
                     }
                     break;
 
