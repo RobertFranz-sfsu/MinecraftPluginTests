@@ -6,22 +6,19 @@
  *     Make loadout list prettier
  *     Scoreboard styling
  *     Teleport players on game end after a countdown
- *     Implement permissions for sub-commands
- *     Set which permissions should be given by default
  *   R:
- *     Implement respawn timer
  *     Infected join
  *       optional argument to specify which queue they want to join for multiple maps
  *       if no argument, then send them to any queue with people
  *       if no queue with people send to random map
  *     Command to manually set role
+ *     Concurrent matches
  *
  *  Save inventory beforehand and give it back later
  *  Add option for loadouts to have prices attached to them
  *  Implement allowed worlds
  *    Must change playerhandler
  *    Announce winners
- *  Implement economy
  *  Implement scores
  *    Save to player data so save as a file with the UUID as the file name (similar to essentials)
  *
