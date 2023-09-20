@@ -35,7 +35,7 @@ public class Infected implements CommandExecutor {
 
             switch (args[0].toLowerCase()){
                 case "start":
-                    if(sender.hasPermission("infected.infected.start") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.start") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             sender.sendMessage("Starting match.");
                             s.setTimer(0);
@@ -50,7 +50,7 @@ public class Infected implements CommandExecutor {
                     break;
 
                 case "end":
-                    if(sender.hasPermission("infected.end") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.end") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             sender.sendMessage("Ending match.");
                             s.setTimer(-42);
@@ -65,7 +65,7 @@ public class Infected implements CommandExecutor {
                     break;
 
                 case "setspawn": case "ss":
-                    if(sender.hasPermission("infected.infected.setspawn") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.setspawn") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             if(args.length < 2){
                                 sender.sendMessage("Please specify which spawn you're trying to set! (Infected/Survivor/Default)");
@@ -138,8 +138,9 @@ public class Infected implements CommandExecutor {
 
                     break;
                 case "join" : case "j":
-                    s.setUnassigned(player);
-                    if (args[1] == null) {
+                    if(sender.hasPermission("infected.infected.join") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
+                        s.setUnassigned(player);
+                        if (args[1] == null) {
 //                        double x = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.x").toString().replaceAll("[\\[\\],]",""));
 //                        double y = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.y").toString().replaceAll("[\\[\\],]",""));
 //                        double z = Integer.parseInt(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.z").toString().replaceAll("[\\[\\],]",""));
@@ -148,33 +149,36 @@ public class Infected implements CommandExecutor {
 //                        World world = Bukkit.getServer().getWorld(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().get("default-spawn.world").toString().replaceAll("[\\[\\],]",""));
 //                        Location spawn = new Location(world, x, y, z, yaw, pitch);
 //                        player.teleport(spawn);
-                        int it = 0;
-                        for (Map.Entry<String, SurvivalPlayer> entry : games.getGameMap().entrySet()) {
-                            it++;
-                            if (!entry.getValue().getPlaying()) {
-                                entry.getValue().setUnassigned(player);
-                                break;
+                            int it = 0;
+                            for (Map.Entry<String, SurvivalPlayer> entry : games.getGameMap().entrySet()) {
+                                it++;
+                                if (!entry.getValue().getPlaying()) {
+                                    entry.getValue().setUnassigned(player);
+                                    break;
+                                }
+                                if (it == games.getGameMap().size()) {
+                                    player.sendMessage("All games are full");
+                                }
                             }
-                            if (it == games.getGameMap().size()) {
-                                player.sendMessage("All games are full");
-                            }
-                        }
-                    } else {
-                        //TODO check if in allowed worlds
-                        //player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
-                        if (games.getGameMap().containsKey(args[1])) {
-                            if (!games.getGameMap().get(args[1]).getPlaying()) {
-                                games.getGameMap().get(args[1]).setUnassigned(player);
-                            } else {
-                                player.sendMessage("Game is already in session.");
-                            }
+                        } else {
+                            //TODO check if in allowed worlds
+//                        player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
+                            if (games.getGameMap().containsKey(args[1])) {
+                                if (!games.getGameMap().get(args[1]).getPlaying()) {
+                                    games.getGameMap().get(args[1]).setUnassigned(player);
+                                } else {
+                                    player.sendMessage("Game is already in session.");
+                                }
 
+                            }
                         }
+                    }else{
+                        sender.sendMessage("You do not have permission to do this!");
+                        break;
                     }
                     break;
-
                 case "setlobby": case "sl":
-                    if(sender.hasPermission("infected.infected.setlobby") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.setlobby") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             List<String> val = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
                             String world = "";
@@ -218,7 +222,7 @@ public class Infected implements CommandExecutor {
                     break;
 
                 case "dellobby": case "dl":
-                    if(sender.hasPermission("infected.infected.dellobby") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.dellobby") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try {
                             if(args.length == 2){
                                 List<String> worlds = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
@@ -248,7 +252,7 @@ public class Infected implements CommandExecutor {
                     break;
 
                 case "listlobbies": case "ll":
-                    if(sender.hasPermission("infected.infected.listlobbies") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.listlobbies") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             List<String> worldList = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
 
@@ -279,7 +283,7 @@ public class Infected implements CommandExecutor {
 
                     break;
                 case "setworld": case "sw":
-                    if(sender.hasPermission("infected.infected.setworld") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.setworld") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             List<String> vals = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
                             String world = "";
@@ -321,7 +325,7 @@ public class Infected implements CommandExecutor {
                     break;
 
                 case "delworld": case "dw":
-                    if(sender.hasPermission("infected.infected.delworld") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.delworld") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try {
                             if(args.length == 2){
                                 List<String> worlds = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
@@ -351,7 +355,7 @@ public class Infected implements CommandExecutor {
                     break;
 
                 case "listworlds": case "lw":
-                    if(sender.hasPermission("infected.infected.listworlds") || sender.hasPermission("infected.*")){
+                    if(sender.hasPermission("infected.infected.listworlds") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             List<String> worlds = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
 
@@ -381,11 +385,53 @@ public class Infected implements CommandExecutor {
                     }
 
                     break;
+                case "setrole": case "sr": case "role":
+                    if(sender.hasPermission("infected.infected.setrole") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
+                        try{
+                            if(args.length < 3){
+                                sender.sendMessage("Usage: /infected setRole/sr [player] [infected(i)/survivor(s)/notplaying(np)]");
+                            }else{
+                                if(Bukkit.getPlayer(args[1]) == null){
+                                    sender.sendMessage("That was not a valid player!");
+                                }else{
+                                    switch (args[2].toLowerCase()){
+                                        case "infected": case "i":
+                                            s.getStatusMap().put(Bukkit.getPlayer(args[1]).getUniqueId(), "infected");
+                                            s.removeEffects(Bukkit.getPlayer(args[1]));
+                                            s.setRole(Bukkit.getPlayer(args[1]));
+                                            break;
+                                        case "survivor": case "s":
+                                            s.getStatusMap().put(Bukkit.getPlayer(args[1]).getUniqueId(), "survivor");
+                                            s.removeEffects(Bukkit.getPlayer(args[1]));
+                                            s.setRole(Bukkit.getPlayer(args[1]));
+                                            break;
+                                        case "notplaying": case "np":
+                                            s.setNotPlaying(Bukkit.getPlayer(args[1]));
+                                            break;
+                                        default:
+                                            sender.sendMessage("Must specify role:");
+                                            sender.sendMessage("infected (i), survivor (s), notplaying (np)");
+                                            break;
+                                    }
+                                }
+                            }
+                        }catch(Exception e){
+                            sender.sendMessage("Something went wrong, please check the console");
+                            e.printStackTrace();
+                        }
+                    }else{
+                        sender.sendMessage("You do not have permission to do this!");
+                        break;
+                    }
+
+                    break;
                 default:
-                    sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl), listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw).");
+                    sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl)," +
+                            " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr).");
             }
         }else{
-            sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl), listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw).");
+            sender.sendMessage("Valid sub commands: start, end, setSpawn (ss), setLobby (sl), delLobby (dl)," +
+                    " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr).");
         }
 
         return true;

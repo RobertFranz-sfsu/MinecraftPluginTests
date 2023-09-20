@@ -178,7 +178,7 @@ public class Loadout implements CommandExecutor {
                                     } else if (keys.equals("boots")) {
                                         ItemStack boots = con.getConfig().getConfigurationSection(args[index]).getItemStack(keys);
                                         pl.getInventory().setBoots(boots);
-                                    } else if(keys.equals("placeholder") || keys.equals("type") || keys.equals("description")){
+                                    } else if(keys.equals("placeholder") || keys.equals("type") || keys.equals("description") || keys.equals("permission")){
                                         // Do nothing
                                     }else {
                                         int slot = Integer.parseInt(keys);
@@ -358,9 +358,18 @@ public class Loadout implements CommandExecutor {
                                 if(!args[2].toLowerCase().equals("survivor") && !args[2].toLowerCase().equals("infected")){
                                     sender.sendMessage("Please enter whether this is a survivor or infected loadout.");
                                 }else{
-                                    con.getConfig().set(args[1] + ".type", String.valueOf(args[2]).toLowerCase());
+                                    String type = "";
+
+                                    if(args[2].equals("i")){
+                                        type = "infected";
+                                    }else if(args[2].equals("s")){
+                                        type = "survivor";
+                                    }else{
+                                        type = args[2].toLowerCase();
+                                    }
+                                    con.getConfig().set(args[1] + ".type", type);
                                     con.save();
-                                    sender.sendMessage("Type for loadout " + args[1] + " set to " + String.valueOf(args[2]).toLowerCase());
+                                    sender.sendMessage("Type for loadout " + args[1] + " set to " + type);
                                 }
                             }catch(Exception e){
                                 sender.sendMessage("Something went wrong. Please check the console.");

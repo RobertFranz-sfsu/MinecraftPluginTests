@@ -6,7 +6,9 @@
  *     Make loadout list prettier
  *     Scoreboard styling
  *     Teleport players on game end after a countdown
- *     Set up custom loadout permission nodes
+ *     Redo config spawns
+ *          world name (which is map name):
+ *              multiple spawns, perm to view if applicable
  *   R:
  *     Infected join
  *       optional argument to specify which queue they want to join for multiple maps
@@ -22,13 +24,14 @@
  *    Announce winners
  *  Implement scores
  *    Save to player data so save as a file with the UUID as the file name (similar to essentials)
- *
  *  Implement PAPI
  *  Multiple spawn locations
  *  Fix /spawn to /ispawn
  *  Change map in queue broadcast to map name which can be set in a config
  *  Add queue selector menu
+ *    Add optional sub perms for viewable lobbies
  *  Add lobby selector menu
+ *    Add optional sub perms for viewable lobbies
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
@@ -48,11 +51,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.*;
 
 import java.util.*;
@@ -269,7 +274,7 @@ public class SurvivalPlayer implements Listener{
                 Bukkit.getLogger().info("No survivor effects to apply.");
             }
 
-            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&cYou are a survivor!"));
+            player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&bYou are a &asurvivor&b!"));
 
             player.teleport(this.getSurSpawn());
         }
@@ -290,7 +295,7 @@ public class SurvivalPlayer implements Listener{
         }
     }
 
-    private void removeEffects(Player player){
+    public void removeEffects(Player player){
         ArrayList<PotionEffect> pe = new ArrayList<>(player.getActivePotionEffects());
 
         for(PotionEffect x : pe){
@@ -316,10 +321,14 @@ public class SurvivalPlayer implements Listener{
             try {
                 statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
                 statusMap.put(player.getUniqueId(), "unassigned");
+                this.removeEffects(player);
             } catch (Exception e) {
                 Bukkit.getLogger().warning("Something went wrong.");
                 e.printStackTrace();
             }
+
+            // TODO
+            //  Why is this out here?? maybe move health map?
             statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
             statusMap.put(player.getUniqueId(), "unassigned");
             healthMap.put(player.getUniqueId(), "alive");
@@ -488,71 +497,72 @@ public class SurvivalPlayer implements Listener{
     private void onPlayerAttack(EntityDamageByEntityEvent event) {
         Entity attacker = event.getDamager();
         Entity damaged = event.getEntity();
+        Player player = (Player) damaged;
 
-        //Makes sure both are playing the game, else return
-        if (!statusMap.containsKey(attacker.getUniqueId()) && !statusMap.containsKey(damaged.getUniqueId())) {
-            return;
+        // If shooter and target are on same team, cancel damage
+        if(event.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)){
+            ProjectileSource attack = ((Projectile) event.getDamager()).getShooter();
+            Entity victim = event.getEntity();
+
+            if (!statusMap.containsKey(((Player)attack).getUniqueId()) && !statusMap.containsKey(victim.getUniqueId())) {
+                return;
+            }
+
+            if((attack instanceof Player) && (victim instanceof Player)){
+//                Bukkit.getLogger().severe("Attack: " + statusMap.get(((Player) attack).getUniqueId()));
+//                Bukkit.getLogger().severe("Victim: " + statusMap.get(victim.getUniqueId()));
+
+                if(Objects.equals(statusMap.get(((Player) attack).getUniqueId()), statusMap.get(victim.getUniqueId()))){
+                    Bukkit.getLogger().severe("3");
+                    event.setCancelled(true);
+                }
+            }
         }
-
-        //If survivor and hit by projectile: cancel the damage
-        if (Objects.equals(statusMap.get(damaged.getUniqueId()), "survivor") && event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
-            event.setCancelled(true);
-        }
-
-        // if both are on the same team: cancel the attack
+        // If on same team, cancel damage
         else if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
             event.setCancelled(true);
         }
-    }
 
-    @EventHandler
-    private void onDamage(EntityDamageEvent event){
-        if(event.getEntity() instanceof Player){
-            Player player = (Player) event.getEntity();
-            //Makes sure both are playing the game, else return
-            if (!statusMap.containsKey(player.getUniqueId())) {
-                return;
+        else if(event.getDamage() >= player.getHealth()){
+//            Bukkit.getLogger().severe("Attacker: " + attacker + ", " + statusMap.get(attacker.getUniqueId()));
+//            Bukkit.getLogger().severe("Damaged: " + damaged + ", " + statusMap.get(damaged.getUniqueId()));
+
+            event.setCancelled(true);
+
+            Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+            if(Objects.equals(statusMap.get(player.getUniqueId()).toLowerCase(), "survivor")){
+                statusMap.put(player.getUniqueId(), "infected");
             }
-            if(event.getDamage() >= player.getHealth()){
-                event.setCancelled(true);
 
-                Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
-                if(Objects.equals(statusMap.get(player.getUniqueId()).toLowerCase(), "survivor")){
-                    statusMap.put(player.getUniqueId(), "infected");
-                }
+            this.removeEffects(player);
+            this.setRole(player);
+            //player.teleport(getInfSpawn());
+            //healthMap.put(player.getUniqueId(), "dead");
 
-                this.removeEffects(player);
-                this.setRole(player);
-                //player.teleport(getInfSpawn());
-                //healthMap.put(player.getUniqueId(), "dead");
-
-                new CountdownTimer(this.plugin, this.getRespawnTime(),
-                        // What happens at the start
-                        () -> {
-                            healthMap.put(player.getUniqueId(), "dead");
-                            player.setWalkSpeed(0);
-                        },
-                        // What happens at the end
-                        () -> {
-                            if (this.getPlaying()) {
-                                healthMap.put(player.getUniqueId(), "alive");
-                                player.setWalkSpeed(this.getInfSpeed());
-                            }
-                        },
-                        // What happens during each tick
-                        (t) -> {
-                            if (this.getPlaying()) {
-                                this.respawnBoard(player, t.getSecondsLeft());
-                            }
-                        }).scheduleTimer();
+            new CountdownTimer(this.plugin, this.getRespawnTime(),
+                    // What happens at the start
+                    () -> {
+                        healthMap.put(player.getUniqueId(), "dead");
+                        player.setWalkSpeed(0);
+                    },
+                    // What happens at the end
+                    () -> {
+                        if (this.getPlaying()) {
+                            healthMap.put(player.getUniqueId(), "alive");
+                            player.setWalkSpeed(this.getInfSpeed());
+                        }
+                    },
+                    // What happens during each tick
+                    (t) -> {
+                        if (this.getPlaying()) {
+                            this.respawnBoard(player, t.getSecondsLeft());
+                        }
+                    }).scheduleTimer();
 
 //                new DelayedTask(() -> {
 //                    healthMap.put(player.getUniqueId(), "alive");
 //                    player.setWalkSpeed(this.getInfSpeed());
 //                }, 20L * this.getRespawnTime());
-
-
-            }
         }
     }
 
@@ -567,15 +577,6 @@ public class SurvivalPlayer implements Listener{
             }
         }
     }
-
-    //TODO Possibly use this
-//    @EventHandler
-//    private void onFoodDepletion(FoodLevelChangeEvent event) {
-//        if (statusMap.containsKey(event.getEntity().getUniqueId())) {
-//            event.setCancelled(true);
-//            //event.getEntity().setFoodLevel(20);
-//        }
-//    }
 
     /**
      * Setters/Getters for config stuff
