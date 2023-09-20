@@ -1,7 +1,7 @@
 #Infected settings
 spawns:
-  exampleworld:
-    first:
+  exampleworld: # World names must be in lower case!
+    first: # Labels must be in lower case!
       x: 0
       y: 0
       z: 0

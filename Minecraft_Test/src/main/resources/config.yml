@@ -52,7 +52,7 @@ allowed-worlds:
 
 # Default spawn for those not playing/without an infected/survivor role
 default-spawns:
-  exampleworld:
+  exampleworld: # World names must be in lower case!
     firstexample:
       x: 0
       y: 0

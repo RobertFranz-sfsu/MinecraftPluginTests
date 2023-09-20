@@ -68,8 +68,9 @@ public class Infected implements CommandExecutor, Listener {
                 case "addspawn": case "as":
                     if(sender.hasPermission("infected.infected.addspawn") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
-                            if(args.length < 2){
-                                sender.sendMessage("Please specify which spawn you're trying to set! (Infected/Survivor/Default)");
+                            if(args.length < 2 || args.length > 4){
+                                sender.sendMessage("Usage: /infected addSpawn/as [infected/survivor/default] [label (optional for first spawn)] overwrite(optional to overwrite" +
+                                        " existing spawn)");
                                 break;
                             }
 
@@ -194,11 +195,13 @@ public class Infected implements CommandExecutor, Listener {
 
                                         break;
                                     default:
-                                        sender.sendMessage("Please specify which spawn you're trying to set! (Infected/Survivor/Default)");
+                                        sender.sendMessage("Usage: /infected addSpawn/as [infected/survivor/default] [label (optional for first spawn)] overwrite(optional to overwrite" +
+                                                " existing spawn)");
                                         break;
                                 }
                             }else{
-                                sender.sendMessage("Please specify which spawn you're trying to set! (Infected/Survivor/Default)");
+                                sender.sendMessage("Usage: /infected addSpawn/as [infected/survivor/default] [label (optional for first spawn)] overwrite(optional to overwrite" +
+                                        " existing spawn)");
                             }
                         }catch(Exception e){
                             sender.sendMessage("Something went wrong, please check the console");
@@ -213,31 +216,73 @@ public class Infected implements CommandExecutor, Listener {
                     break;
                 case "delspawn": case "ds":
                     try{
-                        if(args.length < 2){
+                        if(args.length > 4 || args.length < 3){
                             sender.sendMessage("Usage to delete all spawns in a world: /infected delSpawn(ds) [infected/survivor/default] [world name]");
-                            sender.sendMessage("Usage to delete a specific spawn in a world: /infected delSpawn(ds) [world name] [label]");
+                            sender.sendMessage("Usage to delete a specific spawn in a world: /infected delSpawn(ds) [infected/survivor/default] [world name] [label]");
                             break;
                         }else{
                             ConfigUtil c = null;
+                            String path = null;
+                            boolean isDefault = false;
+                            String type = null;
+                            String color = null;
 
                             switch(args[1].toLowerCase()){
                                 case "infected": case "i":
                                     c = new ConfigUtil(pl, "Infected.yml");
+                                    color = "&c";
+                                    type = "infected";
                                     break;
                                 case "survivor": case "s":
                                     c = new ConfigUtil(pl, "Survivor.yml");
+                                    color = "&a";
+                                    type = "survivor";
                                     break;
                                 case "default": case "d":
+                                    path = "default-spawns";
+                                    isDefault = true;
                                     break;
                             }
+                            if(args.length == 3){
+                                if(isDefault){
+                                    path += ("." + args[2].toLowerCase());
 
-                            if(args.length == 3 && (Bukkit.getWorld(args[2]) != null)){
+                                    if(pl.getConfig().get(path) != null){
+                                        pl.getConfig().set(path, null);
+                                        pl.saveConfig();
 
+                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted &edefault &bspawn" +
+                                                " for world &e " + args[2].toLowerCase()));
+                                    }else{
+                                        sender.sendMessage("That world doesn't exist!");
+                                    }
+
+                                    break;
+                                }else{
+                                    path = "spawns." + args[2].toLowerCase();
+                                }
+                            }else {
+                                path = "spawns." + args[2].toLowerCase() + "." + args[3].toLowerCase();
+                            }
+
+                            if(c.getConfig().get(path) != null){
+                                c.getConfig().set(path, null);
+                                c.save();
+                                s.reloadConfigs();
+
+                                if(args.length == 3){
+                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted all " + color + type +
+                                            "&b spawns in world &a" + args[2].toLowerCase()));
+                                }else{
+                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted " + color + type +
+                                            "&b spawn with label " + color + args[3].toLowerCase() + "&b in world &a" + args[2].toLowerCase()));
+                                }
+                                break;
                             }else{
                                 sender.sendMessage("That world doesn't exist!");
+                                break;
                             }
                         }
-                        break;
                     }catch(Exception e){
                         sender.sendMessage("Something went wrong, please check the console");
                         Bukkit.getLogger().warning("Something went wrong trying to delete a spawn!");
@@ -284,6 +329,11 @@ public class Infected implements CommandExecutor, Listener {
                             List<String> val = pl.getConfig().getStringList("lobby-worlds");
                             String world = "";
 
+                            if(args.length > 2){
+                                sender.sendMessage("Correct usage (sets current world as lobby): /infected setLobby");
+                                sender.sendMessage("or /infected setLobby [world name]");
+                            }
+
                             if(args.length == 2){
                                 if(Bukkit.getWorld(args[1]) != null){
                                     world = args[1];
@@ -318,8 +368,6 @@ public class Infected implements CommandExecutor, Listener {
                         sender.sendMessage("You do not have permission to do this!");
                         break;
                     }
-
-
                     break;
 
                 case "dellobby": case "dl":
@@ -389,6 +437,10 @@ public class Infected implements CommandExecutor, Listener {
                             List<String> vals = pl.getConfig().getStringList("allowed-worlds");
                             String world = "";
 
+                            if(args.length > 2){
+                                sender.sendMessage("Correct usage (sets current world as enabled): /infected setWorld");
+                                sender.sendMessage("or /infected setWorld [world name]");
+                            }
                             if(args.length == 2){
                                 if(Bukkit.getWorld(args[1]) != null){
                                     world = args[1];
@@ -489,7 +541,7 @@ public class Infected implements CommandExecutor, Listener {
                 case "setrole": case "sr": case "role":
                     if(sender.hasPermission("infected.infected.setrole") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
-                            if(args.length < 3){
+                            if(args.length != 3){
                                 sender.sendMessage("Usage: /infected setRole/sr [player] [infected(i)/survivor(s)/notplaying(np)]");
                             }else{
                                 if(Bukkit.getPlayer(args[1]) == null){
