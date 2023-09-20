@@ -132,16 +132,11 @@ public class SurvivalPlayer implements Listener{
 
                     // Print message that queue has begun in specified world as long as broadcast is enabled in config
                     if(Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("queue-start-broadcast-enabled")){
-                        String current = "";
-
                         // TODO
                         //  Change this to map name
-                        for(UUID i : statusMap.keySet()){
-                            if((Bukkit.getPlayer(i) != null) && !val.contains(Bukkit.getPlayer(i).getWorld().getName())){
-                                current = Bukkit.getPlayer(i).getWorld().getName();
-                                break;
-                            }
-                        }
+
+                        String current = "";
+                        //String current = games.getGameMap().getWorldName();
 
                         String msg = ChatColor.translateAlternateColorCodes ('&', "&aAn &cInfected &aqueue has begun in " + current + "!");
 
