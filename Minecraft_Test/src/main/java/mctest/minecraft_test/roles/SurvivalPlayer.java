@@ -65,7 +65,6 @@ import java.util.*;
 public class SurvivalPlayer implements Listener{
     ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
     ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
-    private Minecraft_Test pl = Minecraft_Test.getPlugin(Minecraft_Test.class);
     private final HashMap<UUID, String> statusMap = new HashMap<>();
     private final HashMap<UUID, String> healthMap = new HashMap<>();
     private int infectedCnt = 0;
@@ -92,6 +91,9 @@ public class SurvivalPlayer implements Listener{
     private double surMoneyReward;
     private List<String> infCommandRewards;
     private List<String> surCommandRewards;
+    private List<String> infSpawns;
+    private List<String> surSpawns;
+    private Minecraft_Test plugin;
 
     public void setPlaying(Boolean playing) {
         this.playing = playing;
@@ -108,7 +110,7 @@ public class SurvivalPlayer implements Listener{
     public HashMap<UUID, String> getStatusMap(){
         return this.statusMap;
     }
-    private Minecraft_Test plugin;
+
 
     public SurvivalPlayer(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -132,12 +134,12 @@ public class SurvivalPlayer implements Listener{
                 }
                 // if minimum amount of players have joined, start timer
                 if (statusMap.size() == this.getMinPl() &&  this.getTimer() == Integer.MIN_VALUE) {
-                    List<String> val = pl.getConfig().getStringList("lobby-worlds");
+                    List<String> val = plugin.getConfig().getStringList("lobby-worlds");
                     Bukkit.getLogger().info("Min amount of players joined: Timer Started!");
                     setTimer(getWaitTime());
 
                     // Print message that queue has begun in specified world as long as broadcast is enabled in config
-                    if(pl.getConfig().getBoolean("queue-start-broadcast-enabled")){
+                    if(plugin.getConfig().getBoolean("queue-start-broadcast-enabled")){
                         // TODO
                         //  Change this to map name
 
@@ -426,10 +428,10 @@ public class SurvivalPlayer implements Listener{
             reward = 0;
         }
 
-        if(pl.getEcon() != null){
+        if(plugin.getEcon() != null){
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&fYou have been awarded &a" +
-                    pl.getConfig().getString("currency-symbol") + reward + "&f for winning!"));
-            pl.getEcon().depositPlayer(player.getName(), reward);
+                    plugin.getConfig().getString("currency-symbol") + reward + "&f for winning!"));
+            plugin.getEcon().depositPlayer(player.getName(), reward);
         }
 
         try{
@@ -592,7 +594,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setWaitTime(){
-        this.waitTime = pl.getConfig().getInt("wait-timer");
+        this.waitTime = plugin.getConfig().getInt("wait-timer");
     }
     private int getWaitTime(){
         this.setWaitTime();
@@ -601,7 +603,7 @@ public class SurvivalPlayer implements Listener{
 
     // Match length
     private void setGameTime(){
-        this.gameTime = pl.getConfig().getInt("match-length");
+        this.gameTime = plugin.getConfig().getInt("match-length");
     }
     private int getGameTime(){
         this.setGameTime();
@@ -609,7 +611,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setMaxPl(){
-        this.maxPl = pl.getConfig().getInt("max-players");
+        this.maxPl = plugin.getConfig().getInt("max-players");
     }
     private int getMaxPl(){
         this.setMaxPl();
@@ -617,7 +619,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setMinPl(){
-        this.minPl = pl.getConfig().getInt("min-players");
+        this.minPl = plugin.getConfig().getInt("min-players");
     }
     private int getMinPl(){
         this.setMinPl();
@@ -625,7 +627,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setNumStartInf(){
-        this.numStartInf = pl.getConfig().getInt("num-starting-infected");
+        this.numStartInf = plugin.getConfig().getInt("num-starting-infected");
     }
     private int getNumStartInf(){
         this.setNumStartInf();
@@ -633,7 +635,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setRespawnTime(){
-        this.respawnTime = pl.getConfig().getInt("respawn-timer");
+        this.respawnTime = plugin.getConfig().getInt("respawn-timer");
     }
     private int getRespawnTime(){
         this.setRespawnTime();
@@ -641,11 +643,12 @@ public class SurvivalPlayer implements Listener{
     }
 
     public void reloadConfigs(){
-        surConfig = new ConfigUtil(pl, "Survivor.yml");
-        infConfig = new ConfigUtil(pl, "Infected.yml");
+        surConfig = new ConfigUtil(plugin, "Survivor.yml");
+        infConfig = new ConfigUtil(plugin, "Infected.yml");
     }
 
     private void setInfSpawn(){
+        String path = "spawn.";
         infSpawn = new Location(
             Bukkit.getWorld(infConfig.getConfig().getString("spawn.world")),
             infConfig.getConfig().getDouble("spawn.x"),
@@ -677,12 +680,12 @@ public class SurvivalPlayer implements Listener{
 
     private void setDefaultSpawn(){
         defaultSpawn = new Location(
-            Bukkit.getWorld(pl.getConfig().getString("default-spawn.world")),
-                pl.getConfig().getDouble("default-spawn.x"),
-                pl.getConfig().getDouble("default-spawn.y"),
-                pl.getConfig().getDouble("default-spawn.z"),
-            (float) pl.getConfig().getDouble("default-spawn.pitch"),
-            (float) pl.getConfig().getDouble("default-spawn.yaw")
+            Bukkit.getWorld(plugin.getConfig().getString("default-spawn.world")),
+                plugin.getConfig().getDouble("default-spawn.x"),
+                plugin.getConfig().getDouble("default-spawn.y"),
+                plugin.getConfig().getDouble("default-spawn.z"),
+            (float) plugin.getConfig().getDouble("default-spawn.pitch"),
+            (float) plugin.getConfig().getDouble("default-spawn.yaw")
         );
     }
     public Location getDefaultSpawn(){
@@ -723,7 +726,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setAllowedWorlds(){
-        this.allowedWorlds = pl.getConfig().getStringList("allowed-worlds");
+        this.allowedWorlds = plugin.getConfig().getStringList("allowed-worlds");
     }
     private List<String> getAllowedWorlds(){
         setAllowedWorlds();
@@ -731,7 +734,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setScalingInf(){
-        this.scalingInf = pl.getConfig().getBoolean("use-scaling-infected");
+        this.scalingInf = plugin.getConfig().getBoolean("use-scaling-infected");
     }
     private boolean isScalingInf(){
         setScalingInf();
@@ -755,10 +758,10 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setInfRatio(){
-        String str = pl.getConfig().getString("infected-ratio");
+        String str = plugin.getConfig().getString("infected-ratio");
         String[] ratio = str.split("-");
 
-        if(pl.getConfig().getBoolean("ratio-rounds-up")){
+        if(plugin.getConfig().getBoolean("ratio-rounds-up")){
             Bukkit.getLogger().info("ROUNDING UP");
             this.infRatio = (int) Math.ceil((Double.parseDouble(ratio[1])/Double.parseDouble(ratio[0])));
         }else{
