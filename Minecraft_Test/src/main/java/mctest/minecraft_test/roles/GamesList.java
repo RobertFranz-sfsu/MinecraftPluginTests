@@ -1,6 +1,7 @@
 package mctest.minecraft_test.roles;
 
 import mctest.minecraft_test.Minecraft_Test;
+import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,15 +11,18 @@ import java.util.Map;
 public class GamesList {
     private HashMap<String, SurvivalPlayer> gameMap = new HashMap<>();
     private List<String> worldList;
+    private ArrayList<String> gameInfos;
     private Minecraft_Test plugin;
 
     public GamesList(Minecraft_Test plugin) {
         this.plugin = plugin;
         this.setGameList();
-        setGameMap(this.getGameList());
+        this.initGameMap(this.getGameList());
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::setGameInfos, 0L, 20L);
+
     }
 
-    public void setGameMap(List<String> list) {
+    public void initGameMap(List<String> list) {
         for (String s : list) {
             this.gameMap.put(s, new SurvivalPlayer(this.plugin));
         }
@@ -45,5 +49,18 @@ public class GamesList {
             statuses.put(entry.getKey(), (entry.getValue().getStatusMap().size() + ""));
         }
         return statuses;
+    }
+    private void setGameInfos() {
+        ArrayList<String> list = new ArrayList<>();
+        this.getGameMap().forEach((key, value) -> {
+            String str = key + ": " + (value.getPlaying() ? "Game in session" : ("Game lobby: " + value.getStatusMap().size() + "/" + value.getMaxPl()));
+            list.add(str);
+        });
+
+        this.gameInfos = list;
+    }
+    public ArrayList<String> getGameInfos() {
+        Bukkit.getLogger().info(this.gameInfos + "");
+        return this.gameInfos;
     }
 }

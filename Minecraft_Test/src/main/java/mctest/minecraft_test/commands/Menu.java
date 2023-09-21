@@ -1,6 +1,7 @@
 package mctest.minecraft_test.commands;
 
 import mctest.minecraft_test.Minecraft_Test;
+import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.*;
@@ -22,10 +23,15 @@ import java.util.Objects;
 public class Menu implements Listener, CommandExecutor {
     private String invName = "Server Selector";
     private SurvivalPlayer gamer;
+    private Minecraft_Test plugin;
+    private GamesList g;
 
-    public Menu(Minecraft_Test plugin, SurvivalPlayer gamer) {
+    public Menu(Minecraft_Test plugin, SurvivalPlayer gamer, GamesList g) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.gamer = gamer;
+        this.plugin = plugin;
+        this.g = g;
+
     }
 
     @EventHandler
@@ -98,6 +104,14 @@ public class Menu implements Listener, CommandExecutor {
         inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to leave the game"));
         inv.setItem(4, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9START GAME", "&aClick to start the game"));
         inv.setItem(6, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9Unassigned", "&aClick to set role as unassigned"));
+
+        //TODO Make a new menu for this
+        ItemStack item = new ItemStack(Material.GOLD_BLOCK);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + "Worlds available");
+        meta.setLore(g.getGameInfos());
+        item.setItemMeta(meta);
+        inv.setItem(20, item);
 
         player.openInventory(inv);
 
