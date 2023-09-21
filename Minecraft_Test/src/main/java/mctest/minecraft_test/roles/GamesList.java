@@ -42,6 +42,9 @@ public class GamesList {
     public void addWorld(String world) {
         this.gameMap.put(world, new SurvivalPlayer(this.plugin));
     }
+    public void removeWorld(String world) {
+        this.gameMap.remove(world);
+    }
 
     /**
      * Set and get the list of world names

@@ -485,6 +485,7 @@ public class Infected implements CommandExecutor, Listener {
 
                                 if(worlds.contains(args[1])){
                                     worlds.remove(args[1]);
+                                    games.removeWorld(args[1]);
                                     pl.getConfig().set("allowed-worlds", worlds);
                                     pl.saveConfig();
                                     pl.reloadConfig();
