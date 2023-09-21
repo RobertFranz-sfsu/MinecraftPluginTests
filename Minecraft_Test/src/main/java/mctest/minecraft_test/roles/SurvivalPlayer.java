@@ -611,7 +611,7 @@ public class SurvivalPlayer implements Listener{
     private void setMaxPl(){
         this.maxPl = pl.getConfig().getInt("max-players");
     }
-    private int getMaxPl(){
+    public int getMaxPl(){
         this.setMaxPl();
         return this.maxPl;
     }
