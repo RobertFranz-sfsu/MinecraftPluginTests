@@ -293,7 +293,6 @@ public class Infected implements CommandExecutor, Listener {
 
                 case "join" : case "j":
                     if(sender.hasPermission("infected.infected.join") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
-                        s.setUnassigned(player);
                         if (args[1] == null) {
                             int it = 0;
                             for (Map.Entry<String, SurvivalPlayer> entry : games.getGameMap().entrySet()) {
