@@ -534,7 +534,7 @@ public class SurvivalPlayer implements Listener{
 
             this.removeEffects(player);
             this.setRole(player);
-            //player.teleport(getInfSpawn());
+            player.teleport(getInfSpawn());
             //healthMap.put(player.getUniqueId(), "dead");
 
             new CountdownTimer(this.plugin, this.getRespawnTime(),

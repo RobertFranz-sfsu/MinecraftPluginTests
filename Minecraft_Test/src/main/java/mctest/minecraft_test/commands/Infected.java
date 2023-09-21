@@ -457,6 +457,7 @@ public class Infected implements CommandExecutor, Listener {
 
                             if(!vals.contains(world)){
                                 vals.add(world);
+                                games.addWorld(world);
                                 pl.getConfig().set("allowed-worlds", vals);
                                 pl.saveConfig();
                                 pl.reloadConfig();
