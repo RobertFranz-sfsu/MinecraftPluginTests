@@ -12,7 +12,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Spawn implements CommandExecutor {
     private SurvivalPlayer pl;
@@ -28,28 +30,40 @@ public class Spawn implements CommandExecutor {
             Player player = null;
             String world = null;
 
-//            if(args.length > 0){
-            if(Bukkit.getPlayer(args[0]) != null){
+            if((args.length > 0) && Optional.ofNullable((Bukkit.getPlayer(args[0]))).isPresent()){
                 player = Bukkit.getPlayer(args[0]);
-                if(!Objects.equals(args[1], null)){
-                    world = (pl.getLobbies().contains(args[1]) ? args[1]: pl.getLobbies().get(0));
+
+                List<String> l = g.getGameMap().get(player.getWorld().getName()).getLobbies();
+
+                if(l.isEmpty()){
+                    Bukkit.getLogger().severe("There are no lobbies!");
+                    return true;
+                }
+
+                if((args.length > 1) && Optional.ofNullable((Bukkit.getPlayer(args[0]))).isPresent()){
+                    world = (l.contains(args[1]) ? args[1]: l.get(0));
                 }else{
-                    world = pl.getLobbies().get(0);
+                    world = l.get(0);
                 }
             }else if(sender instanceof Player){
                 player = (Player) sender;
 
-                Bukkit.getLogger().severe("lobbies: " + pl.getLobbies());
+                List<String> l = g.getGameMap().get(player.getWorld().getName()).getLobbies();
 
-                if(!Objects.equals(args[0], null)){
-                    world = (pl.getLobbies().contains(args[0]) ? args[0]: pl.getLobbies().get(0));
+                if(l.isEmpty()){
+                    Bukkit.getLogger().severe("There are no lobbies!");
+                    return true;
+                }
+
+                if((args.length > 0) && Optional.ofNullable(args[0]).isPresent()){
+                    world = (l.contains(args[0]) ? args[0]: l.get(0));
                 }else{
-                    world = pl.getLobbies().get(0);
+                    world = l.get(0);
                 }
             }
-//            }
 
-            player.teleport(pl.getDefaultSpawn(world));
+            Bukkit.getLogger().severe("world: " + world);
+            player.teleport(g.getGameMap().get(world).getDefaultSpawn(world));
         }catch(Exception e){
             sender.sendMessage("Something went wrong, please check the console.");
             Bukkit.getLogger().info("Something went wrong trying to teleport.");

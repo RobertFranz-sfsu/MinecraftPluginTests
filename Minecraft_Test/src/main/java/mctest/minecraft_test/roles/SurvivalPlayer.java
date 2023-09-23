@@ -361,7 +361,7 @@ public class SurvivalPlayer implements Listener{
 
                     for(UUID x : previousWorlds.keySet()){
                         String world = (this.getLobbies().contains(previousWorlds.get(x)) ? previousWorlds.get(x) : lobbies.get(0));
-                        Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(world));
+                        Bukkit.getPlayer(entry.getKey()).teleport(this.getDefaultSpawn(world));
                     }
 
                     this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
@@ -402,10 +402,15 @@ public class SurvivalPlayer implements Listener{
 
                     removeEffects(Bukkit.getPlayer(entry.getKey()));
 
-                    for(UUID x : previousWorlds.keySet()){
-                        String world = (this.getLobbies().contains(previousWorlds.get(x)) ? previousWorlds.get(x) : lobbies.get(0));
-                        Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(world));
+                    try{
+                        for(UUID x : previousWorlds.keySet()){
+                            String world = (this.getLobbies().contains(previousWorlds.get(x)) ? previousWorlds.get(x) : lobbies.get(0));
+                            Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(world));
+                        }
+                    }catch (Exception e){
+                        Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(lobbies.get(0)));
                     }
+
 
                     if(entry.getValue().equals(winner)){
                         giveRewards(Bukkit.getPlayer(entry.getKey()), winner);
@@ -659,7 +664,7 @@ public class SurvivalPlayer implements Listener{
         infConfig = new ConfigUtil(plugin, "Infected.yml");
     }
 
-    private void setInfSpawn(){
+    private void setGameSpawn(String type){
         String world = null;
         String path = "spawns.";
         List<String> labels = new ArrayList<>();
@@ -680,11 +685,20 @@ public class SurvivalPlayer implements Listener{
 
         path += world;
 
-        for(String x : infConfig.getConfig().getConfigurationSection(path).getKeys(false)){
-            if(x != null){
-                labels.add(x);
+        if(type.equals("survivor")){
+            for(String x : surConfig.getConfig().getConfigurationSection(path).getKeys(false)){
+                if(x != null){
+                    labels.add(x);
+                }
+            }
+        }else if(type.equals("infected")){
+            for(String x : infConfig.getConfig().getConfigurationSection(path).getKeys(false)){
+                if(x != null){
+                    labels.add(x);
+                }
             }
         }
+
 
         if(!labels.isEmpty()){
             Collections.shuffle(labels);
@@ -695,76 +709,34 @@ public class SurvivalPlayer implements Listener{
             return;
         }
 
-        infSpawn = new Location(
-            Bukkit.getWorld(world),
-            infConfig.getConfig().getDouble(path + ".x"),
-            infConfig.getConfig().getDouble(path + ".y"),
-            infConfig.getConfig().getDouble(path + ".z"),
-            (float) infConfig.getConfig().getDouble(path + ".yaw"),
-            (float) infConfig.getConfig().getDouble(path + ".pitch")
-        );
+        if(type.equals("survivor")){
+            this.surSpawn = new Location(
+                    Bukkit.getWorld(world),
+                    surConfig.getConfig().getDouble(path + ".x"),
+                    surConfig.getConfig().getDouble(path + ".y"),
+                    surConfig.getConfig().getDouble(path + ".z"),
+                    (float) surConfig.getConfig().getDouble(path + ".yaw"),
+                    (float) surConfig.getConfig().getDouble(path + ".pitch")
+            );
+        }else if(type.equals("infected")){
+            this.infSpawn = new Location(
+                    Bukkit.getWorld(world),
+                    infConfig.getConfig().getDouble(path + ".x"),
+                    infConfig.getConfig().getDouble(path + ".y"),
+                    infConfig.getConfig().getDouble(path + ".z"),
+                    (float) infConfig.getConfig().getDouble(path + ".yaw"),
+                    (float) infConfig.getConfig().getDouble(path + ".pitch")
+            );
+        }
     }
+
     public Location getInfSpawn(){
-        setInfSpawn();
+        this.setGameSpawn("infected");
         return this.infSpawn;
     }
 
-    private void setSurSpawn() {
-//        List<String> worlds = surConfig.getConfig().getStringList("spawn");
-//            surSpawn = new Location(
-//            Bukkit.getWorld(surConfig.getConfig().getString("spawn.world")),
-//            surConfig.getConfig().getDouble("spawn.x"),
-//            surConfig.getConfig().getDouble("spawn.y"),
-//            surConfig.getConfig().getDouble("spawn.z"),
-//            (float) surConfig.getConfig().getDouble("spawn.yaw"),
-//            (float) surConfig.getConfig().getDouble("spawn.pitch")
-//        );
-        String world = null;
-        String path = "spawns.";
-        List<String> labels = new ArrayList<>();
-        List chosen;
-
-        for(UUID x : statusMap.keySet()){
-            if(!Objects.equals(x, null)){
-                world = Bukkit.getPlayer(x).getWorld().getName();
-            }else if(Objects.equals(world, x)){
-                break;
-            }
-        }
-
-        if(Objects.equals(world, null)){
-            Bukkit.getLogger().warning("Something went wrong trying to get the world.");
-            return;
-        }
-
-        path += world;
-
-        for(String x : surConfig.getConfig().getConfigurationSection(path).getKeys(false)){
-            if(x != null){
-                labels.add(x);
-            }
-        }
-
-        if(!labels.isEmpty()){
-            Collections.shuffle(labels);
-            chosen = labels.subList(0, 1);
-            path += ("." + chosen.get(0));
-        }else{
-            Bukkit.getLogger().warning("Something went wrong trying to get the list of spawns in world " + world);
-            return;
-        }
-
-        surSpawn = new Location(
-                Bukkit.getWorld(world),
-                surConfig.getConfig().getDouble(path + ".x"),
-                surConfig.getConfig().getDouble(path + ".y"),
-                surConfig.getConfig().getDouble(path + ".z"),
-                (float) surConfig.getConfig().getDouble(path + ".yaw"),
-                (float) surConfig.getConfig().getDouble(path + ".pitch")
-        );
-    }
     public Location getSurSpawn(){
-        setSurSpawn();
+        this.setGameSpawn("survivor");
         return this.surSpawn;
     }
 
@@ -774,10 +746,10 @@ public class SurvivalPlayer implements Listener{
     //  then check if the world is a lobby and if not dont set anything
     //  create a new variable for lastlobby initialized to null
     private void setDefaultSpawn(String x){
-        String path = "lobby-worlds." + x;
+        String path = ("default-spawns." + x);
 
-        defaultSpawn = new Location(
-            Bukkit.getWorld(plugin.getConfig().getString(path)),
+        this.defaultSpawn = new Location(
+            Bukkit.getWorld(x),
                 plugin.getConfig().getDouble(path + ".x"),
                 plugin.getConfig().getDouble(path + ".y"),
                 plugin.getConfig().getDouble(path + ".z"),
@@ -832,7 +804,7 @@ public class SurvivalPlayer implements Listener{
     }
 
     private void setLobbies(){
-        this.allowedWorlds = plugin.getConfig().getStringList("lobby-worlds");
+        this.lobbies = plugin.getConfig().getStringList("lobby-worlds");
     }
     public List<String> getLobbies(){
         setLobbies();
