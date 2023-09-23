@@ -1,5 +1,5 @@
 #Survivor settings
-spawn:
+spawns:
   exampleworld: # World names must be in lower case!
     first: # Labels must be in lower case!
       x: 0

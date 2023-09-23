@@ -22,16 +22,15 @@ import java.util.Objects;
 
 public class Menu implements Listener, CommandExecutor {
     private String invName = "Server Selector";
-    private SurvivalPlayer gamer;
     private Minecraft_Test plugin;
     private GamesList g;
+    private SurvivalPlayer s;
 
-    public Menu(Minecraft_Test plugin, SurvivalPlayer gamer, GamesList g) {
+    public Menu(Minecraft_Test plugin,  GamesList g, SurvivalPlayer s) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        this.gamer = gamer;
         this.plugin = plugin;
         this.g = g;
-
+        this.s = s;
     }
 
     @EventHandler
@@ -40,17 +39,27 @@ public class Menu implements Listener, CommandExecutor {
             return;
         }
 
+//        g.getGameMap().get(Bukkit.getWorld(player.getUniqueId()))
+
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
 
         if(slot == 15){
-            gamer.setNotPlaying(player);
+            g.getGameMap().get(player.getWorld().getName()).setNotPlaying(player);
             event.setCancelled(true);
         } else if (slot == 4) {
-            gamer.gameInit();
+            g.getGameMap().get(player.getWorld().getName()).gameInit();
             event.setCancelled(true);
         } else if (slot == 6) {
-            gamer.setUnassigned(player);
+//            if(g.getGameMap().get(Bukkit.getWorld(player.getUniqueId())) == null){
+//                g.initGameMap();
+//            }
+
+//            if(Objects.equals(g.getGameMap().get(Bukkit.getWorld(player.getUniqueId())), null)){
+//                g.game
+//            }
+
+            g.getGameMap().get(player.getWorld().getName()).setUnassigned(player);
             event.setCancelled(true);
         }
 
@@ -80,18 +89,18 @@ public class Menu implements Listener, CommandExecutor {
             }
         }else{
             for(String keys : con.getConfig().getKeys(false)){
-                if(gamer.getPlaying() && Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getBoolean("use-custom-loadout-perms") && !Objects.equals(con.getConfig().get(keys + ".permission"), null)){
+                if(g.getGameMap().get(player.getWorld().getName()).getPlaying() && plugin.getConfig().getBoolean("use-custom-loadout-perms") && !Objects.equals(con.getConfig().get(keys + ".permission"), null)){
                     if(player.hasPermission("infected.loadout." + con.getConfig().getString(keys + ".permission"))){
                         inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                         index++;
                     }
                 }else{
-                    if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "infected")){
+                    if(Objects.equals(g.getGameMap().get(player.getWorld().getName()).getStatusMap().get(player.getUniqueId()), "infected")){
                         if(Objects.equals(con.getConfig().getString(keys + ".type"), "infected")){
                             inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                             index++;
                         }
-                    }else if(Objects.equals(gamer.getStatusMap().get(player.getUniqueId()), "survivor")){
+                    }else if(Objects.equals(g.getGameMap().get(player.getWorld().getName()).getStatusMap().get(player.getUniqueId()), "survivor")){
                         if(Objects.equals(con.getConfig().getString(keys + ".type"), "survivor")){
                             inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                             index++;

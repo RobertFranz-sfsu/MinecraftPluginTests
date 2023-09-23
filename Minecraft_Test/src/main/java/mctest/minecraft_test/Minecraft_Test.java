@@ -51,9 +51,13 @@ public final class Minecraft_Test extends JavaPlugin {
         SurvivalPlayer sp = new SurvivalPlayer(this);
         GamesList g = new GamesList(this);
 
-        getCommand("menu").setExecutor(new Menu(this, sp, g));
-        getCommand("spawn").setExecutor(new Spawn(spawnUtil, sp));
-        getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil)); //remove later
+        getCommand("menu").setExecutor(new Menu(this, g,
+                sp
+                ));
+        getCommand("spawn").setExecutor(new Spawn(sp,
+                g
+        ));
+//        getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil)); //remove later
         getCommand("loadout").setExecutor(new Loadout());
         getCommand("reload").setExecutor(new Reload(sp));
         getCommand("infected").setExecutor(new Infected(sp, g));

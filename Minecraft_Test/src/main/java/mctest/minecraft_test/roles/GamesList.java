@@ -97,4 +97,11 @@ public class GamesList {
         return this.gameInfos;
     }
 
+    /**
+     * Testing
+     */
+    public void reloadGameMap(){
+        initGameMap(this.getGameList());
+    }
+
 }

@@ -4,11 +4,8 @@ import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
-import mctest.minecraft_test.util.SpawnUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,11 +19,11 @@ import java.util.Objects;
 public class Infected implements CommandExecutor, Listener {
 
     private SurvivalPlayer s;
-    private GamesList games;
+    private GamesList g;
     private Minecraft_Test pl = Minecraft_Test.getPlugin(Minecraft_Test.class);
-    public Infected(SurvivalPlayer s, GamesList games){
+    public Infected(SurvivalPlayer s, GamesList g){
         this.s = s;
-        this.games = games;
+        this.g = g;
     }
 
     @Override
@@ -39,7 +36,8 @@ public class Infected implements CommandExecutor, Listener {
                     if(sender.hasPermission("infected.infected.start") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             sender.sendMessage("Starting match.");
-                            s.setTimer(0);
+                            g.getGameMap().get(player.getWorld().getName()).setTimer(0);
+//                            s.setTimer(0);
                         }catch(Exception e){
                             sender.sendMessage("Something went wrong, please check the console");
                             e.printStackTrace();
@@ -54,7 +52,8 @@ public class Infected implements CommandExecutor, Listener {
                     if(sender.hasPermission("infected.infected.end") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
                             sender.sendMessage("Ending match.");
-                            s.setTimer(-42);
+                            g.getGameMap().get(player.getWorld().getName()).setTimer(-42);
+//                            s.setTimer(-42);
                         }catch(Exception e){
                             sender.sendMessage("Something went wrong, please check the console");
                             e.printStackTrace();
@@ -295,22 +294,22 @@ public class Infected implements CommandExecutor, Listener {
                     if(sender.hasPermission("infected.infected.join") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         if (args[1] == null) {
                             int it = 0;
-                            for (Map.Entry<String, SurvivalPlayer> entry : games.getGameMap().entrySet()) {
+                            for (Map.Entry<String, SurvivalPlayer> entry : g.getGameMap().entrySet()) {
                                 it++;
                                 if (!entry.getValue().getPlaying()) {
                                     entry.getValue().setUnassigned(player);
                                     break;
                                 }
-                                if (it == games.getGameMap().size()) {
+                                if (it == g.getGameMap().size()) {
                                     player.sendMessage("All games are full");
                                 }
                             }
                         } else {
                             //TODO check if in allowed worlds
 //                        player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
-                            if (games.getGameMap().containsKey(args[1])) {
-                                if (!games.getGameMap().get(args[1]).getPlaying()) {
-                                    games.getGameMap().get(args[1]).setUnassigned(player);
+                            if (g.getGameMap().containsKey(args[1])) {
+                                if (!g.getGameMap().get(args[1]).getPlaying()) {
+                                    g.getGameMap().get(args[1]).setUnassigned(player);
                                 } else {
                                     player.sendMessage("Game is already in session.");
                                 }
@@ -457,7 +456,7 @@ public class Infected implements CommandExecutor, Listener {
 
                             if(!vals.contains(world)){
                                 vals.add(world);
-                                games.addWorld(world);
+                                g.addWorld(world);
                                 pl.getConfig().set("allowed-worlds", vals);
                                 pl.saveConfig();
                                 pl.reloadConfig();
@@ -485,7 +484,7 @@ public class Infected implements CommandExecutor, Listener {
 
                                 if(worlds.contains(args[1])){
                                     worlds.remove(args[1]);
-                                    games.removeWorld(args[1]);
+                                    g.removeWorld(args[1]);
                                     pl.getConfig().set("allowed-worlds", worlds);
                                     pl.saveConfig();
                                     pl.reloadConfig();
@@ -557,7 +556,8 @@ public class Infected implements CommandExecutor, Listener {
                                             role = "survivor";
                                             break;
                                         case "notplaying": case "np":
-                                            s.setNotPlaying(Bukkit.getPlayer(args[1]));
+//                                            s.setNotPlaying(Bukkit.getPlayer(args[1]));
+                                            g.getGameMap().get(player.getWorld().getName()).setNotPlaying(Bukkit.getPlayer(args[1]));
                                             break;
                                         default:
                                             sender.sendMessage("Must specify role:");
@@ -566,10 +566,13 @@ public class Infected implements CommandExecutor, Listener {
                                     }
 
                                     if(role != null){
-                                        s.removeEffects(Bukkit.getPlayer(args[1]));
+//                                        s.removeEffects(Bukkit.getPlayer(args[1]));
+                                        g.getGameMap().get(player.getWorld().getName()).removeEffects(Bukkit.getPlayer(args[1]));
                                         if(s.getPlaying()){
-                                            s.getStatusMap().put(Bukkit.getPlayer(args[1]).getUniqueId(), role);
-                                            s.setRole(Bukkit.getPlayer(args[1]));
+//                                            s.getStatusMap().put(Bukkit.getPlayer(args[1]).getUniqueId(), role);
+//                                            s.setRole(Bukkit.getPlayer(args[1]));
+                                            g.getGameMap().get(player.getWorld().getName()).getStatusMap().put(Bukkit.getPlayer(args[1]).getUniqueId(), role);
+                                            g.getGameMap().get(player.getWorld().getName()).setRole(Bukkit.getPlayer(args[1]));
                                         }else{
                                             sender.sendMessage("The player " + Bukkit.getPlayer(args[1]).getName() + " is not currently in a match!");
                                         }
@@ -578,6 +581,7 @@ public class Infected implements CommandExecutor, Listener {
                             }
                         }catch(Exception e){
                             sender.sendMessage("Something went wrong, please check the console");
+                            Bukkit.getLogger().warning("Couldn't set role.");
                             e.printStackTrace();
                         }
                     }else{
@@ -586,6 +590,15 @@ public class Infected implements CommandExecutor, Listener {
                     }
 
                     break;
+//                case "reloadgamemap": case "rgm":
+//                    try{
+//                        g.reloadGameMap();
+//                    }catch(Exception e){
+//                        sender.sendMessage("Something went wrong, please check the console");
+//                        Bukkit.getLogger().warning("Couldn't reload game map.");
+//                        e.printStackTrace();
+//                    }
+//                    break;
                 default:
                     sender.sendMessage("Valid sub commands: start, end, addSpawn (as), setLobby (sl), delLobby (dl)," +
                             " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr).");
