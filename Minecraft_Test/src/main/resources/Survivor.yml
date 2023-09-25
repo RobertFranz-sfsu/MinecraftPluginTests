@@ -22,7 +22,7 @@ health: 20
 can-switch-loadouts-during-match: FALSE;
 # To enable effects, remove the # in front of the next section.
 # Remove the example or you will get an error.
-# For an infinite effect use INFINITE_DURATION.
+# For an infinite effect use INFINITE.
 
 #effects:
 #  EFFECT-NAME:

@@ -6,9 +6,6 @@
  *     Make loadout list prettier
  *     Scoreboard styling
  *     Teleport players on game end after a countdown
- *     Redo config spawns
- *          world name (which is map name):
- *              multiple spawns, perm to view if applicable
  *   R:
  *     Infected join
  *       optional argument to specify which queue they want to join for multiple maps
@@ -19,9 +16,6 @@
  *
  *  Save inventory beforehand and give it back later
  *  Add option for loadouts to have prices attached to them
- *  Implement allowed worlds
- *    Must change playerhandler
- *    Announce winners
  *  Implement scores
  *    Save to player data so save as a file with the UUID as the file name (similar to essentials)
  *  Implement PAPI
@@ -52,11 +46,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.*;
 
@@ -296,9 +292,45 @@ public class SurvivalPlayer implements Listener{
 
     private void setEffects(Player player){
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
+            for(String x : infConfig.getConfig().getConfigurationSection("effects").getKeys(false)){
+                String path = ("effects." + x);
+                boolean force = false;
 
+                int duration;
+                if(infConfig.getConfig().getString((path + ".duration")).toUpperCase().equals("INFINITE")){
+                    duration = Integer.MAX_VALUE;
+                    force = true;
+                }else{
+                    duration = infConfig.getConfig().getInt(path + ".duration");
+                }
+
+                player.sendMessage("Effect: " + x);
+                player.sendMessage("Duration: " + duration);
+                player.sendMessage("Level: " + infConfig.getConfig().getInt(path + ".level"));
+
+                player.addPotionEffect(new PotionEffect(PotionEffectType.getByName(x),
+                        duration,
+                        infConfig.getConfig().getInt(path + ".level")),
+                        force);
+            }
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
+            for(String x : surConfig.getConfig().getConfigurationSection("effects").getKeys(false)){
+                String path = ("effects." + x);
+                boolean force = false;
 
+                int duration;
+                if(surConfig.getConfig().getString((path + ".duration")).toUpperCase().equals("INFINITE")){
+                    duration = Integer.MAX_VALUE;
+                    force = true;
+                }else{
+                    duration = surConfig.getConfig().getInt(path + ".duration");
+                }
+
+                player.addPotionEffect(new PotionEffect(PotionEffectType.getByName(x),
+                        duration,
+                        surConfig.getConfig().getInt(path + ".level")),
+                        force);
+            }
         }
     }
 
@@ -403,12 +435,17 @@ public class SurvivalPlayer implements Listener{
                     removeEffects(Bukkit.getPlayer(entry.getKey()));
 
                     try{
-                        for(UUID x : previousWorlds.keySet()){
-                            String world = (this.getLobbies().contains(previousWorlds.get(x)) ? previousWorlds.get(x) : lobbies.get(0));
-                            Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(world));
+                        if(previousWorlds.keySet().isEmpty()){
+                            for(UUID x : previousWorlds.keySet()){
+                                String world = (this.getLobbies().contains(previousWorlds.get(x)) ? previousWorlds.get(x) : lobbies.get(0));
+                                Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(world));
+                            }
+                        }else{
+                            Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(lobbies.get(0)));
                         }
                     }catch (Exception e){
-                        Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(lobbies.get(0)));
+                        Bukkit.getLogger().severe("Something went wrong ending the game.");
+                        e.printStackTrace();
                     }
 
 
@@ -590,6 +627,14 @@ public class SurvivalPlayer implements Listener{
             if (event.getTo().getY() > event.getFrom().getY()) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    private void inventoryOpen(InventoryOpenEvent event){
+        if(getPlaying()){
+            Player player = (Player) event.getPlayer();
+            setEffects(player);
         }
     }
 

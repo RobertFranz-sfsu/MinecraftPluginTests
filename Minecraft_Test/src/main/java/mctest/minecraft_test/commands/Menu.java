@@ -44,13 +44,13 @@ public class Menu implements Listener, CommandExecutor {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
 
-        if(slot == 15){
+        if(slot == 53){
             g.getGameMap().get(player.getWorld().getName()).setNotPlaying(player);
             event.setCancelled(true);
-        } else if (slot == 4) {
+        } else if (slot == 45) {
             g.getGameMap().get(player.getWorld().getName()).gameInit();
             event.setCancelled(true);
-        } else if (slot == 6) {
+        } else if (slot == 46) {
 //            if(g.getGameMap().get(Bukkit.getWorld(player.getUniqueId())) == null){
 //                g.initGameMap();
 //            }
@@ -87,20 +87,22 @@ public class Menu implements Listener, CommandExecutor {
                 inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                 index++;
             }
+
+            inv.setItem(45, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9START GAME", "&aClick to start the game"));
         }else{
             for(String keys : con.getConfig().getKeys(false)){
-                if(g.getGameMap().get(player.getWorld().getName()).getPlaying() && plugin.getConfig().getBoolean("use-custom-loadout-perms") && !Objects.equals(con.getConfig().get(keys + ".permission"), null)){
+                if(g.getGameMap().get(player.getWorld().getName()).getPlaying() && plugin.getConfig().getBoolean("use-custom-loadout-perms") && !Objects.equals(con.getConfig().get(keys + ".permission"), null) && index < 45){
                     if(player.hasPermission("infected.loadout." + con.getConfig().getString(keys + ".permission"))){
                         inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                         index++;
                     }
                 }else{
-                    if(Objects.equals(g.getGameMap().get(player.getWorld().getName()).getStatusMap().get(player.getUniqueId()), "infected")){
+                    if(Objects.equals(g.getGameMap().get(player.getWorld().getName()).getStatusMap().get(player.getUniqueId()), "infected")  && index < 45){
                         if(Objects.equals(con.getConfig().getString(keys + ".type"), "infected")){
                             inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                             index++;
                         }
-                    }else if(Objects.equals(g.getGameMap().get(player.getWorld().getName()).getStatusMap().get(player.getUniqueId()), "survivor")){
+                    }else if(Objects.equals(g.getGameMap().get(player.getWorld().getName()).getStatusMap().get(player.getUniqueId()), "survivor")  && index < 45){
                         if(Objects.equals(con.getConfig().getString(keys + ".type"), "survivor")){
                             inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
                             index++;
@@ -110,9 +112,11 @@ public class Menu implements Listener, CommandExecutor {
             }
         }
 
-        inv.setItem(15, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to leave the game"));
-        inv.setItem(4, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9START GAME", "&aClick to start the game"));
-        inv.setItem(6, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9Unassigned", "&aClick to set role as unassigned"));
+        inv.setItem(53, getItem(new ItemStack(Material.DIAMOND_HOE), "&9N/A", "&aClick to leave the game"));
+
+        // TODO
+        //  REMOVE THIS
+        inv.setItem(46, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9Unassigned", "&aClick to set role as unassigned"));
 
         //TODO Make a new menu for this
         ItemStack item = new ItemStack(Material.GOLD_BLOCK);
@@ -120,7 +124,7 @@ public class Menu implements Listener, CommandExecutor {
         meta.setDisplayName(ChatColor.GOLD + "Worlds available");
         meta.setLore(g.getGameInfos());
         item.setItemMeta(meta);
-        inv.setItem(20, item);
+        inv.setItem(49, item);
 
         player.openInventory(inv);
 
