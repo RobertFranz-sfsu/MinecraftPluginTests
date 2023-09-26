@@ -28,7 +28,9 @@ public class GamesList {
      */
     public void initGameMap(List<String> list) {
         for (String s : list) {
-            this.gameMap.put(s, new SurvivalPlayer(this.plugin));
+            SurvivalPlayer sp = new SurvivalPlayer(this.plugin);
+            this.gameMap.put(s, sp);
+            sp.setCurrentWorld(s);
         }
     }
     public HashMap<String, SurvivalPlayer> getGameMap() {
@@ -47,10 +49,10 @@ public class GamesList {
     }
 
     /**
-     * Set and get the list of world names
+     * Set and get the list of allowed world names
      */
     public void setGameList() {
-        this.worldList = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("lobby-worlds");
+        this.worldList = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
     }
     public List<String> getGameList() {
         return this.worldList;

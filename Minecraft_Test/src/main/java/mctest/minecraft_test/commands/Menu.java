@@ -39,6 +39,8 @@ public class Menu implements Listener, CommandExecutor {
             return;
         }
 
+        Minecraft_Test plugin;
+
 //        g.getGameMap().get(Bukkit.getWorld(player.getUniqueId()))
 
         Player player = (Player) event.getWhoClicked();

@@ -292,29 +292,40 @@ public class Infected implements CommandExecutor, Listener {
 
                 case "join" : case "j":
                     if(sender.hasPermission("infected.infected.join") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
-                        if (args.length < 2) {
+                        if (args.length == 1) {
                             int it = 0;
                             for (Map.Entry<String, SurvivalPlayer> entry : g.getGameMap().entrySet()) {
                                 it++;
                                 if (!entry.getValue().getPlaying()) {
+                                    String current = player.getWorld().getName();
+                                    Bukkit.getLogger().severe(current);
+
+                                    player.teleport(s.getDefaultSpawn(entry.getKey()));
                                     entry.getValue().setUnassigned(player);
+                                    g.getGameMap().get(entry.getKey()).addPreviousWorld(player.getUniqueId(), current);
                                     break;
                                 }
                                 if (it == g.getGameMap().size()) {
                                     player.sendMessage("All games are full");
                                 }
                             }
-                        } else {
-                            //TODO check if in allowed worlds
-//                        player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
+                        } else if (args.length == 2) {
                             if (g.getGameMap().containsKey(args[1])) {
                                 if (!g.getGameMap().get(args[1]).getPlaying()) {
+//                                    previousWorlds.put(player.getUniqueId(), player.getWorld().getName());
+                                    String current = player.getWorld().getName();
+                                    Bukkit.getLogger().severe(current);
+
+                                    ((Player) sender).teleport(s.getDefaultSpawn(args[1]));
                                     g.getGameMap().get(args[1]).setUnassigned(player);
+                                    g.getGameMap().get(args[1]).addPreviousWorld(player.getUniqueId(), current);
                                 } else {
                                     player.sendMessage("Game is already in session.");
                                 }
-
                             }
+                        }else{
+                            sender.sendMessage("Correct usage (Random map): /infected join/j");
+                            sender.sendMessage("Correct usage (Specific map): /infected join/j [name]");
                         }
                     }else{
                         sender.sendMessage("You do not have permission to do this!");

@@ -4,10 +4,7 @@ import mctest.minecraft_test.commands.*;
 import mctest.minecraft_test.handlers.PlayerHandler;
 import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
-import mctest.minecraft_test.util.ConfigUtil;
-import mctest.minecraft_test.util.CountdownTimer;
 import mctest.minecraft_test.util.DelayedTask;
-import mctest.minecraft_test.util.SpawnUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -15,8 +12,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.scoreboard.NameTagVisibility;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 public final class Minecraft_Test extends JavaPlugin {
     private static Economy econ = null;
@@ -25,6 +24,7 @@ public final class Minecraft_Test extends JavaPlugin {
     public FileConfiguration getDefaultConfig(){
         return this.getConfig();
     }
+    private boolean hasProtocolLib = true;
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -33,8 +33,7 @@ public final class Minecraft_Test extends JavaPlugin {
 
         // Economy
         if (!setupEconomy() ) {
-            getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
-            getServer().getPluginManager().disablePlugin(this);
+            getLogger().warning("Vault not found! Economy features will not work");
             return;
         }else{
             getLogger().info("Setting up the economy!");
@@ -42,12 +41,16 @@ public final class Minecraft_Test extends JavaPlugin {
             setupChat();
         }
 
+        if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
+            getLogger().warning("ProtocolLib not found! Certain features will not work.");
+            hasProtocolLib = false;
+        }
+
         // Create these yml files and don't replace if present already
         saveResource("Infected.yml", false);
         saveResource("Survivor.yml", false);
         saveResource("Loadouts.yml", false);
 
-        SpawnUtil spawnUtil = new SpawnUtil(this);
         SurvivalPlayer sp = new SurvivalPlayer(this);
         GamesList g = new GamesList(this);
 
@@ -104,4 +107,6 @@ public final class Minecraft_Test extends JavaPlugin {
     public Economy getEcon(){
         return econ;
     }
+
+    public boolean hasProtocolLib(){ return this.hasProtocolLib; }
 }

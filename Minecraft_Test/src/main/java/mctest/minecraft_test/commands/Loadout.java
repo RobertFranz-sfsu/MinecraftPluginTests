@@ -163,6 +163,7 @@ public class Loadout implements CommandExecutor {
                                     pl = (Player) sender;
                                     name = ((Player) sender).getDisplayName();
                                 }
+//                                if()
 
                                 pl.getInventory().clear();
                                 for (String keys : con.getConfig().getConfigurationSection(args[index]).getKeys(false)) {

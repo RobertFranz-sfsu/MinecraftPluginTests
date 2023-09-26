@@ -1,19 +1,14 @@
 package mctest.minecraft_test.commands;
 
-import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
-import mctest.minecraft_test.util.ConfigUtil;
-import mctest.minecraft_test.util.SpawnUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public class Spawn implements CommandExecutor {
