@@ -28,6 +28,9 @@ can-switch-loadouts-during-match: FALSE;
 #  EFFECT-NAME:
 #    - DURATION
 #    - LEVEL
+#  JUMP:
+#    duration: INFINITE
+#    level: 1
 
 sur-money-reward: 10.0
 sur-win-commands: #enter the command without the leading /

@@ -28,6 +28,9 @@ can-switch-loadouts-during-match: FALSE;
 #  EFFECT-NAME:
 #    duration in ticks: 100
 #    LEVEL of effect, default is 1: 1
+#  JUMP:
+#    duration: INFINITE
+#    level: 1
 
 inf-money-reward: 10.0
 inf-win-commands: #enter the command without the leading /

@@ -63,10 +63,12 @@ public class Menu implements Listener, CommandExecutor {
             event.setCancelled(true);
         }
 
-        ItemStack loadout = event.getCurrentItem();
-        String name = loadout.getItemMeta().getDisplayName().replace('§', '&');
+        if(slot < 45){
+            ItemStack loadout = event.getCurrentItem();
+            String name = loadout.getItemMeta().getDisplayName().replace('§', '&');
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Bukkit.getPlayer(player.getUniqueId()).getName() + " " + name);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Bukkit.getPlayer(player.getUniqueId()).getName() + " " + name);
+        }
         event.setCancelled(true);
         player.closeInventory();
     }
