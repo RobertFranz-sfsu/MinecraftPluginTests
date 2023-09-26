@@ -528,15 +528,15 @@ public class SurvivalPlayer implements Listener {
         int count = player.getInventory().getSize() + 4;
 
         for(int i = 0 ; i < count ; i++) {
-            player.getInventory().setItem(i, inv[i]);
-
-            if(i == count - 4){
+            if(i < (count-4)){
+                player.getInventory().setItem(i, inv[i]);
+            } else if(i == (count - 4)){
                 player.getInventory().setHelmet(inv[i]);
-            }else if(i == count - 3){
+            }else if(i == (count - 3)){
                 player.getInventory().setChestplate(inv[i]);
-            }else if(i == count - 2){
+            }else if(i == (count - 2)){
                 player.getInventory().setLeggings(inv[i]);
-            }else if(i == count- 1){
+            }else if(i == (count- 1)){
                 player.getInventory().setBoots(inv[i]);
             }
         }
