@@ -16,6 +16,8 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
+import java.util.HashMap;
+import java.util.UUID;
 
 public final class Minecraft_Test extends JavaPlugin {
     private static Economy econ = null;
@@ -25,6 +27,13 @@ public final class Minecraft_Test extends JavaPlugin {
         return this.getConfig();
     }
     private boolean hasProtocolLib = true;
+    private HashMap<UUID, Integer> gameIDMap = new HashMap<>();
+    public HashMap<UUID, Integer> getGameIDMap() {
+        return this.gameIDMap;
+    }
+    public void setGameIDMap(HashMap<UUID, Integer> map) {
+        this.gameIDMap = map;
+    }
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -34,7 +43,6 @@ public final class Minecraft_Test extends JavaPlugin {
         // Economy
         if (!setupEconomy() ) {
             getLogger().warning("Vault not found! Economy features will not work");
-            return;
         }else{
             getLogger().info("Setting up the economy!");
             setupPermissions();
@@ -63,7 +71,7 @@ public final class Minecraft_Test extends JavaPlugin {
 //        getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil)); //remove later
         getCommand("loadout").setExecutor(new Loadout());
         getCommand("reload").setExecutor(new Reload(sp));
-        getCommand("infected").setExecutor(new Infected(sp, g));
+        getCommand("infected").setExecutor(new Infected(this, sp, g));
 
         new PlayerHandler(this);
         new DelayedTask(this);

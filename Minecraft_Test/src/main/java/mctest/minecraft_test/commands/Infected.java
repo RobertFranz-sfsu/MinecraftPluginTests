@@ -6,11 +6,18 @@ import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import java.util.*;
 
 import java.util.List;
 import java.util.Map;
@@ -21,9 +28,32 @@ public class Infected implements CommandExecutor, Listener {
     private SurvivalPlayer s;
     private GamesList g;
     private Minecraft_Test pl = Minecraft_Test.getPlugin(Minecraft_Test.class);
-    public Infected(SurvivalPlayer s, GamesList g){
+    public Infected(Minecraft_Test plugin, SurvivalPlayer s, GamesList g){
+        Bukkit.getPluginManager().registerEvents(this, plugin);
         this.s = s;
         this.g = g;
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!event.getView().getTitle().equals("Infection Games Available")) {
+            return;
+        }
+        try {
+            Player player = (Player) event.getWhoClicked();
+            if (event.getCurrentItem() != null) {
+                if (event.getSlot() == 4) {
+                    event.setCancelled(true);
+                } else {
+                    g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).setUnassigned(player);
+                    event.setCancelled(true);
+                    player.closeInventory();
+                }
+            }
+        } catch (Exception e) {
+            Bukkit.getLogger().info("Clicked on empty slot");
+        }
+
     }
 
     @Override
@@ -610,12 +640,30 @@ public class Infected implements CommandExecutor, Listener {
 //                        e.printStackTrace();
 //                    }
 //                    break;
+                case "games": case "g":
+                    Inventory gamesList = Bukkit.createInventory(player, 9*6, "Infection Games Available");
+                    ItemStack list = new ItemStack(Material.GOLD_BLOCK);
+                    ItemMeta meta = list.getItemMeta();
+                    meta.setDisplayName(ChatColor.GOLD + "Worlds available");
+                    meta.setLore(g.getGameInfos());
+                    list.setItemMeta(meta);
+                    gamesList.setItem(4, list);
+                    int i = 9;
+                    for (Map.Entry<String, SurvivalPlayer> entry : g.getGameMap().entrySet()) {
+                        ItemStack game = new ItemStack(Material.DIAMOND_BLOCK);
+                        ItemMeta m = game.getItemMeta();
+                        m.setDisplayName(entry.getKey());
+                        m.setLore(g.getInfoString(entry.getKey()));
+                        game.setItemMeta(m);
+                        gamesList.setItem(i++, game);
+                    }
+                    player.openInventory(gamesList);
                 default:
-                    sender.sendMessage("Valid sub commands: start, end, addSpawn (as), setLobby (sl), delLobby (dl)," +
+                    sender.sendMessage("Valid sub commands: start, end, games (g), addSpawn (as), setLobby (sl), delLobby (dl)," +
                             " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr).");
             }
         }else{
-            sender.sendMessage("Valid sub commands: start, end, addSpawn (as), setLobby (sl), delLobby (dl)," +
+            sender.sendMessage("Valid sub commands: start, end, games (g), addSpawn (as), setLobby (sl), delLobby (dl)," +
                     " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr).");
         }
 

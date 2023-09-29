@@ -43,16 +43,17 @@ public class Menu implements Listener, CommandExecutor {
 
 //        g.getGameMap().get(Bukkit.getWorld(player.getUniqueId()))
 
-        Player player = (Player) event.getWhoClicked();
-        int slot = event.getSlot();
+        try {
+            Player player = (Player) event.getWhoClicked();
+            int slot = event.getSlot();
 
-        if(slot == 53){
-            g.getGameMap().get(player.getWorld().getName()).setNotPlaying(player);
-            event.setCancelled(true);
-        } else if (slot == 45) {
-            g.getGameMap().get(player.getWorld().getName()).gameInit();
-            event.setCancelled(true);
-        } else if (slot == 46) {
+            if(slot == 53){
+                g.getGameMap().get(player.getWorld().getName()).setNotPlaying(player);
+                event.setCancelled(true);
+            } else if (slot == 45) {
+                g.getGameMap().get(player.getWorld().getName()).gameInit();
+                event.setCancelled(true);
+            } else if (slot == 46) {
 //            if(g.getGameMap().get(Bukkit.getWorld(player.getUniqueId())) == null){
 //                g.initGameMap();
 //            }
@@ -61,18 +62,22 @@ public class Menu implements Listener, CommandExecutor {
 //                g.game
 //            }
 
-            g.getGameMap().get(player.getWorld().getName()).setUnassigned(player);
+                g.getGameMap().get(player.getWorld().getName()).setUnassigned(player);
+                event.setCancelled(true);
+            }
+
+            if(slot < 45){
+                ItemStack loadout = event.getCurrentItem();
+                String name = loadout.getItemMeta().getDisplayName().replace('§', '&');
+
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Bukkit.getPlayer(player.getUniqueId()).getName() + " " + name);
+            }
             event.setCancelled(true);
+            player.closeInventory();
+        } catch (Exception e) {
+            //Bukkit.getLogger().info("Selected empty slot");
         }
 
-        if(slot < 45){
-            ItemStack loadout = event.getCurrentItem();
-            String name = loadout.getItemMeta().getDisplayName().replace('§', '&');
-
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Bukkit.getPlayer(player.getUniqueId()).getName() + " " + name);
-        }
-        event.setCancelled(true);
-        player.closeInventory();
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String [] args) {
