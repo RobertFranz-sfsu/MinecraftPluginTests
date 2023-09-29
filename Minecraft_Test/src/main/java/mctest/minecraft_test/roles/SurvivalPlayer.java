@@ -87,6 +87,10 @@ public class SurvivalPlayer implements Listener {
     private List<String> surCommandRewards;
     private Minecraft_Test plugin;
     private String currentWorld;
+    private Integer gameID;
+    public Integer getGameID() {
+        return this.gameID;
+    }
 
     public void setPlaying(Boolean playing) {
         this.playing = playing;
@@ -121,7 +125,7 @@ public class SurvivalPlayer implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
 
-        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        this.gameID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
 
             // if timer is set, start counting down
             if (this.getTimer() > 0) {
@@ -211,6 +215,26 @@ public class SurvivalPlayer implements Listener {
                         }
                     });
                     this.endGame("survivor");
+//                    new CountdownTimer(this.plugin, 3,
+//                            // What happens at the start
+//                            () -> {
+//                                statusMap.forEach((key, value) -> {
+//                                    Bukkit.getPlayer(key).sendMessage("SURVIVORS WON!");
+//                                    if (Objects.equals(value, "survivor")) {
+//                                        Bukkit.getPlayer(key).sendMessage("YOU WON!");
+//                                        //TODO Anything else you want winners to get
+//                                        Bukkit.getLogger().info("Returning in...");
+//                                    }
+//                                });
+//                            },
+//                            // What happens at the end
+//                            () -> {
+//                                this.endGame("survivor");
+//                            },
+//                            // What happens during each tick
+//                            (t) -> {
+//                                Bukkit.getLogger().info(t + "");
+//                            }).scheduleTimer();
                 }
 
                 // Game ended by admin
@@ -382,6 +406,7 @@ public class SurvivalPlayer implements Listener {
     }
 
     public void setUnassigned(Player player) {
+        plugin.getGameIDMap().put(player.getUniqueId(), this.getGameID());
         if (getAllowedWorlds().contains(player.getWorld().getName())) {
             try {
                 statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
@@ -642,75 +667,75 @@ public class SurvivalPlayer implements Listener {
 
     @EventHandler
     private void onPlayerAttack(EntityDamageByEntityEvent event) {
-        Entity attacker = event.getDamager();
-        Entity damaged = event.getEntity();
-        Player player = (Player) damaged;
+        try {
+            Entity attacker = event.getDamager();
+            Entity damaged = event.getEntity();
+            Player player = (Player) damaged;
 
-        // If shooter and target are on same team, cancel damage
-        if(event.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)){
-            ProjectileSource attack = ((Projectile) event.getDamager()).getShooter();
-            Entity victim = event.getEntity();
+            // If shooter and target are on same team, cancel damage
+            if(event.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)){
+                ProjectileSource attack = ((Projectile) event.getDamager()).getShooter();
+                Entity victim = event.getEntity();
 
-            if (!statusMap.containsKey(((Player)attack).getUniqueId()) && !statusMap.containsKey(victim.getUniqueId())) {
-                return;
-            }
+                if (!statusMap.containsKey(((Player)attack).getUniqueId()) && !statusMap.containsKey(victim.getUniqueId())) {
+                    return;
+                }
 
-            if((attack instanceof Player) && (victim instanceof Player)){
+                if((attack instanceof Player) && (victim instanceof Player)){
 //                Bukkit.getLogger().severe("Attack: " + statusMap.get(((Player) attack).getUniqueId()));
 //                Bukkit.getLogger().severe("Victim: " + statusMap.get(victim.getUniqueId()));
 
-                if(Objects.equals(statusMap.get(((Player) attack).getUniqueId()), statusMap.get(victim.getUniqueId()))){
-                    Bukkit.getLogger().severe("3");
-                    event.setCancelled(true);
+                    if(Objects.equals(statusMap.get(((Player) attack).getUniqueId()), statusMap.get(victim.getUniqueId()))){
+                        Bukkit.getLogger().severe("3");
+                        event.setCancelled(true);
+                    }
                 }
             }
-        }
-        // If on same team, cancel damage
-        else if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
-            event.setCancelled(true);
-        }
+            // If on same team, cancel damage
+            else if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId()))) {
+                event.setCancelled(true);
+            }
 
-        else if(event.getDamage() >= player.getHealth()){
+            else if(event.getDamage() >= player.getHealth()){
 //            Bukkit.getLogger().severe("Attacker: " + attacker + ", " + statusMap.get(attacker.getUniqueId()));
 //            Bukkit.getLogger().severe("Damaged: " + damaged + ", " + statusMap.get(damaged.getUniqueId()));
 
-            event.setCancelled(true);
+                event.setCancelled(true);
 
-            Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
-            if(Objects.equals(statusMap.get(player.getUniqueId()).toLowerCase(), "survivor")){
-                statusMap.put(player.getUniqueId(), "infected");
+                Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+                if(Objects.equals(statusMap.get(player.getUniqueId()).toLowerCase(), "survivor")){
+                    statusMap.put(player.getUniqueId(), "infected");
+                }
+
+                this.removeEffects(player);
+                this.setRole(player);
+                player.teleport(this.getInfSpawn());
+                //healthMap.put(player.getUniqueId(), "dead");
+
+                new CountdownTimer(this.plugin, this.getRespawnTime(),
+                        // What happens at the start
+                        () -> {
+                            healthMap.put(player.getUniqueId(), "dead");
+                            player.setWalkSpeed(0);
+                        },
+                        // What happens at the end
+                        () -> {
+                            if (this.getPlaying()) {
+                                healthMap.put(player.getUniqueId(), "alive");
+                                player.setWalkSpeed(this.getInfSpeed());
+                            }
+                        },
+                        // What happens during each tick
+                        (t) -> {
+                            if (this.getPlaying()) {
+                                this.respawnBoard(player, t.getSecondsLeft());
+                            }
+                        }).scheduleTimer();
             }
-
-            this.removeEffects(player);
-            this.setRole(player);
-            player.teleport(this.getInfSpawn());
-            //healthMap.put(player.getUniqueId(), "dead");
-
-            new CountdownTimer(this.plugin, this.getRespawnTime(),
-                    // What happens at the start
-                    () -> {
-                        healthMap.put(player.getUniqueId(), "dead");
-                        player.setWalkSpeed(0);
-                    },
-                    // What happens at the end
-                    () -> {
-                        if (this.getPlaying()) {
-                            healthMap.put(player.getUniqueId(), "alive");
-                            player.setWalkSpeed(this.getInfSpeed());
-                        }
-                    },
-                    // What happens during each tick
-                    (t) -> {
-                        if (this.getPlaying()) {
-                            this.respawnBoard(player, t.getSecondsLeft());
-                        }
-                    }).scheduleTimer();
-
-//                new DelayedTask(() -> {
-//                    healthMap.put(player.getUniqueId(), "alive");
-//                    player.setWalkSpeed(this.getInfSpeed());
-//                }, 20L * this.getRespawnTime());
+        } catch (Exception e) {
+//            Bukkit.getLogger().info("Mob attacking mob");
         }
+
     }
 
     @EventHandler

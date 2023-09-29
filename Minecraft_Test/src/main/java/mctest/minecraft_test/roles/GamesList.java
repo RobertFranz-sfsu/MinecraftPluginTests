@@ -13,6 +13,9 @@ public class GamesList {
     private List<String> worldList;
     private ArrayList<String> gameInfos;
     private Minecraft_Test plugin;
+    private HashMap<String, HashMap<Integer, SurvivalPlayer>> multiGameMap = new HashMap<>();
+    private HashMap<String, ArrayList<SurvivalPlayer>> arrayListGameMap = new HashMap<>();
+    private HashMap<Integer, String> idWorldMap = new HashMap<>();
 
     public GamesList(Minecraft_Test plugin) {
         this.plugin = plugin;
@@ -28,9 +31,22 @@ public class GamesList {
      */
     public void initGameMap(List<String> list) {
         for (String s : list) {
-            SurvivalPlayer sp = new SurvivalPlayer(this.plugin);
-            this.gameMap.put(s, sp);
-            sp.setCurrentWorld(s);
+
+            SurvivalPlayer game = new SurvivalPlayer(this.plugin);
+
+            // Original map
+            this.gameMap.put(s, game);
+            game.setCurrentWorld(s);
+
+//            // Hashmap that has key: world name, value: hashmap of game id and game
+//            HashMap<Integer, SurvivalPlayer> id = new HashMap<>();
+//            id.put(game.getGameID(), game);
+//            this.multiGameMap.put(s, id);
+//
+//            // Hashmap of key: world name, key: arraylist of all games
+//            ArrayList<SurvivalPlayer> aL = new ArrayList<>();
+//            aL.add(game);
+//            this.arrayListGameMap.put(s, aL);
         }
     }
     public HashMap<String, SurvivalPlayer> getGameMap() {
@@ -97,6 +113,16 @@ public class GamesList {
     public ArrayList<String> getGameInfos() {
         this.setGameInfos();
         return this.gameInfos;
+    }
+
+    public List<String> getInfoString(String world) {
+        List<String> l = new ArrayList<>();
+        l.add((this.getGameMap().get(world).getPlaying() ? "Game in session" : ("Game in lobby: " + this.getGameMap().get(world).getStatusMap().size() + "/" + this.getGameMap().get(world).getMaxPl()))) ;
+        return l;
+    }
+
+    public HashMap<String, HashMap<Integer, SurvivalPlayer>> getMultiGameMap() {
+        return this.multiGameMap;
     }
 
     /**
