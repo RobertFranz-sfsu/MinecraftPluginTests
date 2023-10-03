@@ -45,9 +45,16 @@ public class Infected implements CommandExecutor, Listener {
                 if (event.getSlot() == 4) {
                     event.setCancelled(true);
                 } else {
-                    g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).setUnassigned(player);
+                    if (g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getPlaying()) {
+                        player.sendMessage("Game already in session");
+                    }
+                    else if (g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getStatusMap().containsValue(player.getUniqueId())) {
+                        player.sendMessage("You're already in the game");
+                    } else {
+                        g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).setUnassigned(player);
+                        player.closeInventory();
+                    }
                     event.setCancelled(true);
-                    player.closeInventory();
                 }
             }
         } catch (Exception e) {
