@@ -2,7 +2,6 @@ package mctest.minecraft_test.commands;
 
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.roles.GamesList;
-import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -20,17 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings({"FieldMayBeFinal", "NullableProblems"})
 public class Menu implements Listener, CommandExecutor {
-    private String invName = "Server Selector";
-    private Minecraft_Test plugin;
-    private GamesList g;
-    private SurvivalPlayer s;
+    private String invName = "Loadouts";
 
-    public Menu(Minecraft_Test plugin,  GamesList g, SurvivalPlayer s) {
+    private Minecraft_Test plugin;
+
+    private GamesList g;
+
+    public Menu(Minecraft_Test plugin,  GamesList g) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
         this.g = g;
-        this.s = s;
     }
 
     @EventHandler
@@ -38,10 +38,6 @@ public class Menu implements Listener, CommandExecutor {
         if (!event.getView().getTitle().equals(invName)) {
             return;
         }
-
-        Minecraft_Test plugin;
-
-//        g.getGameMap().get(Bukkit.getWorld(player.getUniqueId()))
 
         try {
             Player player = (Player) event.getWhoClicked();
@@ -54,13 +50,6 @@ public class Menu implements Listener, CommandExecutor {
                 g.getGameMap().get(player.getWorld().getName()).gameInit();
                 event.setCancelled(true);
             } else if (slot == 46) {
-//            if(g.getGameMap().get(Bukkit.getWorld(player.getUniqueId())) == null){
-//                g.initGameMap();
-//            }
-
-//            if(Objects.equals(g.getGameMap().get(Bukkit.getWorld(player.getUniqueId())), null)){
-//                g.game
-//            }
 
                 g.getGameMap().get(player.getWorld().getName()).setUnassigned(player);
                 event.setCancelled(true);
@@ -68,9 +57,9 @@ public class Menu implements Listener, CommandExecutor {
 
             if(slot < 45){
                 ItemStack loadout = event.getCurrentItem();
-                String name = loadout.getItemMeta().getDisplayName().replace('§', '&');
+                String name = Objects.requireNonNull(Objects.requireNonNull(loadout).getItemMeta()).getDisplayName().replace('§', '&');
 
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Bukkit.getPlayer(player.getUniqueId()).getName() + " " + name);
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName() + " " + name);
             }
             event.setCancelled(true);
             player.closeInventory();
@@ -79,6 +68,8 @@ public class Menu implements Listener, CommandExecutor {
         }
 
     }
+
+    // Removing the warning from the passed in objects.
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String [] args) {
         if (!(sender instanceof Player)) {
@@ -93,7 +84,7 @@ public class Menu implements Listener, CommandExecutor {
 
         if(sender.isOp()){
             for(String keys : con.getConfig().getKeys(false)){
-                inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
+                inv.setItem(index, Objects.requireNonNull(con.getConfig().getConfigurationSection(keys)).getItemStack("placeholder"));
                 index++;
             }
 
@@ -102,18 +93,18 @@ public class Menu implements Listener, CommandExecutor {
             for(String keys : con.getConfig().getKeys(false)){
                 if(g.getGameMap().get(player.getWorld().getName()).getPlaying() && plugin.getConfig().getBoolean("use-custom-loadout-perms") && !Objects.equals(con.getConfig().get(keys + ".permission"), null) && index < 45){
                     if(player.hasPermission("infected.loadout." + con.getConfig().getString(keys + ".permission"))){
-                        inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
+                        inv.setItem(index, Objects.requireNonNull(con.getConfig().getConfigurationSection(keys)).getItemStack("placeholder"));
                         index++;
                     }
                 }else{
                     if(Objects.equals(g.getGameMap().get(player.getWorld().getName()).getStatusMap().get(player.getUniqueId()), "infected")  && index < 45){
                         if(Objects.equals(con.getConfig().getString(keys + ".type"), "infected")){
-                            inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
+                            inv.setItem(index, Objects.requireNonNull(con.getConfig().getConfigurationSection(keys)).getItemStack("placeholder"));
                             index++;
                         }
                     }else if(Objects.equals(g.getGameMap().get(player.getWorld().getName()).getStatusMap().get(player.getUniqueId()), "survivor")  && index < 45){
                         if(Objects.equals(con.getConfig().getString(keys + ".type"), "survivor")){
-                            inv.setItem(index, con.getConfig().getConfigurationSection(keys).getItemStack("placeholder"));
+                            inv.setItem(index, Objects.requireNonNull(con.getConfig().getConfigurationSection(keys)).getItemStack("placeholder"));
                             index++;
                         }
                     }
@@ -125,15 +116,7 @@ public class Menu implements Listener, CommandExecutor {
 
         // TODO
         //  REMOVE THIS
-        inv.setItem(46, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9Unassigned", "&aClick to set role as unassigned"));
-
-        //TODO Make a new menu for this
-        ItemStack item = new ItemStack(Material.GOLD_BLOCK);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "Worlds available");
-        meta.setLore(g.getGameInfos());
-        item.setItemMeta(meta);
-        inv.setItem(49, item);
+//        inv.setItem(46, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9Unassigned", "&aClick to set role as unassigned"));
 
         player.openInventory(inv);
 
@@ -143,7 +126,7 @@ public class Menu implements Listener, CommandExecutor {
     private ItemStack getItem(ItemStack item, String name, String ... lore) {
         ItemMeta meta = item.getItemMeta();
 
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+        Objects.requireNonNull(meta).setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
 
         List<String> lores = new ArrayList<>();
         for(String s : lore) {

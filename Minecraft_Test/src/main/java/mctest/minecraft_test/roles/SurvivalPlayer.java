@@ -1,7 +1,6 @@
 /*
  * TODO
  *   S:
- *     Teleport players on game end after a countdown
  *     Add economy to loadouts
  *   R:
  *     Separate lobby selector
@@ -18,6 +17,8 @@
  *  Change /menu to /imenu
  *  Add player stats to last row of menu
  *  Hide everyone's nametag while in game
+ *  Fix end command
+ *  Command to add specific games
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
@@ -30,15 +31,14 @@ package mctest.minecraft_test.roles;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.ConfigUtil;
 import mctest.minecraft_test.util.CountdownTimer;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -53,6 +53,7 @@ import org.bukkit.scoreboard.*;
 
 import java.util.*;
 
+@SuppressWarnings({"rawtypes", "FieldMayBeFinal", "CallToPrintStackTrace", "deprecation"})
 public class SurvivalPlayer implements Listener {
     ConfigUtil surConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
     ConfigUtil infConfig = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
@@ -60,9 +61,9 @@ public class SurvivalPlayer implements Listener {
     private final HashMap<UUID, String> healthMap = new HashMap<>();
     public HashMap<UUID, String> previousWorlds = new HashMap<>();
     private HashMap<UUID, ItemStack[]> previousInventory = new HashMap<>();
+
     private int infectedCnt = 0;
     private int survivorCnt = 0;
-    private Boolean playing = false;
     private int time = Integer.MIN_VALUE;
     private int maxPl;
     private int minPl;
@@ -77,17 +78,21 @@ public class SurvivalPlayer implements Listener {
     private float surSpeed;
     private int infHealth;
     private float infSpeed;
-    private List<String> allowedWorlds;
-    private List<String> lobbies;
     private boolean scalingInf;
+    private boolean playing = false;
     private int infRatio;
     private double infMoneyReward;
     private double surMoneyReward;
     private List<String> infCommandRewards;
     private List<String> surCommandRewards;
+    private List<String> allowedWorlds;
+    private List<String> lobbies;
     private Minecraft_Test plugin;
     private String currentWorld;
     private Integer gameID;
+    private boolean createNew = true;
+    private int endTime;
+
     public Integer getGameID() {
         return this.gameID;
     }
@@ -96,7 +101,7 @@ public class SurvivalPlayer implements Listener {
         this.playing = playing;
     }
 
-    public Boolean getPlaying() {
+    public boolean getPlaying() {
         return this.playing;
     }
 
@@ -116,9 +121,9 @@ public class SurvivalPlayer implements Listener {
         previousWorlds.put(player, world);
     }
 
-    public HashMap<UUID, String> getPreviousWorlds() {
-        return this.previousWorlds;
-    }
+//    public HashMap<UUID, String> getPreviousWorlds() {
+//        return this.previousWorlds;
+//    }
 
 
     public SurvivalPlayer(Minecraft_Test plugin) {
@@ -137,10 +142,6 @@ public class SurvivalPlayer implements Listener {
             }
 
             if (!this.getPlaying()) {
-                // Send countdown time
-                if (this.getTimer() != Integer.MIN_VALUE) {
-                    //statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("Timer: " + this.getTimer()));
-                }
                 // if minimum amount of players have joined, start timer
                 if (statusMap.size() == this.getMinPl() && this.getTimer() == Integer.MIN_VALUE) {
                     List<String> val = plugin.getConfig().getStringList("lobby-worlds");
@@ -158,7 +159,7 @@ public class SurvivalPlayer implements Listener {
 
                         for (String w : val) {
                             if (Bukkit.getWorld(w) != null) {
-                                Bukkit.getWorld(w).getPlayers().forEach(player -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                Objects.requireNonNull(Bukkit.getWorld(w)).getPlayers().forEach(player -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                                         "tellraw " + player.getUniqueId() + " {" +
                                                 "\"text\": \"" + msg + "\"," +
                                                 "\"hoverEvent\": {" +
@@ -176,7 +177,7 @@ public class SurvivalPlayer implements Listener {
                 // if max amount of players have joined or if the timer has hit 0, start the game
                 if (statusMap.size() == this.getMaxPl() || this.getTimer() == 0) {
                     Bukkit.getLogger().info("Game Starting");
-                    statusMap.forEach((key, value) -> Bukkit.getPlayer(key).sendMessage("Game starting"));
+                    statusMap.forEach((key, value) -> Objects.requireNonNull(Bukkit.getPlayer(key)).sendMessage("Game starting"));
                     gameInit();
                     this.setTimer(Integer.MIN_VALUE);
                 }
@@ -197,52 +198,89 @@ public class SurvivalPlayer implements Listener {
                 });
                 //Bukkit.getLogger().info("Game in session");
 
-                // TODO
-                //  infected win
                 //  If everyone is infected, infected won
-//                if (this.getInfectedCnt() == statusMap.size()) {
-//                    statusMap.forEach((key, value) ->  Bukkit.getPlayer(key).sendMessage("INFECTED WON!"));
-//                    this.endGame("infected");
-//                }
+                if ((this.getInfectedCnt() == statusMap.size()) && createNew) {
+                    CountdownTimer time = new CountdownTimer(this.plugin, this.getEndTime(),
+                            // What happens at the start
+                            () -> {
+                                statusMap.forEach((key, value) -> {
+                                    Objects.requireNonNull(Bukkit.getPlayer(key)).sendMessage(
+                                            ChatColor.translateAlternateColorCodes('&', "&cInfected won!")
+                                    );
+                                    if (Objects.equals(value, "infected")) {
+                                        Objects.requireNonNull(Bukkit.getPlayer(key)).sendMessage(
+                                                ChatColor.translateAlternateColorCodes('&', "&c&lYou won!")
+                                        );
+                                        //TODO Anything else you want winners to get
+                                    }
+                                });
+                            },
+                            // What happens at the end
+                            () -> {
+                                this.endGame("infected");
+                            },
+                            // What happens during each tick
+                            (t) -> {
+                                Objects.requireNonNull(Bukkit.getWorld(currentWorld)).getPlayers().forEach(player ->
+                                        player.sendMessage("Returning in: " + t.getSecondsLeft()));
+                            });
+
+                    time.scheduleTimer();
+                    createNew = false;
+                }
 
                 // If timer runs out, survivors won
-                if (this.getTimer() == 0) {
-                    statusMap.forEach((key, value) -> {
-                        Bukkit.getPlayer(key).sendMessage("SURVIVORS WON!");
-                        if (Objects.equals(value, "survivor")) {
-                            Bukkit.getPlayer(key).sendMessage("YOU WON!");
-                            //TODO Anything else you want winners to get
-                        }
-                    });
-                    this.endGame("survivor");
-//                    new CountdownTimer(this.plugin, 3,
-//                            // What happens at the start
-//                            () -> {
-//                                statusMap.forEach((key, value) -> {
-//                                    Bukkit.getPlayer(key).sendMessage("SURVIVORS WON!");
-//                                    if (Objects.equals(value, "survivor")) {
-//                                        Bukkit.getPlayer(key).sendMessage("YOU WON!");
-//                                        //TODO Anything else you want winners to get
-//                                        Bukkit.getLogger().info("Returning in...");
-//                                    }
-//                                });
-//                            },
-//                            // What happens at the end
-//                            () -> {
-//                                this.endGame("survivor");
-//                            },
-//                            // What happens during each tick
-//                            (t) -> {
-//                                Bukkit.getLogger().info(t + "");
-//                            }).scheduleTimer();
+                if ((this.getTimer() == 0) && createNew) {
+                    CountdownTimer time = new CountdownTimer(this.plugin, this.getEndTime(),
+                            // What happens at the start
+                            () -> {
+                                statusMap.forEach((key, value) -> {
+                                    Objects.requireNonNull(Bukkit.getPlayer(key)).sendMessage(
+                                            ChatColor.translateAlternateColorCodes('&', "&aSurvivors won!")
+                                    );
+                                    if (Objects.equals(value, "survivor")) {
+                                        Objects.requireNonNull(Bukkit.getPlayer(key)).sendMessage(
+                                                ChatColor.translateAlternateColorCodes('&', "&2&lYou won!")
+                                        );
+                                        //TODO Anything else you want winners to get
+                                    }
+                                });
+                            },
+                            // What happens at the end
+                            () -> {
+                                this.endGame("survivor");
+                            },
+                            // What happens during each tick
+                            (t) -> {
+                                Objects.requireNonNull(Bukkit.getWorld(currentWorld)).getPlayers().forEach(player ->
+                                        player.sendMessage("Returning in: " + t.getSecondsLeft()));
+                            });
+
+                    time.scheduleTimer();
+                    createNew = false;
                 }
 
                 // Game ended by admin
                 if (this.getTimer() == -42) {
-                    statusMap.forEach((key, value) -> {
-                        Bukkit.getPlayer(key).sendMessage("Game has been manually ended.");
-                    });
-                    this.endGame();
+                    CountdownTimer time = new CountdownTimer(this.plugin, this.getEndTime(),
+                            // What happens at the start
+                            () -> {
+                                statusMap.forEach((key, value) -> {
+                                    Objects.requireNonNull(Bukkit.getPlayer(key)).sendMessage("Game has been manually ended.");
+                                });
+                            },
+                            // What happens at the end
+                            () -> {
+                                this.endGame();
+                            },
+                            // What happens during each tick
+                            (t) -> {
+                                Objects.requireNonNull(Bukkit.getWorld(currentWorld)).getPlayers().forEach(player ->
+                                        player.sendMessage("Returning in: " + t.getSecondsLeft()));
+                            });
+
+                    time.scheduleTimer();
+                    createNew = false;
                 }
             }
         }, 0L, 20L);
@@ -251,6 +289,7 @@ public class SurvivalPlayer implements Listener {
     public void gameInit() {
         //TODO
         // Set players as infected or survivor depending on amount playing,
+        createNew = true;
 
         try {
             ArrayList<Integer> playerList = new ArrayList<>();
@@ -285,7 +324,7 @@ public class SurvivalPlayer implements Listener {
 
             for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
                 if (entry.getKey() != null) {
-                    Bukkit.dispatchCommand(Bukkit.getPlayer(entry.getKey()), "m");
+                    Bukkit.dispatchCommand(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())), "m");
                 }
             }
         } catch (Exception e) {
@@ -322,56 +361,66 @@ public class SurvivalPlayer implements Listener {
             player.teleport(this.getSurSpawn());
             this.hideNames(player);
         }
-//        Bukkit.dispatchCommand(player, "m");
-        //this.setBoard(player);
     }
 
     private void setAttributes(Player player, Float speed, int maxHealth, int health) {
         player.setWalkSpeed(speed);
-        player.setMaxHealth(maxHealth);
+        if(plugin.getIs18()){
+            player.setMaxHealth(maxHealth);
+        }else{
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(maxHealth);
+        }
         player.setHealth(health);
     }
 
     private void setEffects(Player player) {
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
-            for (String x : infConfig.getConfig().getConfigurationSection("effects").getKeys(false)) {
+            for (String x : Objects.requireNonNull(infConfig.getConfig().getConfigurationSection("effects")).getKeys(false)) {
                 String path = ("effects." + x);
                 boolean force = false;
 
                 int duration;
-                if (infConfig.getConfig().getString((path + ".duration")).toUpperCase().equals("INFINITE")) {
+                if (Objects.requireNonNull(infConfig.getConfig().getString((path + ".duration"))).equalsIgnoreCase("INFINITE")) {
                     duration = Integer.MAX_VALUE;
                     force = true;
                 } else {
                     duration = infConfig.getConfig().getInt(path + ".duration");
                 }
 
-                player.sendMessage("Effect: " + x);
-                player.sendMessage("Duration: " + duration);
-                player.sendMessage("Level: " + infConfig.getConfig().getInt(path + ".level"));
-
-                player.addPotionEffect(new PotionEffect(PotionEffectType.getByName(x),
-                                duration,
-                                infConfig.getConfig().getInt(path + ".level")),
-                        force);
+                if(plugin.getIs18()){
+                    player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
+                                    duration,
+                                    infConfig.getConfig().getInt(path + ".level")),
+                            force);
+                }else{
+                    player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
+                                    duration,
+                                    infConfig.getConfig().getInt(path + ".level")));
+                }
             }
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
-            for (String x : surConfig.getConfig().getConfigurationSection("effects").getKeys(false)) {
+            for (String x : Objects.requireNonNull(surConfig.getConfig().getConfigurationSection("effects")).getKeys(false)) {
                 String path = ("effects." + x);
                 boolean force = false;
 
                 int duration;
-                if (surConfig.getConfig().getString((path + ".duration")).toUpperCase().equals("INFINITE")) {
+                if (Objects.requireNonNull(surConfig.getConfig().getString((path + ".duration"))).equalsIgnoreCase("INFINITE")) {
                     duration = Integer.MAX_VALUE;
                     force = true;
                 } else {
                     duration = surConfig.getConfig().getInt(path + ".duration");
                 }
 
-                player.addPotionEffect(new PotionEffect(PotionEffectType.getByName(x),
-                                duration,
-                                surConfig.getConfig().getInt(path + ".level")),
-                        force);
+                if(plugin.getIs18()){
+                    player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
+                                    duration,
+                                    surConfig.getConfig().getInt(path + ".level")),
+                            force);
+                }else{
+                    player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
+                            duration,
+                            infConfig.getConfig().getInt(path + ".level")));
+                }
             }
         }
     }
@@ -396,7 +445,7 @@ public class SurvivalPlayer implements Listener {
         previousWorlds.remove(player.getUniqueId());
         this.showNames(player);
 
-        if (previousInventory.containsKey(player.getUniqueId())) {
+        if (Objects.requireNonNull(previousInventory).containsKey(player.getUniqueId())) {
             previousInventory.remove(player.getUniqueId());
         }
 
@@ -422,23 +471,6 @@ public class SurvivalPlayer implements Listener {
         }
     }
 
-    public void setUnassigned(Player player, String world) {
-        if (getAllowedWorlds().contains(player.getWorld().getName())) {
-            try {
-                player.teleport(this.getDefaultSpawn(world));
-                statusMap.forEach((key, value) -> Bukkit.getLogger().info(key + " " + value));
-                statusMap.put(player.getUniqueId(), "unassigned");
-                healthMap.put(player.getUniqueId(), "alive");
-                previousWorlds.put(player.getUniqueId(), player.getWorld().getName());
-                this.showNames(player);
-                this.removeEffects(player);
-            } catch (Exception e) {
-                Bukkit.getLogger().warning("Something went wrong.");
-                e.printStackTrace();
-            }
-        }
-    }
-
     public void endGame() {
         try {
             Iterator<Map.Entry<UUID, String>> it = statusMap.entrySet().iterator();
@@ -448,9 +480,9 @@ public class SurvivalPlayer implements Listener {
                 if (entry.getKey() == null) {
                     it.remove();
                 } else {
-                    clearInventory(Bukkit.getPlayer(entry.getKey()));
+                    clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
-                    removeEffects(Bukkit.getPlayer(entry.getKey()));
+                    removeEffects(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
                     if (this.getLobbies().isEmpty()) {
                         Bukkit.getLogger().severe("There are no lobbies set!");
@@ -458,29 +490,26 @@ public class SurvivalPlayer implements Listener {
 
                     if (!previousWorlds.keySet().isEmpty()) {
                         String world = (this.getLobbies().contains(previousWorlds.get(entry.getKey())) ? previousWorlds.get(entry.getKey()) : this.getLobbies().get(0));
-                        Bukkit.getPlayer(entry.getKey()).teleport(this.getDefaultSpawn(world));
+                        Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).teleport(this.getDefaultSpawn(world));
                     } else {
-                        Bukkit.getPlayer(entry.getKey()).teleport(this.getDefaultSpawn(this.getLobbies().get(0)));
+                        Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).teleport(this.getDefaultSpawn(this.getLobbies().get(0)));
                     }
 
-                    this.giveInventory(Bukkit.getPlayer(entry.getKey()));
+                    this.giveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
                     this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
-                    Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
-                    Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
+                    Bukkit.getLogger().info(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).getName() + " successfully exited the game");
+                    Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).sendMessage("The game has ended.");
                 }
             }
 
-            this.setPlaying(false);
             this.setTimer(Integer.MIN_VALUE);
+            this.setPlaying(false);
         } catch (Exception e) {
             Bukkit.getLogger().warning("Something went wrong.");
             e.printStackTrace();
         }
-//        this.setPlaying(false);
-//        this.setTimer(Integer.MIN_VALUE);
-
     }
 
     public void endGame(String winner) {
@@ -500,16 +529,14 @@ public class SurvivalPlayer implements Listener {
                         Bukkit.getLogger().severe("There are no lobbies set!");
                     }
 
-                    Bukkit.getLogger().severe("Previous worlds: " + previousWorlds.keySet());
-
                     if (!previousWorlds.keySet().isEmpty()) {
                         String world = (this.getLobbies().contains(previousWorlds.get(entry.getKey())) ? previousWorlds.get(entry.getKey()) : this.getLobbies().get(0));
-                        Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(world));
+                        Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).teleport(getDefaultSpawn(world));
                     } else {
-                        Bukkit.getPlayer(entry.getKey()).teleport(getDefaultSpawn(this.getLobbies().get(0)));
+                        Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).teleport(getDefaultSpawn(this.getLobbies().get(0)));
                     }
 
-                    this.giveInventory(Bukkit.getPlayer(entry.getKey()));
+                    this.giveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
                     if (entry.getValue().equals(winner)) {
                         giveRewards(Bukkit.getPlayer(entry.getKey()), winner);
@@ -517,20 +544,17 @@ public class SurvivalPlayer implements Listener {
 
                     this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
-                    Bukkit.getLogger().info(Bukkit.getPlayer(entry.getKey()).getName() + " successfully exited the game");
-                    Bukkit.getPlayer(entry.getKey()).sendMessage("The game has ended.");
+                    Bukkit.getLogger().info(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).getName() + " successfully exited the game");
+                    Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).sendMessage("The game has ended.");
                 }
             }
 
-            this.setPlaying(false);
             this.setTimer(Integer.MIN_VALUE);
+            this.setPlaying(false);
         } catch (Exception e) {
             Bukkit.getLogger().warning("Something went wrong.");
             e.printStackTrace();
         }
-//        this.setPlaying(false);
-//        this.setTimer(Integer.MIN_VALUE);
-
     }
 
     public void clearInventory(Player player) {
@@ -605,19 +629,19 @@ public class SurvivalPlayer implements Listener {
         if(plugin.getEcon() != null){
             player.sendMessage(ChatColor.translateAlternateColorCodes ('&', "&fYou have been awarded &a" +
                     plugin.getConfig().getString("currency-symbol") + reward + "&f for winning!"));
-            plugin.getEcon().depositPlayer(player.getName(), reward);
+            plugin.getEcon().depositPlayer(player, reward);
         }
 
         try{
             if(winner.equals("survivor") && !getSurCommandRewards().isEmpty()){
                 for(String x : getSurCommandRewards()){
-                    Bukkit.getLogger().info(x.replaceAll("PLAYER_NAME", Bukkit.getPlayer(player.getUniqueId()).getName()));
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), x.replaceAll("PLAYER_NAME", Bukkit.getPlayer(player.getUniqueId()).getName()));
+                    Bukkit.getLogger().info(x.replaceAll("PLAYER_NAME", Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName()));
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), x.replaceAll("PLAYER_NAME", Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName()));
                 }
             }else if(winner.equals("infected") && !getInfCommandRewards().isEmpty()){
                 for(String x : getInfCommandRewards()){
-                    Bukkit.getLogger().info(x.replaceAll("PLAYER_NAME", Bukkit.getPlayer(player.getUniqueId()).getName()));
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), x.replaceAll("PLAYER_NAME", Bukkit.getPlayer(player.getUniqueId()).getName()));
+                    Bukkit.getLogger().info(x.replaceAll("PLAYER_NAME", Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName()));
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), x.replaceAll("PLAYER_NAME", Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName()));
                 }
             }
         }catch (Exception e){
@@ -677,14 +701,11 @@ public class SurvivalPlayer implements Listener {
                 ProjectileSource attack = ((Projectile) event.getDamager()).getShooter();
                 Entity victim = event.getEntity();
 
-                if (!statusMap.containsKey(((Player)attack).getUniqueId()) && !statusMap.containsKey(victim.getUniqueId())) {
+                if (!statusMap.containsKey(Objects.requireNonNull(((Player)attack)).getUniqueId()) && !statusMap.containsKey(victim.getUniqueId())) {
                     return;
                 }
 
-                if((attack instanceof Player) && (victim instanceof Player)){
-//                Bukkit.getLogger().severe("Attack: " + statusMap.get(((Player) attack).getUniqueId()));
-//                Bukkit.getLogger().severe("Victim: " + statusMap.get(victim.getUniqueId()));
-
+                if((victim instanceof Player)){
                     if(Objects.equals(statusMap.get(((Player) attack).getUniqueId()), statusMap.get(victim.getUniqueId()))){
                         Bukkit.getLogger().severe("3");
                         event.setCancelled(true);
@@ -697,9 +718,6 @@ public class SurvivalPlayer implements Listener {
             }
 
             else if(event.getDamage() >= player.getHealth()){
-//            Bukkit.getLogger().severe("Attacker: " + attacker + ", " + statusMap.get(attacker.getUniqueId()));
-//            Bukkit.getLogger().severe("Damaged: " + damaged + ", " + statusMap.get(damaged.getUniqueId()));
-
                 event.setCancelled(true);
 
                 Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
@@ -710,7 +728,6 @@ public class SurvivalPlayer implements Listener {
                 this.removeEffects(player);
                 this.setRole(player);
                 player.teleport(this.getInfSpawn());
-                //healthMap.put(player.getUniqueId(), "dead");
 
                 new CountdownTimer(this.plugin, this.getRespawnTime(),
                         // What happens at the start
@@ -744,7 +761,7 @@ public class SurvivalPlayer implements Listener {
             return;
         }
         if (Objects.equals(healthMap.get(event.getPlayer().getUniqueId()), "dead")) {
-            if (event.getTo().getY() > event.getFrom().getY()) {
+            if (Objects.requireNonNull(event.getTo()).getY() > event.getFrom().getY()) {
                 event.setCancelled(true);
             }
         }
@@ -835,12 +852,17 @@ public class SurvivalPlayer implements Listener {
         List<String> labels = new ArrayList<>();
         List chosen;
 
+        int check = 0;
         for(UUID x : statusMap.keySet()){
             if(!Objects.equals(x, null)){
-                world = Bukkit.getPlayer(x).getWorld().getName();
-            }else if(Objects.equals(world, x)){
+                world = Objects.requireNonNull(Bukkit.getPlayer(x)).getWorld().getName();
+            }
+
+            if((check != 0) && (Objects.equals(Objects.requireNonNull(Bukkit.getPlayer(x)).getWorld().getName(), world))){
                 break;
             }
+
+            check++;
         }
 
         if(Objects.equals(world, null)){
@@ -851,13 +873,13 @@ public class SurvivalPlayer implements Listener {
         path += world;
 
         if(type.equals("survivor")){
-            for(String x : surConfig.getConfig().getConfigurationSection(path).getKeys(false)){
+            for(String x : Objects.requireNonNull(surConfig.getConfig().getConfigurationSection(path)).getKeys(false)){
                 if(x != null){
                     labels.add(x);
                 }
             }
         }else if(type.equals("infected")){
-            for(String x : infConfig.getConfig().getConfigurationSection(path).getKeys(false)){
+            for(String x : Objects.requireNonNull(infConfig.getConfig().getConfigurationSection(path)).getKeys(false)){
                 if(x != null){
                     labels.add(x);
                 }
@@ -873,7 +895,7 @@ public class SurvivalPlayer implements Listener {
             return;
         }
 
-        if(type.equals("survivor")){
+        if(type.equalsIgnoreCase("survivor")){
             this.surSpawn = new Location(
                     Bukkit.getWorld(world),
                     surConfig.getConfig().getDouble(path + ".x"),
@@ -882,7 +904,7 @@ public class SurvivalPlayer implements Listener {
                     (float) surConfig.getConfig().getDouble(path + ".yaw"),
                     (float) surConfig.getConfig().getDouble(path + ".pitch")
             );
-        }else if(type.equals("infected")){
+        }else{
             this.infSpawn = new Location(
                     Bukkit.getWorld(world),
                     infConfig.getConfig().getDouble(path + ".x"),
@@ -1001,7 +1023,7 @@ public class SurvivalPlayer implements Listener {
 
     private void setInfRatio(){
         String str = plugin.getConfig().getString("infected-ratio");
-        String[] ratio = str.split("-");
+        String[] ratio = Objects.requireNonNull(str).split("-");
 
         if(plugin.getConfig().getBoolean("ratio-rounds-up")){
             Bukkit.getLogger().info("ROUNDING UP");
@@ -1051,22 +1073,20 @@ public class SurvivalPlayer implements Listener {
             return;
         }
         ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = manager.getNewScoreboard();
+        Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
 
-        Objective objective = scoreboard.registerNewObjective("Game Status", "dummy");
-        objective.setDisplayName(ChatColor.GOLD + "Survival Status");
+        Objective objective;
+        if(plugin.getIs18()){
+            objective = scoreboard.registerNewObjective("Game Status", "dummy");
+            objective.setDisplayName(ChatColor.GOLD + "Survival Status");
+        }else{
+            objective = scoreboard.registerNewObjective("Game Status", Criteria.DUMMY, ChatColor.GOLD + "Survival Status");
+        }
+
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         Score newLine1 = objective.getScore("");
         newLine1.setScore(6);
-
-//        if (Objects.equals(healthMap.get(player.getUniqueId()), "dead")) {
-//            String ellipsis = ".";
-//            ellipsis =  new String(new char[3-(this.getTimer() % 4)]).replace("\0", ellipsis);
-//            Score wait = objective.getScore("Waiting to respawn" + ellipsis);
-//            wait.setScore(5);
-//        }
-
 
         String minutes = String.valueOf(this.getTimer() / 60);
         String seconds = ((this.getTimer()%60 < 10) ? "0" : "") + this.getTimer()%60 ;
@@ -1091,10 +1111,16 @@ public class SurvivalPlayer implements Listener {
             return;
         }
         ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = manager.getNewScoreboard();
+        Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
 
-        Objective objective = scoreboard.registerNewObjective("Game Status", "dummy");
-        objective.setDisplayName(ChatColor.GOLD + "Survival Status");
+        Objective objective;
+        if(plugin.getIs18()){
+            objective = scoreboard.registerNewObjective("Game Status", "dummy");
+            objective.setDisplayName(ChatColor.GOLD + "Survival Status");
+        }else{
+            objective = scoreboard.registerNewObjective("Game Status", Criteria.DUMMY, ChatColor.GOLD + "Survival Status");
+        }
+
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         Score newLine1 = objective.getScore("");
@@ -1124,10 +1150,15 @@ public class SurvivalPlayer implements Listener {
             return;
         }
         ScoreboardManager manager1 = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = manager1.getNewScoreboard();
+        Scoreboard scoreboard = Objects.requireNonNull(manager1).getNewScoreboard();
 
-        Objective objective = scoreboard.registerNewObjective("Game Status", "dummy");
-        objective.setDisplayName(ChatColor.GOLD + "Waiting on Players");
+        Objective objective;
+        if(plugin.getIs18()){
+            objective = scoreboard.registerNewObjective("Game Status", "dummy");
+            objective.setDisplayName(ChatColor.GOLD + "Waiting on players");
+        }else{
+            objective = scoreboard.registerNewObjective("Game Status", Criteria.DUMMY, ChatColor.GOLD + "Waiting on players");
+        }
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         Score newLine1 = objective.getScore("");
@@ -1154,11 +1185,19 @@ public class SurvivalPlayer implements Listener {
             return;
         }
         ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = manager.getNewScoreboard();
+        Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
         player.setScoreboard(scoreboard);
 
     }
 
+    private void setEndTime(){
+        this.endTime = plugin.getConfig().getInt("end-time");
+    }
+
+    public int getEndTime(){
+        setEndTime();
+        return this.endTime;
+    }
     /**
      * Hiding usernames
      */
@@ -1167,13 +1206,28 @@ public class SurvivalPlayer implements Listener {
         ArmorStand as = (ArmorStand) player.getWorld().spawnEntity(player.getLocation(), EntityType.ARMOR_STAND);
         as.setVisible(false);
         as.setMetadata("nametag", new FixedMetadataValue(plugin, true));
-        player.setPassenger(as);
+//        as.setBasePlate(false);
+        as.setMarker(true);
+        if(plugin.getIs18()){
+            player.setPassenger(as);
+        }else{
+            player.addPassenger(as);
+        }
     }
 
     public void showNames(Player player){
-        Entity entity = player.getPassenger();
-        if(entity.hasMetadata("nametag")){
-            entity.remove();
+        if(plugin.getIs18()){
+            Entity entity = player.getPassenger();
+            if(Objects.requireNonNull(entity).hasMetadata("nametag")){
+                entity.remove();
+            }
+        }else{
+            List<Entity> entities = player.getPassengers();
+            for(Entity x : entities){
+                if(Objects.requireNonNull(x).hasMetadata("nametag")){
+                    x.remove();
+                }
+            }
         }
     }
 }

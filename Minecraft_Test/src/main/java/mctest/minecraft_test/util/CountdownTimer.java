@@ -4,6 +4,7 @@ import mctest.minecraft_test.Minecraft_Test;
 import org.bukkit.Bukkit;
 import java.util.function.Consumer;
 
+@SuppressWarnings("FieldMayBeFinal")
 public class CountdownTimer implements Runnable {
     private int time;
 
@@ -17,8 +18,13 @@ public class CountdownTimer implements Runnable {
 
     // Actions to perform while counting down, before and after
     private Consumer<CountdownTimer> everySecond;
+
     private Runnable beforeTimer;
     private Runnable afterTimer;
+
+    public int getId() {
+        return this.assignedTaskId;
+    }
 
     // Construct a timer, you could create multiple so for example if
     // you do not want these "actions"

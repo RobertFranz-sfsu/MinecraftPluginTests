@@ -1,23 +1,32 @@
 #Main settings
 
-# Match settings
+### Match settings ###
 # Queue length in seconds
 wait-timer: 5
+
 # Respawn timer for infected in seconds
 respawn-timer: 3
+
 # Game length in seconds
 match-length: 45
+
 # Maximum amount of players for a game
 max-players: 2
+
 # Minimum amount of players needed to begin a countdown for a game
 min-players: 1
+
 # Number of starting infected
 num-starting-infected: 1
 
-# Reward settings (must have vault and economy handler for money to apply)
+#Time before teleporting players back to the lobby after a game ends
+end-time: 3
+
+## Reward settings (must have vault and economy handler for money to apply) ##
 # Rewards for each team member when the team wins
 currency-symbol: "$"
 
+#Should a broadcast be sent to lobbies when a queue starts
 queue-start-broadcast-enabled: TRUE
 
 # If enabled you can set a specific permission for each loadout if you want them to be seen with certain permissions and

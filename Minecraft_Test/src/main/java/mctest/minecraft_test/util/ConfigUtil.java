@@ -11,7 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ConfigUtil {
+    @SuppressWarnings("FieldMayBeFinal")
     private File file;
+    @SuppressWarnings("FieldMayBeFinal")
     private FileConfiguration config;
 
     public ConfigUtil(Plugin plugin, String path) {this(plugin.getDataFolder().getAbsolutePath() + "/" + path);}
@@ -26,6 +28,7 @@ public class ConfigUtil {
             this.config.save(this.file);
             return true;
         } catch(Exception e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             return false;
         }

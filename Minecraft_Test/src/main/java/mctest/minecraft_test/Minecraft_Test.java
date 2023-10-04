@@ -13,10 +13,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
-import org.bukkit.scoreboard.NameTagVisibility;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class Minecraft_Test extends JavaPlugin {
@@ -34,11 +32,13 @@ public final class Minecraft_Test extends JavaPlugin {
     public void setGameIDMap(HashMap<UUID, Integer> map) {
         this.gameIDMap = map;
     }
+    private boolean is18;
     @Override
     public void onEnable() {
         // Plugin startup logic
         Bukkit.getLogger().info("Server Started");
         this.saveDefaultConfig();
+        this.setIs18();
 
         // Economy
         if (!setupEconomy() ) {
@@ -49,11 +49,6 @@ public final class Minecraft_Test extends JavaPlugin {
             setupChat();
         }
 
-        if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-            getLogger().warning("ProtocolLib not found! Certain features will not work.");
-            hasProtocolLib = false;
-        }
-
         // Create these yml files and don't replace if present already
         saveResource("Infected.yml", false);
         saveResource("Survivor.yml", false);
@@ -62,27 +57,29 @@ public final class Minecraft_Test extends JavaPlugin {
         SurvivalPlayer sp = new SurvivalPlayer(this);
         GamesList g = new GamesList(this);
 
-        getCommand("menu").setExecutor(new Menu(this, g,
-                sp
-                ));
-        getCommand("spawn").setExecutor(new Spawn(sp,
-                g
-        ));
-//        getCommand("setSpawn").setExecutor(new SetSpawn(spawnUtil)); //remove later
-        getCommand("loadout").setExecutor(new Loadout());
-        getCommand("reload").setExecutor(new Reload(sp));
-        getCommand("infected").setExecutor(new Infected(this, sp, g));
+        Objects.requireNonNull(getCommand("menu")).setExecutor(new Menu(this, g));
+        Objects.requireNonNull(getCommand("spawn")).setExecutor(new Spawn(g));
+        Objects.requireNonNull(getCommand("loadout")).setExecutor(new Loadout());
+        Objects.requireNonNull(getCommand("reload")).setExecutor(new Reload(sp, g));
+        Objects.requireNonNull(getCommand("infected")).setExecutor(new Infected(this, sp, g));
 
         new PlayerHandler(this);
         new DelayedTask(this);
-        //new SurvivalPlayer(this);
-
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
         Bukkit.getLogger().info("Shutting Down");
+    }
+
+    /**
+     * Version check
+     */
+    public boolean getIs18(){ return this.is18; }
+
+    private void setIs18(){
+        is18 = Bukkit.getVersion().contains("1.8");
     }
 
     /**

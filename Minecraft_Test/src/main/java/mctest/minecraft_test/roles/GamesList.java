@@ -1,7 +1,6 @@
 package mctest.minecraft_test.roles;
 
 import mctest.minecraft_test.Minecraft_Test;
-import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,12 +8,21 @@ import java.util.List;
 import java.util.Map;
 
 public class GamesList {
+    @SuppressWarnings("FieldMayBeFinal")
     private HashMap<String, SurvivalPlayer> gameMap = new HashMap<>();
     private List<String> worldList;
     private ArrayList<String> gameInfos;
+
+    @SuppressWarnings("FieldMayBeFinal")
     private Minecraft_Test plugin;
+
+    @SuppressWarnings("FieldMayBeFinal")
     private HashMap<String, HashMap<Integer, SurvivalPlayer>> multiGameMap = new HashMap<>();
+
+    @SuppressWarnings("FieldMayBeFinal")
     private HashMap<String, ArrayList<SurvivalPlayer>> arrayListGameMap = new HashMap<>();
+
+    @SuppressWarnings("FieldMayBeFinal")
     private HashMap<Integer, String> idWorldMap = new HashMap<>();
 
     public GamesList(Minecraft_Test plugin) {
@@ -26,8 +34,8 @@ public class GamesList {
     }
 
     /**
-     * Initializes the Hashmap of worlds and games.  Called at server start
      * @param list
+     * Initializes the Hashmap of worlds and games.  Called at server start
      */
     public void initGameMap(List<String> list) {
         for (String s : list) {
@@ -54,8 +62,8 @@ public class GamesList {
     }
 
     /**
-     * Adds a world and game to the hashmap
      * @param world
+     * Adds a world and game to the hashmap
      */
     public void addWorld(String world) {
         this.gameMap.put(world, new SurvivalPlayer(this.plugin));

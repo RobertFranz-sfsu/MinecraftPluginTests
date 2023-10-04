@@ -1,0 +1,22 @@
+## It is recommended to set this in game as it can save more specific items ##
+
+#Example Loadout:
+#  t:
+#    description: A loadout.
+#    placeholder:
+#      ==: org.bukkit.inventory.ItemStack
+#      type: IRON_SWORD
+#      meta:
+#        ==: ItemMeta
+#        meta-type: UNSPECIFIC
+#        display-name: t
+#        lore:
+#          - A loadout.
+#    permission: test
+#    '0': # This is in the first item slot
+#      ==: org.bukkit.inventory.ItemStack
+#      type: BOW
+#    '1': # This is in the second item slot
+#      ==: org.bukkit.inventory.ItemStack
+#      type: ARROW
+#      amount: 64

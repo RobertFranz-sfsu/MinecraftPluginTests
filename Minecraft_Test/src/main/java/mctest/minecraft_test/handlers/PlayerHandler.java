@@ -1,8 +1,6 @@
 package mctest.minecraft_test.handlers;
 
 import mctest.minecraft_test.Minecraft_Test;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +12,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class PlayerHandler implements Listener {
+    @SuppressWarnings("FieldMayBeFinal")
     private ArrayList<UUID> players = new ArrayList<>();
     public PlayerHandler(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -25,9 +24,6 @@ public class PlayerHandler implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        // TODO
-        //  Change when implementing MV
-        //  mv.get world or something
         Player p = event.getPlayer();
         players.add(p.getUniqueId());
         Bukkit.getLogger().info(players.toString());
@@ -35,9 +31,6 @@ public class PlayerHandler implements Listener {
 
     @EventHandler
     public void onPlayerDisconnect(PlayerQuitEvent event){
-        // TODO
-        //  Change when implementing MV
-        //  mv.get world or something
         Player p = event.getPlayer();
         players.removeIf(pl -> (pl.equals(p.getUniqueId())));
     }

@@ -17,16 +17,18 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import java.util.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@SuppressWarnings({"FieldMayBeFinal", "CallToPrintStackTrace", "NullableProblems"})
 public class Infected implements CommandExecutor, Listener {
-
     private SurvivalPlayer s;
+
     private GamesList g;
+
+    @SuppressWarnings("FieldMayBeFinal")
     private Minecraft_Test pl = Minecraft_Test.getPlugin(Minecraft_Test.class);
     public Infected(Minecraft_Test plugin, SurvivalPlayer s, GamesList g){
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -39,34 +41,42 @@ public class Infected implements CommandExecutor, Listener {
         if (!event.getView().getTitle().equals("Infection Games Available")) {
             return;
         }
+
         try {
             Player player = (Player) event.getWhoClicked();
+
             if (event.getCurrentItem() != null) {
                 if (event.getSlot() == 4) {
                     event.setCancelled(true);
                 } else {
-                    if (g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getPlaying()) {
+                    if (g.getGameMap().get(Objects.requireNonNull(event.getCurrentItem().getItemMeta()).getDisplayName()).getPlaying()) {
                         player.sendMessage("Game already in session");
                     }
-                    else if (g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getStatusMap().containsValue(player.getUniqueId())) {
+                    else if (g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getStatusMap().containsKey(player.getUniqueId())) {
                         player.sendMessage("You're already in the game");
-                    } else {
+                    }else {
+                        String current = player.getWorld().getName();
+
+                        player.teleport(s.getDefaultSpawn(event.getCurrentItem().getItemMeta().getDisplayName()));
                         g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).setUnassigned(player);
+                        g.getGameMap().get(Objects.requireNonNull(player).getWorld().getName()).addPreviousWorld(player.getUniqueId(), current);
+
                         player.closeInventory();
+
+                        event.setCancelled(true);
                     }
-                    event.setCancelled(true);
                 }
             }
         } catch (Exception e) {
             Bukkit.getLogger().info("Clicked on empty slot");
         }
-
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(args.length != 0){
             Player player = (Player) sender;
+            String playerWorld = player.getWorld().getName();
 
             switch (args[0].toLowerCase()){
                 case "start":
@@ -114,7 +124,7 @@ public class Infected implements CommandExecutor, Listener {
                                 switch(args[1].toLowerCase()){
                                     case "infected": case "i":
                                         ConfigUtil infConfig = new ConfigUtil(pl, "Infected.yml");
-                                        String infPath = "spawns." + player.getLocation().getWorld().getName();
+                                        String infPath = "spawns." + Objects.requireNonNull(player.getLocation().getWorld()).getName();
                                         String infLabel = null;
 
                                         if(infConfig.getConfig().get(infPath) == null && (args.length < 3)){
@@ -151,7 +161,7 @@ public class Infected implements CommandExecutor, Listener {
                                         infConfig.getConfig().set(infPath + ".yaw", player.getLocation().getYaw());
 
                                         infConfig.save();
-                                        s.reloadConfigs();
+                                        g.getGameMap().get(playerWorld).reloadConfigs();
 
                                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bAdded an &cinfected &bspawn in world &a" +
                                                 player.getLocation().getWorld().getName() + "&b with the label &c" + infLabel));
@@ -159,7 +169,7 @@ public class Infected implements CommandExecutor, Listener {
                                         break;
                                     case "survivor": case "s":
                                         ConfigUtil surConfig = new ConfigUtil(pl, "Survivor.yml");
-                                        String surPath = "spawns." + player.getLocation().getWorld().getName();
+                                        String surPath = "spawns." + Objects.requireNonNull(player.getLocation().getWorld()).getName();
                                         String surLabel = null;
 
                                         if(surConfig.getConfig().get(surPath) == null && (args.length < 3)){
@@ -196,14 +206,14 @@ public class Infected implements CommandExecutor, Listener {
                                         surConfig.getConfig().set(surPath + ".yaw", player.getLocation().getYaw());
 
                                         surConfig.save();
-                                        s.reloadConfigs();
+                                        g.getGameMap().get(playerWorld).reloadConfigs();
 
                                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bAdded a &asurvivor &bspawn in world &a" +
                                                 player.getLocation().getWorld().getName() + "&b with the label &a" + surLabel));
 
                                         break;
                                     case "default": case "d":
-                                        String defPath = "default-spawns." + player.getLocation().getWorld().getName();
+                                        String defPath = "default-spawns." + Objects.requireNonNull(player.getLocation().getWorld()).getName();
 
                                         if(pl.getConfig().get(defPath) != null && args.length < 3){
                                             sender.sendMessage("This world already has a default spawn, please choose another world or choose to " +
@@ -301,10 +311,10 @@ public class Infected implements CommandExecutor, Listener {
                                 path = "spawns." + args[2].toLowerCase() + "." + args[3].toLowerCase();
                             }
 
-                            if(c.getConfig().get(path) != null){
+                            if(Objects.requireNonNull(c).getConfig().get(path) != null){
                                 c.getConfig().set(path, null);
                                 c.save();
-                                s.reloadConfigs();
+                                g.getGameMap().get(playerWorld).reloadConfigs();
 
                                 if(args.length == 3){
                                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted all " + color + type +
@@ -369,6 +379,7 @@ public class Infected implements CommandExecutor, Listener {
                         break;
                     }
                     break;
+
                 case "setlobby": case "sl":
                     if(sender.hasPermission("infected.infected.setlobby") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
@@ -605,7 +616,7 @@ public class Infected implements CommandExecutor, Listener {
                                             break;
                                         case "notplaying": case "np":
 //                                            s.setNotPlaying(Bukkit.getPlayer(args[1]));
-                                            g.getGameMap().get(player.getWorld().getName()).setNotPlaying(Bukkit.getPlayer(args[1]));
+                                            g.getGameMap().get(player.getWorld().getName()).setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
                                             break;
                                         default:
                                             sender.sendMessage("Must specify role:");
@@ -615,14 +626,14 @@ public class Infected implements CommandExecutor, Listener {
 
                                     if(role != null){
 //                                        s.removeEffects(Bukkit.getPlayer(args[1]));
-                                        g.getGameMap().get(player.getWorld().getName()).removeEffects(Bukkit.getPlayer(args[1]));
+                                        g.getGameMap().get(player.getWorld().getName()).removeEffects(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
                                         if(s.getPlaying()){
 //                                            s.getStatusMap().put(Bukkit.getPlayer(args[1]).getUniqueId(), role);
 //                                            s.setRole(Bukkit.getPlayer(args[1]));
-                                            g.getGameMap().get(player.getWorld().getName()).getStatusMap().put(Bukkit.getPlayer(args[1]).getUniqueId(), role);
-                                            g.getGameMap().get(player.getWorld().getName()).setRole(Bukkit.getPlayer(args[1]));
+                                            g.getGameMap().get(player.getWorld().getName()).getStatusMap().put(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId(), role);
+                                            g.getGameMap().get(player.getWorld().getName()).setRole(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
                                         }else{
-                                            sender.sendMessage("The player " + Bukkit.getPlayer(args[1]).getName() + " is not currently in a match!");
+                                            sender.sendMessage("The player " + Objects.requireNonNull(Bukkit.getPlayer(args[1])).getName() + " is not currently in a match!");
                                         }
                                     }
                                 }
@@ -651,7 +662,7 @@ public class Infected implements CommandExecutor, Listener {
                     Inventory gamesList = Bukkit.createInventory(player, 9*6, "Infection Games Available");
                     ItemStack list = new ItemStack(Material.GOLD_BLOCK);
                     ItemMeta meta = list.getItemMeta();
-                    meta.setDisplayName(ChatColor.GOLD + "Worlds available");
+                    Objects.requireNonNull(meta).setDisplayName(ChatColor.GOLD + "Worlds available");
                     meta.setLore(g.getGameInfos());
                     list.setItemMeta(meta);
                     gamesList.setItem(4, list);
@@ -659,12 +670,22 @@ public class Infected implements CommandExecutor, Listener {
                     for (Map.Entry<String, SurvivalPlayer> entry : g.getGameMap().entrySet()) {
                         ItemStack game = new ItemStack(Material.DIAMOND_BLOCK);
                         ItemMeta m = game.getItemMeta();
-                        m.setDisplayName(entry.getKey());
+                        Objects.requireNonNull(m).setDisplayName(entry.getKey());
                         m.setLore(g.getInfoString(entry.getKey()));
                         game.setItemMeta(m);
                         gamesList.setItem(i++, game);
                     }
                     player.openInventory(gamesList);
+
+                    break;
+
+                case "test": case "t":
+                    sender.sendMessage(Bukkit.getVersion());
+                    sender.sendMessage(Bukkit.getBukkitVersion());
+                    sender.sendMessage(pl.getIs18() + "");
+
+                    break;
+
                 default:
                     sender.sendMessage("Valid sub commands: start, end, games (g), addSpawn (as), setLobby (sl), delLobby (dl)," +
                             " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr).");

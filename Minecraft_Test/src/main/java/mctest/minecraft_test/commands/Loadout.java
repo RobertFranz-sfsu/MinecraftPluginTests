@@ -5,7 +5,6 @@ import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,8 +14,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 public class Loadout implements CommandExecutor {
+    Minecraft_Test plugin;
+    @SuppressWarnings({"NullableProblems", "CallToPrintStackTrace", "deprecation"}) // Removing the warning from the passed in objects.
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -36,9 +38,9 @@ public class Loadout implements CommandExecutor {
                                     con.getConfig().createSection(String.valueOf(args[1]));
                                     con.getConfig().set(args[1] + ".description", "A loadout.");
 
-                                    ItemStack item = new ItemStack(Material.matchMaterial("IRON_SWORD"), 1);
+                                    ItemStack item = new ItemStack(Objects.requireNonNull(Material.matchMaterial("IRON_SWORD")), 1);
                                     ItemMeta im = item.getItemMeta();
-                                    im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1].replaceAll("_", " "))));
+                                    Objects.requireNonNull(im).setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1].replaceAll("_", " "))));
 
                                     ArrayList<String> lore = new ArrayList<>();
 
@@ -155,44 +157,48 @@ public class Loadout implements CommandExecutor {
                                 Player pl = null;
                                 String name = "";
 
-                                if((Bukkit.getPlayer(args[1]) instanceof Player)){
+                                if((Bukkit.getPlayer(args[1]) != null)){
                                     index = 2;
                                     pl = Bukkit.getPlayer(args[1]);
-                                    name = Bukkit.getPlayer(args[1]).getDisplayName();
+                                    name = Objects.requireNonNull(Bukkit.getPlayer(args[1])).getDisplayName();
                                 }else if(sender instanceof Player){
                                     pl = (Player) sender;
                                     name = ((Player) sender).getDisplayName();
                                 }
-//                                if()
 
-                                pl.getInventory().clear();
-                                for (String keys : con.getConfig().getConfigurationSection(args[index]).getKeys(false)) {
-                                    if (keys.equals("helmet")) {
-                                        ItemStack helm = con.getConfig().getConfigurationSection(args[index]).getItemStack(keys);
-                                        pl.getInventory().setHelmet(helm);
-                                    } else if (keys.equals("chestplate")) {
-                                        ItemStack chest = con.getConfig().getConfigurationSection(args[index]).getItemStack(keys);
-                                        pl.getInventory().setChestplate(chest);
-                                    } else if (keys.equals("leggings")) {
-                                        ItemStack legs = con.getConfig().getConfigurationSection(args[index]).getItemStack(keys);
-                                        pl.getInventory().setLeggings(legs);
-                                    } else if (keys.equals("boots")) {
-                                        ItemStack boots = con.getConfig().getConfigurationSection(args[index]).getItemStack(keys);
-                                        pl.getInventory().setBoots(boots);
-                                    } else if(keys.equals("placeholder") || keys.equals("type") || keys.equals("description") || keys.equals("permission")){
-                                        // Do nothing
-                                    }else {
-                                        int slot = Integer.parseInt(keys);
-                                        ItemStack item = con.getConfig().getConfigurationSection(args[index]).getItemStack(keys);
+                                Objects.requireNonNull(pl).getInventory().clear();
+                                for (String keys : Objects.requireNonNull(con.getConfig().getConfigurationSection(args[index])).getKeys(false)) {
+                                    switch (keys) {
+                                        case "helmet":
+                                            ItemStack helm = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[index])).getItemStack(keys);
+                                            pl.getInventory().setHelmet(helm);
+                                            break;
+                                        case "chestplate":
+                                            ItemStack chest = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[index])).getItemStack(keys);
+                                            pl.getInventory().setChestplate(chest);
+                                            break;
+                                        case "leggings":
+                                            ItemStack legs = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[index])).getItemStack(keys);
+                                            pl.getInventory().setLeggings(legs);
+                                            break;
+                                        case "boots":
+                                            ItemStack boots = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[index])).getItemStack(keys);
+                                            pl.getInventory().setBoots(boots);
+                                            break;
+                                        case "placeholder": case "type": case "description": case "permission":
+                                            // Do nothing
+                                            break;
+                                        default:
+                                            int slot = Integer.parseInt(keys);
+                                            ItemStack item = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[index])).getItemStack(keys);
 
-                                        pl.getInventory().setItem(slot, item);
+                                            pl.getInventory().setItem(slot, item);
+                                            break;
                                     }
                                 }
 
-                                if(pl != null){
-                                    sender.sendMessage("Gave kit " + args[index] + " to player " + name + ".");
-                                    Bukkit.getLogger().info("Gave kit " + args[index] + " to player " + name + ".");
-                                }
+                                sender.sendMessage("Gave kit " + args[index] + " to player " + name + ".");
+                                Bukkit.getLogger().info("Gave kit " + args[index] + " to player " + name + ".");
 
                             } catch (Exception e) {
                                 Bukkit.getLogger().warning("Something went wrong trying to give a loadout.");
@@ -265,23 +271,30 @@ public class Loadout implements CommandExecutor {
                                     StringBuilder loreArr = new StringBuilder();
 
                                     String l = con.getConfig().getString(args[1] + ".description");
-                                    String[] arr = l.split(" ");
+                                    String[] arr = Objects.requireNonNull(l).split(" ");
 
                                     int count = 0;
-                                    for(int i = 0; i < arr.length; i++){
-                                        if(count > 4){
+
+                                    for (String s : arr) {
+                                        if (count > 4) {
                                             lore.add(loreArr.toString());
                                             loreArr.setLength(0);
                                             count = 0;
                                         }
-                                        loreArr.append(arr[i] + " ");
+                                        loreArr.append(s).append(" ");
                                         count++;
                                     }
                                     lore.add(loreArr.toString());
 
-                                    ItemStack item = player.getInventory().getItemInHand().clone();
+                                    ItemStack item;
+                                    if(plugin.getIs18()){
+                                        item = player.getInventory().getItemInHand().clone();
+                                    }else{
+                                        item = player.getInventory().getItemInMainHand();
+                                    }
+
                                     ItemMeta im = item.getItemMeta();
-                                    im.setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1].replaceAll("_", " "))));
+                                    Objects.requireNonNull(im).setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1].replaceAll("_", " "))));
                                     im.setLore(lore);
                                     item.setItemMeta(im);
 
@@ -323,9 +336,9 @@ public class Loadout implements CommandExecutor {
                                     }
                                     lore.add(loreArr.toString());
 
-                                    ItemStack item = con.getConfig().getConfigurationSection(args[1]).getItemStack("placeholder");
-                                    ItemMeta im = item.getItemMeta();
-                                    im.setLore(lore);
+                                    ItemStack item = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[1])).getItemStack("placeholder");
+                                    ItemMeta im = Objects.requireNonNull(item).getItemMeta();
+                                    Objects.requireNonNull(im).setLore(lore);
                                     item.setItemMeta(im);
 
                                     con.getConfig().set(args[1] + ".placeholder", item);
@@ -356,7 +369,8 @@ public class Loadout implements CommandExecutor {
                             sender.sendMessage("Usage: /loadout setType/st [loadoutname] [type]");
                         }else {
                             try{
-                                if(!args[2].toLowerCase().equals("survivor") && !args[2].toLowerCase().equals("infected")){
+                                if(!args[2].equalsIgnoreCase("survivor") && !args[2].equalsIgnoreCase("infected") &&
+                                !args[2].equalsIgnoreCase("i") && !args[2].equalsIgnoreCase("s")){
                                     sender.sendMessage("Please enter whether this is a survivor or infected loadout.");
                                 }else{
                                     String type = "";
