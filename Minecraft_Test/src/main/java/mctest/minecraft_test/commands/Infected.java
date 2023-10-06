@@ -615,7 +615,6 @@ public class Infected implements CommandExecutor, Listener {
                                             role = "survivor";
                                             break;
                                         case "notplaying": case "np":
-//                                            s.setNotPlaying(Bukkit.getPlayer(args[1]));
                                             g.getGameMap().get(player.getWorld().getName()).setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
                                             break;
                                         default:
@@ -625,11 +624,8 @@ public class Infected implements CommandExecutor, Listener {
                                     }
 
                                     if(role != null){
-//                                        s.removeEffects(Bukkit.getPlayer(args[1]));
                                         g.getGameMap().get(player.getWorld().getName()).removeEffects(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
                                         if(s.getPlaying()){
-//                                            s.getStatusMap().put(Bukkit.getPlayer(args[1]).getUniqueId(), role);
-//                                            s.setRole(Bukkit.getPlayer(args[1]));
                                             g.getGameMap().get(player.getWorld().getName()).getStatusMap().put(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId(), role);
                                             g.getGameMap().get(player.getWorld().getName()).setRole(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
                                         }else{
@@ -659,30 +655,37 @@ public class Infected implements CommandExecutor, Listener {
 //                    }
 //                    break;
                 case "games": case "g":
-                    Inventory gamesList = Bukkit.createInventory(player, 9*6, "Infection Games Available");
-                    ItemStack list = new ItemStack(Material.GOLD_BLOCK);
-                    ItemMeta meta = list.getItemMeta();
-                    Objects.requireNonNull(meta).setDisplayName(ChatColor.GOLD + "Worlds available");
-                    meta.setLore(g.getGameInfos());
-                    list.setItemMeta(meta);
-                    gamesList.setItem(4, list);
-                    int i = 9;
-                    for (Map.Entry<String, SurvivalPlayer> entry : g.getGameMap().entrySet()) {
-                        ItemStack game = new ItemStack(Material.DIAMOND_BLOCK);
-                        ItemMeta m = game.getItemMeta();
-                        Objects.requireNonNull(m).setDisplayName(entry.getKey());
-                        m.setLore(g.getInfoString(entry.getKey()));
-                        game.setItemMeta(m);
-                        gamesList.setItem(i++, game);
-                    }
-                    player.openInventory(gamesList);
+                    if(sender.hasPermission("infected.infected.games") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
+                        Inventory gamesList = Bukkit.createInventory(player, 9*6, "Infection Games Available");
+                        ItemStack list = new ItemStack(Material.GOLD_BLOCK);
+                        ItemMeta meta = list.getItemMeta();
+                        Objects.requireNonNull(meta).setDisplayName(ChatColor.GOLD + "Worlds available");
+                        meta.setLore(g.getGameInfos());
+                        list.setItemMeta(meta);
+                        gamesList.setItem(4, list);
+                        int i = 9;
+                        for (Map.Entry<String, SurvivalPlayer> entry : g.getGameMap().entrySet()) {
+                            ItemStack game = new ItemStack(Material.DIAMOND_BLOCK);
+                            ItemMeta m = game.getItemMeta();
+                            Objects.requireNonNull(m).setDisplayName(entry.getKey());
+                            m.setLore(g.getInfoString(entry.getKey()));
+                            game.setItemMeta(m);
+                            gamesList.setItem(i++, game);
+                        }
+                        player.openInventory(gamesList);
 
-                    break;
+                        break;
+                    }else{
+                        sender.sendMessage("You do not have permission to do this!");
+                        break;
+                    }
 
                 case "test": case "t":
-                    sender.sendMessage(Bukkit.getVersion());
-                    sender.sendMessage(Bukkit.getBukkitVersion());
-                    sender.sendMessage(pl.getIs18() + "");
+//                    sender.sendMessage(Bukkit.getVersion());
+//                    sender.sendMessage(Bukkit.getBukkitVersion());
+//                    sender.sendMessage(pl.getIs18() + "");
+                    sender.sendMessage("isLoadoutPrices: " + pl.isLoadoutPrices());
+                    sender.sendMessage("isLoadoutPrices config: " + pl.getDefaultConfig().getBoolean("loadout-prices"));
 
                     break;
 
@@ -692,7 +695,7 @@ public class Infected implements CommandExecutor, Listener {
             }
         }else{
             sender.sendMessage("Valid sub commands: start, end, games (g), addSpawn (as), setLobby (sl), delLobby (dl)," +
-                    " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr).");
+                    " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr), games (g).");
         }
 
         return true;

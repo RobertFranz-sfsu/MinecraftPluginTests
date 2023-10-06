@@ -4,6 +4,7 @@ import mctest.minecraft_test.commands.*;
 import mctest.minecraft_test.handlers.PlayerHandler;
 import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
+import mctest.minecraft_test.util.ConfigUtil;
 import mctest.minecraft_test.util.DelayedTask;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -24,7 +25,7 @@ public final class Minecraft_Test extends JavaPlugin {
     public FileConfiguration getDefaultConfig(){
         return this.getConfig();
     }
-    private boolean hasProtocolLib = true;
+    private boolean loadoutPrices;
     private HashMap<UUID, Integer> gameIDMap = new HashMap<>();
     public HashMap<UUID, Integer> getGameIDMap() {
         return this.gameIDMap;
@@ -33,12 +34,14 @@ public final class Minecraft_Test extends JavaPlugin {
         this.gameIDMap = map;
     }
     private boolean is18;
+    private ConfigUtil loadoutCon = new ConfigUtil(this, "Loadouts.yml");
     @Override
     public void onEnable() {
         // Plugin startup logic
         Bukkit.getLogger().info("Server Started");
         this.saveDefaultConfig();
         this.setIs18();
+        this.setLoadoutCon();
 
         // Economy
         if (!setupEconomy() ) {
@@ -53,6 +56,8 @@ public final class Minecraft_Test extends JavaPlugin {
         saveResource("Infected.yml", false);
         saveResource("Survivor.yml", false);
         saveResource("Loadouts.yml", false);
+
+        this.setLoadoutPrices();
 
         SurvivalPlayer sp = new SurvivalPlayer(this);
         GamesList g = new GamesList(this);
@@ -71,6 +76,14 @@ public final class Minecraft_Test extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         Bukkit.getLogger().info("Shutting Down");
+    }
+
+    public void setLoadoutCon(){
+        this.loadoutCon = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
+    }
+
+    public ConfigUtil getLoadoutCon(){
+        return this.loadoutCon;
     }
 
     /**
@@ -113,5 +126,11 @@ public final class Minecraft_Test extends JavaPlugin {
         return econ;
     }
 
-    public boolean hasProtocolLib(){ return this.hasProtocolLib; }
+    public void setLoadoutPrices() {
+        this.loadoutPrices = getDefaultConfig().getBoolean("loadout-prices") && (!Objects.equals(this.getEcon(), null));
+    }
+
+    public boolean isLoadoutPrices(){
+        return this.loadoutPrices;
+    }
 }

@@ -1,4 +1,4 @@
-#Main settings
+#Main settings for more help please visit the wiki () or join the discord ()
 
 ### Match settings ###
 # Queue length in seconds
@@ -25,6 +25,9 @@ end-time: 3
 ## Reward settings (must have vault and economy handler for money to apply) ##
 # Rewards for each team member when the team wins
 currency-symbol: "$"
+
+##Should prices be enabled for loadouts (Requires vault)##
+loadout-prices: FALSE
 
 #Should a broadcast be sent to lobbies when a queue starts
 queue-start-broadcast-enabled: TRUE

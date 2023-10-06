@@ -9,44 +9,57 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
+@SuppressWarnings({"FieldMayBeFinal", "NullableProblems", "CallToPrintStackTrace"})
 public class Reload implements CommandExecutor {
 
     SurvivalPlayer s;
-    @SuppressWarnings("FieldMayBeFinal")
     private GamesList g;
+    private Minecraft_Test plugin = Minecraft_Test.getPlugin(Minecraft_Test.class);
 
     public Reload(SurvivalPlayer s, GamesList g){
         this.g = g;
         this.s = s;
     }
 
-    @SuppressWarnings("NullableProblems") // Removing the warning from the passed in objects.
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try{
-            String world = ((Player) sender).getWorld().getName();
-            Minecraft_Test.getPlugin(Minecraft_Test.class).reloadConfig();
-            Bukkit.getLogger().info("Reloading config.yml.");
+            Bukkit.getLogger().info("Reloading config.yml...");
+            plugin.reloadConfig();
+            Bukkit.getLogger().info("Reloaded config.yml.");
 
-            ConfigUtil c1 = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Infected.yml");
-            Bukkit.getLogger().info("Reloading Infected.yml.");
+            Bukkit.getLogger().info("Saving Infected.yml...");
+            ConfigUtil c1 = new ConfigUtil(plugin, "Infected.yml");
             c1.save();
+            Bukkit.getLogger().info("Saved Infected.yml.");
 
-            ConfigUtil c2 = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Survivor.yml");
-            Bukkit.getLogger().info("Reloading Survivor.yml.");
+            Bukkit.getLogger().info("Saving Survivor.yml...");
+            ConfigUtil c2 = new ConfigUtil(plugin, "Survivor.yml");
             c2.save();
+            Bukkit.getLogger().info("Saved Survivor.yml.");
 
-            ConfigUtil c3 = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
-            Bukkit.getLogger().info("Reloading Loadouts.yml.");
+            Bukkit.getLogger().info("Saving Loadouts.yml...");
+            ConfigUtil c3 = new ConfigUtil(plugin, "Loadouts.yml");
             c3.save();
+            Bukkit.getLogger().info("Saved Loadouts.yml.");
 
-            g.getGameMap().get(world).reloadConfigs();
+            Bukkit.getLogger().info("Reloading Loadouts.yml...");
+            plugin.setLoadoutCon();
+            Bukkit.getLogger().info("Reloaded Loadouts.yml.");
 
-            sender.sendMessage("Config files have been reloaded.");
+            Bukkit.getLogger().info("Checking loadout prices setting...");
+            plugin.setLoadoutPrices();
+            Bukkit.getLogger().info("Finished checking loadout prices setting.");
+
+            Bukkit.getLogger().info("Reloading infected/survivor configs and applying new values for each map.");
+            for(String x : g.getGameMap().keySet()){
+                g.getGameMap().get(x).reloadConfigs();
+            }
+            Bukkit.getLogger().info("Finished reloading infected/survivor configs and applying new values for each map.");
+
+            sender.sendMessage("All configs have been successfully reloaded.");
         }catch(Exception e){
             sender.sendMessage("Something went wrong, please check the console.");
-            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return true;

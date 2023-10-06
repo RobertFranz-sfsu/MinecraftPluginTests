@@ -22,9 +22,8 @@ import java.util.Objects;
 @SuppressWarnings({"FieldMayBeFinal", "NullableProblems"})
 public class Menu implements Listener, CommandExecutor {
     private String invName = "Loadouts";
-
-    private Minecraft_Test plugin;
-
+    private Minecraft_Test plugin = Minecraft_Test.getPlugin(Minecraft_Test.class);
+    ConfigUtil con = plugin.getLoadoutCon();
     private GamesList g;
 
     public Menu(Minecraft_Test plugin,  GamesList g) {
@@ -59,10 +58,29 @@ public class Menu implements Listener, CommandExecutor {
                 ItemStack loadout = event.getCurrentItem();
                 String name = Objects.requireNonNull(Objects.requireNonNull(loadout).getItemMeta()).getDisplayName().replace('§', '&');
 
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName() + " " + name);
+                if(plugin.isLoadoutPrices()){
+                    if((plugin.getEcon().getBalance(player) < con.getConfig().getDouble(name + ".price") && !player.isOp())){
+                        player.sendMessage(ChatColor.translateAlternateColorCodes ('&',
+                                "&4You do not have enough money for this loadout!"));
+                        event.setCancelled(true);
+                    }else{
+                        plugin.getEcon().withdrawPlayer(player, con.getConfig().getDouble(name + ".price"));
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName() + " " + name);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes ('&',
+                                "&a" + con.getConfig().getDouble(name + ".price") + " &fhas been removed from your balance."));
+                        event.setCancelled(true);
+                        player.closeInventory();
+                    }
+                }else{
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName() + " " + name);
+                    event.setCancelled(true);
+                    player.closeInventory();
+                }
+
+//                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "loadout give " + Objects.requireNonNull(Bukkit.getPlayer(player.getUniqueId())).getName() + " " + name);
             }
-            event.setCancelled(true);
-            player.closeInventory();
+//            event.setCancelled(true);
+//            player.closeInventory();
         } catch (Exception e) {
             //Bukkit.getLogger().info("Selected empty slot");
         }
@@ -78,7 +96,6 @@ public class Menu implements Listener, CommandExecutor {
         }
 
         Player player = (Player) sender;
-        ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
         Inventory inv = Bukkit.createInventory(player, 9 * 6, invName);
         int index = 0;
 

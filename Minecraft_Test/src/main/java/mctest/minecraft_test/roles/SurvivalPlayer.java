@@ -121,14 +121,10 @@ public class SurvivalPlayer implements Listener {
         previousWorlds.put(player, world);
     }
 
-//    public HashMap<UUID, String> getPreviousWorlds() {
-//        return this.previousWorlds;
-//    }
-
-
     public SurvivalPlayer(Minecraft_Test plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
+        this.setValues();
 
         this.gameID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
 
@@ -796,7 +792,7 @@ public class SurvivalPlayer implements Listener {
         this.waitTime = plugin.getConfig().getInt("wait-timer");
     }
     private int getWaitTime(){
-        this.setWaitTime();
+//        this.setWaitTime();
         return this.waitTime;
     }
 
@@ -805,7 +801,7 @@ public class SurvivalPlayer implements Listener {
         this.gameTime = plugin.getConfig().getInt("match-length");
     }
     private int getGameTime(){
-        this.setGameTime();
+//        this.setGameTime();
         return this.gameTime;
     }
 
@@ -813,7 +809,7 @@ public class SurvivalPlayer implements Listener {
         this.maxPl = plugin.getConfig().getInt("max-players");
     }
     public int getMaxPl(){
-        this.setMaxPl();
+//        this.setMaxPl();
         return this.maxPl;
     }
 
@@ -821,7 +817,7 @@ public class SurvivalPlayer implements Listener {
         this.minPl = plugin.getConfig().getInt("min-players");
     }
     private int getMinPl(){
-        this.setMinPl();
+//        this.setMinPl();
         return this.minPl;
     }
 
@@ -829,7 +825,7 @@ public class SurvivalPlayer implements Listener {
         this.numStartInf = plugin.getConfig().getInt("num-starting-infected");
     }
     private int getNumStartInf(){
-        this.setNumStartInf();
+//        this.setNumStartInf();
         return this.numStartInf;
     }
 
@@ -841,9 +837,19 @@ public class SurvivalPlayer implements Listener {
         return this.respawnTime;
     }
 
+    private void setValues(){
+        this.setNumStartInf();
+        this.setMinPl();
+        this.setMaxPl();
+        this.setGameTime();
+        this.setWaitTime();
+    }
+
     public void reloadConfigs(){
         surConfig = new ConfigUtil(plugin, "Survivor.yml");
         infConfig = new ConfigUtil(plugin, "Infected.yml");
+
+        this.setValues();
     }
 
     private void setGameSpawn(String type){

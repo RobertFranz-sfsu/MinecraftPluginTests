@@ -13,18 +13,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class Loadout implements CommandExecutor {
-    Minecraft_Test plugin;
+    Minecraft_Test plugin  = Minecraft_Test.getPlugin(Minecraft_Test.class);
+    ConfigUtil con = plugin.getLoadoutCon();
+
     @SuppressWarnings({"NullableProblems", "CallToPrintStackTrace", "deprecation"}) // Removing the warning from the passed in objects.
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if(args.length != 0){
-            ConfigUtil con = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
-
             switch(args[0].toLowerCase()){
                 case "create": case "c":
                     if(sender.hasPermission("infected.loadout.create") || sender.hasPermission("infected.loadout.*")){
@@ -45,6 +46,10 @@ public class Loadout implements CommandExecutor {
                                     ArrayList<String> lore = new ArrayList<>();
 
                                     lore.add("A loadout.");
+                                    if(plugin.isLoadoutPrices()){
+                                        con.getConfig().set(args[1] + ".price", 0.00);
+                                        lore.add("Price: " + 0.00 + "");
+                                    }
 
                                     im.setLore(lore);
                                     item.setItemMeta(im);
@@ -185,7 +190,7 @@ public class Loadout implements CommandExecutor {
                                             ItemStack boots = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[index])).getItemStack(keys);
                                             pl.getInventory().setBoots(boots);
                                             break;
-                                        case "placeholder": case "type": case "description": case "permission":
+                                        case "placeholder": case "type": case "description": case "permission": case "price":
                                             // Do nothing
                                             break;
                                         default:
@@ -336,6 +341,10 @@ public class Loadout implements CommandExecutor {
                                     }
                                     lore.add(loreArr.toString());
 
+                                    if(plugin.isLoadoutPrices()){
+                                        lore.add("Price: " + con.getConfig().getDouble(args[1] + ".price"));
+                                    }
+
                                     ItemStack item = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[1])).getItemStack("placeholder");
                                     ItemMeta im = Objects.requireNonNull(item).getItemMeta();
                                     Objects.requireNonNull(im).setLore(lore);
@@ -420,12 +429,45 @@ public class Loadout implements CommandExecutor {
                     }
                     break;
 
+                case "setprice": case "price":
+                    if(sender.hasPermission("infected.loadout.setprice") || sender.hasPermission("infected.loadout.*")){
+                        if(args.length < 3){
+                            sender.sendMessage("Usage: /loadout setPrice/price [loadoutname] [price]");
+                        }else{
+                            try{
+                                con.getConfig().set(args[1] + ".price", Double.valueOf(args[2]));
+                                con.save();
+
+                                ItemStack item = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[1])).getItemStack("placeholder");
+                                ItemMeta im = Objects.requireNonNull(item).getItemMeta();
+                                List<String> lore = Objects.requireNonNull(im).getLore();
+
+                                Objects.requireNonNull(lore).set(lore.size()-1, "Price: " + Double.valueOf(args[2]));
+
+                                Objects.requireNonNull(im).setLore(lore);
+                                item.setItemMeta(im);
+
+                                sender.sendMessage("The price for " + args[1] + " has been set to " + Double.valueOf(args[2]));
+                            }catch(Exception e){
+                                sender.sendMessage("Something went wrong. Please check the console.");
+                                Bukkit.getLogger().warning("Something went wrong trying to set the price.");
+                                e.printStackTrace();
+                            }
+                        }
+                    }else{
+                        sender.sendMessage("You do not have permission to do this!");
+                        break;
+                    }
+
+                    break;
+
                 default:
                     sender.sendMessage("Please enter a valid loadout name or create one!");
                     break;
             }
         }else{
-            sender.sendMessage("Valid sub commands: create (c), save, delete (del), list (l), give, setPlaceholder (sp), setDescription (sd), setType (st), setPerm (perm).");
+            sender.sendMessage("Valid sub commands: create (c), save, delete (del), list (l), give, " +
+                    "setPlaceholder (sp), setDescription (sd), setType (st), setPerm (perm), setPrice (price).");
         }
 
         return true;
