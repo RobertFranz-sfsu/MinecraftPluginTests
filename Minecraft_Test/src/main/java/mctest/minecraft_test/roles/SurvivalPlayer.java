@@ -59,6 +59,8 @@ public class SurvivalPlayer implements Listener {
     private final HashMap<UUID, String> healthMap = new HashMap<>();
     public HashMap<UUID, String> previousWorlds = new HashMap<>();
     private HashMap<UUID, ItemStack[]> previousInventory = new HashMap<>();
+    public HashMap<UUID, Integer> survivorKills = new HashMap<>();
+    public HashMap<UUID, Integer> infectedKills = new HashMap<>();
 
     private int infectedCnt = 0;
     private int survivorCnt = 0;
@@ -109,8 +111,6 @@ public class SurvivalPlayer implements Listener {
     public int getTimer() {
         return this.time;
     }
-//    Team infected;
-//    Team survivors;
 
     public ConcurrentHashMap<UUID, String> getStatusMap() {
         return this.statusMap;
@@ -325,6 +325,12 @@ public class SurvivalPlayer implements Listener {
                 this.clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+
+                if(entry.getValue().equalsIgnoreCase("infected")){
+                    infectedKills.put(entry.getKey(), 0);
+                }else if(entry.getValue().equalsIgnoreCase("survivor")){
+                    survivorKills.put(entry.getKey(), 0);
+                }
             }
 
             Bukkit.getLogger().info(statusMap.toString());
@@ -462,13 +468,12 @@ public class SurvivalPlayer implements Listener {
         this.removeBoard(player);
         statusMap.remove(player.getUniqueId());
         healthMap.remove(player.getUniqueId());
-        previousWorlds.remove(player.getUniqueId());
 
-        if(statusMap.get(player.getUniqueId()).equalsIgnoreCase("infected")){
+//        if(statusMap.get(player.getUniqueId()).equalsIgnoreCase("infected")){
 //            infected.removePlayer(player);
-        }else if(statusMap.get(player.getUniqueId()).equalsIgnoreCase("survivor")){
+//        }else if(statusMap.get(player.getUniqueId()).equalsIgnoreCase("survivor")){
 //            survivors.removePlayer(player);
-        }
+//        }
 
 //        if(plugin.getConfig().getBoolean("hide-nametags")){
 //            this.showNames(player);
@@ -517,6 +522,10 @@ public class SurvivalPlayer implements Listener {
 
                     removeEffects(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
+                    if(plugin.doKeepScore()){
+                        this.setScores(entry.getKey());
+                    }
+
                     if (this.getLobbies().isEmpty()) {
                         Bukkit.getLogger().severe("There are no lobbies set!");
                     }
@@ -536,6 +545,10 @@ public class SurvivalPlayer implements Listener {
                     Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).sendMessage("The game has ended.");
                 }
             }
+
+            infectedKills.clear();
+            survivorKills.clear();
+            previousWorlds.clear();
 
             this.setTimer(Integer.MIN_VALUE);
             this.setPlaying(false);
@@ -562,6 +575,10 @@ public class SurvivalPlayer implements Listener {
 
                     removeEffects(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
+                    if(plugin.doKeepScore()){
+                        this.setScores(entry.getKey());
+                    }
+
                     if (this.getLobbies().isEmpty()) {
                         Bukkit.getLogger().severe("There are no lobbies set!");
                     }
@@ -577,6 +594,9 @@ public class SurvivalPlayer implements Listener {
 
                     if (entry.getValue().equals(winner)) {
                         giveRewards(Bukkit.getPlayer(entry.getKey()), winner);
+                        if(plugin.doKeepScore()){
+                            this.setGamesWon(entry.getKey(), winner);
+                        }
                     }
 
                     this.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
@@ -738,19 +758,12 @@ public class SurvivalPlayer implements Listener {
                 Entity damaged = event.getEntity();
                 Player player = (Player) damaged;
 
-//            Bukkit.getLogger().severe("TRUE 4");
-//            Bukkit.getLogger().severe("Attacker: " + statusMap.get(attacker.getUniqueId()));
-//            Bukkit.getLogger().severe("Damaged: " + statusMap.get(damaged.getUniqueId()));
-
                 // If shooter and target are on same team, cancel damage
                 if((event.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE))){
                     ProjectileSource attack = ((Projectile) event.getDamager()).getShooter();
                     Entity victim = event.getEntity();
 
                     Bukkit.getLogger().severe("PLAYER: " + player.getHealth() + ", DAMAGE: " + event.getDamage());
-//                Bukkit.getLogger().severe("TRUE 3");
-//                Bukkit.getLogger().severe("Attack: " + statusMap.get(Objects.requireNonNull(((Player) attack)).getUniqueId()));
-//                Bukkit.getLogger().severe("Victim: " + statusMap.get(victim.getUniqueId()));
 
                     if (!statusMap.containsKey(Objects.requireNonNull(((Player)attack)).getUniqueId()) && !statusMap.containsKey(victim.getUniqueId())) {
                         return;
@@ -758,17 +771,22 @@ public class SurvivalPlayer implements Listener {
 
                     if((victim instanceof Player)){
                         if(Objects.equals(statusMap.get(((Player) attack).getUniqueId()), statusMap.get(victim.getUniqueId()))){
-//                        Bukkit.getLogger().severe("TRUE 2");
-//                        Bukkit.getLogger().severe("Attack: " + statusMap.get(((Player) attack).getUniqueId()));
-//                        Bukkit.getLogger().severe("Victim: " + statusMap.get(victim.getUniqueId()));
                             event.setCancelled(true);
                         }else if(event.getDamage() >= player.getHealth()){
-                            Bukkit.getLogger().severe("TESTING");
                             event.setCancelled(true);
 
-                            if(Objects.equals(statusMap.get(victim.getUniqueId()), "survivor")){
-//                                survivors.removePlayer(Objects.requireNonNull(((Player) victim).getPlayer()));
-//                                infected.addPlayer(((Player) victim).getPlayer());
+                            if(plugin.doKeepScore()){
+                                Player killer = (Player) attacker;
+
+                                if(plugin.doInfectedKills() && Objects.equals(statusMap.get(killer.getUniqueId()), "infected")){
+                                    int k = infectedKills.get(killer.getUniqueId()) + 1;
+                                    infectedKills.put(killer.getUniqueId(), k);
+                                }
+
+                                if(plugin.doSurvivorKills() && Objects.equals(statusMap.get(killer.getUniqueId()), "survivor")){
+                                    int k = survivorKills.get(killer.getUniqueId()) + 1;
+                                    survivorKills.put(killer.getUniqueId(), k);
+                                }
                             }
 
                             Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
@@ -806,19 +824,25 @@ public class SurvivalPlayer implements Listener {
                 }
                 // If on same team, cancel damage
                 else if (Objects.equals(statusMap.get(attacker.getUniqueId()), statusMap.get(damaged.getUniqueId())) && this.getPlaying()) {
-//                Bukkit.getLogger().severe("TRUE 1");
-//                Bukkit.getLogger().severe("Attacker: " + statusMap.get(attacker.getUniqueId()));
-//                Bukkit.getLogger().severe("Damaged: " + statusMap.get(damaged.getUniqueId()));
                     event.setCancelled(true);
                 }
 
                 else if(event.getDamage() >= player.getHealth()){
                     event.setCancelled(true);
 
-//                    if(Objects.equals(statusMap.get(player.getUniqueId()), "survivor")){
-//                        survivors.removePlayer(Objects.requireNonNull(player));
-//                        infected.addPlayer(player);
-//                    }
+                    if(plugin.doKeepScore()){
+                        Player killer = (Player) attacker;
+
+                        if(plugin.doInfectedKills() && Objects.equals(statusMap.get(killer.getUniqueId()), "infected")){
+                            int k = infectedKills.get(killer.getUniqueId()) + 1;
+                            infectedKills.put(killer.getUniqueId(), k);
+                        }
+
+                        if(plugin.doSurvivorKills() && Objects.equals(statusMap.get(killer.getUniqueId()), "survivor")){
+                            int k = survivorKills.get(killer.getUniqueId()) + 1;
+                            survivorKills.put(killer.getUniqueId(), k);
+                        }
+                    }
 
                     Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
                     if(Objects.equals(statusMap.get(player.getUniqueId()).toLowerCase(), "survivor")){
@@ -1318,6 +1342,52 @@ public class SurvivalPlayer implements Listener {
     public int getEndTime(){
         setEndTime();
         return this.endTime;
+    }
+
+    /**
+     * Handling Scores
+     */
+
+    private void setScores(UUID player){
+        ConfigUtil con = new ConfigUtil(plugin, "/Scores/" + player + ".yml");
+
+        if(plugin.doSurvivorKills() && survivorKills.containsKey(player)){
+            int kills = con.getConfig().getInt("survivor-kills");
+            kills += survivorKills.get(player);
+            con.getConfig().set("survivor-kills", kills);
+        }
+
+        if(plugin.doInfectedKills() && infectedKills.containsKey(player)){
+            int kills = con.getConfig().getInt("infected-kills");
+            kills += infectedKills.get(player);
+            con.getConfig().set("infected-kills", kills);
+        }
+
+        if(plugin.doGamesPlayed()){
+            int games = con.getConfig().getInt("games-played");
+            games++;
+            con.getConfig().set("games-played", games);
+        }
+
+        con.save();
+    }
+
+    private void setGamesWon(UUID player, String team){
+        ConfigUtil con = new ConfigUtil(plugin, "/Scores/" + player + ".yml");
+
+        if(plugin.doInfectedGamesWon() && team.equalsIgnoreCase("infected")){
+            int wins = con.getConfig().getInt("infected-wins");
+            wins++;
+            con.getConfig().set("infected-wins", wins);
+        }
+
+        if(plugin.doSurvivorGamesWon()  && team.equalsIgnoreCase("survivor")){
+            int wins = con.getConfig().getInt("survivor-wins");
+            wins++;
+            con.getConfig().set("survivor-wins", wins);
+        }
+
+        con.save();
     }
 
     /**
