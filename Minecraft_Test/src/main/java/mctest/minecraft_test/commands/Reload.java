@@ -12,13 +12,11 @@ import org.bukkit.entity.Player;
 @SuppressWarnings({"FieldMayBeFinal", "NullableProblems", "CallToPrintStackTrace"})
 public class Reload implements CommandExecutor {
 
-    SurvivalPlayer s;
     private GamesList g;
     private Minecraft_Test plugin = Minecraft_Test.getPlugin(Minecraft_Test.class);
 
-    public Reload(SurvivalPlayer s, GamesList g){
+    public Reload(GamesList g){
         this.g = g;
-        this.s = s;
     }
 
     @Override
@@ -47,9 +45,11 @@ public class Reload implements CommandExecutor {
             plugin.setLoadoutCon();
             Bukkit.getLogger().info("Reloaded Loadouts.yml.");
 
-            Bukkit.getLogger().info("Checking loadout prices setting...");
+            Bukkit.getLogger().info("Checking main config settings...");
             plugin.setLoadoutPrices();
-            Bukkit.getLogger().info("Finished checking loadout prices setting.");
+            plugin.setDoKeepScore();
+            plugin.setScoreOptions();
+            Bukkit.getLogger().info("Finished checking main config settings.");
 
             Bukkit.getLogger().info("Reloading infected/survivor configs and applying new values for each map.");
             for(String x : g.getGameMap().keySet()){

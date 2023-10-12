@@ -7,6 +7,10 @@ wait-timer: 5
 # Respawn timer for infected in seconds
 respawn-timer: 3
 
+# Delay before match starts for people to choose classes.
+# Players will be unable to move during this time.
+match-delay: 10
+
 # Game length in seconds
 match-length: 45
 
@@ -27,10 +31,13 @@ end-time: 3
 currency-symbol: "$"
 
 ##Should prices be enabled for loadouts (Requires vault)##
-loadout-prices: FALSE
+loadout-prices: false
 
 #Should a broadcast be sent to lobbies when a queue starts
-queue-start-broadcast-enabled: TRUE
+queue-start-broadcast-enabled: true
+
+#Should scores be tracked
+keep-score: true
 
 # If enabled you can set a specific permission for each loadout if you want them to be seen with certain permissions and
 # not just type.
@@ -42,16 +49,16 @@ queue-start-broadcast-enabled: TRUE
 #     description: placeholder
 #     permission: test
 # The permission node will be: infected.loadout.test
-use-custom-loadout-perms: FALSE
+use-custom-loadout-perms: false
 
 # IF enabled, number of starting infected will scale based on the number of players
 # This will only work if the ratio is less than or equal to the number of people playing
 # Otherwise it will default to num-starting-infected
-use-scaling-infected: FALSE
+use-scaling-infected: false
 
 # Ratio of starting infected to survivors
 infected-ratio: 1-10 # This means 1 infected for every 10 players, must use "-" to separate numbers
-ratio-rounds-up: FALSE # If enabled, the plugin will round up for number of starting infected
+ratio-rounds-up: false # If enabled, the plugin will round up for number of starting infected
 
 # Worlds that can get an announcement on the beginning of a queue if
 # queue-start-broadcast-enabled is true.

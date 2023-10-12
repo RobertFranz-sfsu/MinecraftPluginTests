@@ -47,7 +47,7 @@ public class Loadout implements CommandExecutor {
 
                                     lore.add("A loadout.");
                                     if(plugin.isLoadoutPrices()){
-                                        con.getConfig().set(args[1] + ".price", 0.00);
+//                                        con.getConfig().set(args[1] + ".price", 0.00);
                                         lore.add("Price: " + 0.00 + "");
                                     }
 

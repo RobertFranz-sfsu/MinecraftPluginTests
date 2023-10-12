@@ -24,15 +24,12 @@ import java.util.Objects;
 
 @SuppressWarnings({"FieldMayBeFinal", "CallToPrintStackTrace", "NullableProblems"})
 public class Infected implements CommandExecutor, Listener {
-    private SurvivalPlayer s;
-
     private GamesList g;
 
     @SuppressWarnings("FieldMayBeFinal")
     private Minecraft_Test pl = Minecraft_Test.getPlugin(Minecraft_Test.class);
-    public Infected(Minecraft_Test plugin, SurvivalPlayer s, GamesList g){
+    public Infected(Minecraft_Test plugin, GamesList g){
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        this.s = s;
         this.g = g;
     }
 
@@ -57,9 +54,9 @@ public class Infected implements CommandExecutor, Listener {
                     }else {
                         String current = player.getWorld().getName();
 
-                        player.teleport(s.getDefaultSpawn(event.getCurrentItem().getItemMeta().getDisplayName()));
+                        player.teleport(g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getDefaultSpawn(event.getCurrentItem().getItemMeta().getDisplayName()));
                         g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).setUnassigned(player);
-                        g.getGameMap().get(Objects.requireNonNull(player).getWorld().getName()).addPreviousWorld(player.getUniqueId(), current);
+                        g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).addPreviousWorld(player.getUniqueId(), current);
 
                         player.closeInventory();
 
@@ -347,7 +344,7 @@ public class Infected implements CommandExecutor, Listener {
                                     String current = player.getWorld().getName();
                                     Bukkit.getLogger().severe(current);
 
-                                    player.teleport(s.getDefaultSpawn(entry.getKey()));
+                                    player.teleport(entry.getValue().getDefaultSpawn(entry.getKey()));
                                     entry.getValue().setUnassigned(player);
                                     g.getGameMap().get(entry.getKey()).addPreviousWorld(player.getUniqueId(), current);
                                     break;
@@ -359,11 +356,10 @@ public class Infected implements CommandExecutor, Listener {
                         } else if (args.length == 2) {
                             if (g.getGameMap().containsKey(args[1])) {
                                 if (!g.getGameMap().get(args[1]).getPlaying()) {
-//                                    previousWorlds.put(player.getUniqueId(), player.getWorld().getName());
                                     String current = player.getWorld().getName();
                                     Bukkit.getLogger().severe(current);
 
-                                    ((Player) sender).teleport(s.getDefaultSpawn(args[1]));
+                                    ((Player) sender).teleport(g.getGameMap().get(args[1]).getDefaultSpawn(args[1]));
                                     g.getGameMap().get(args[1]).setUnassigned(player);
                                     g.getGameMap().get(args[1]).addPreviousWorld(player.getUniqueId(), current);
                                 } else {
@@ -625,7 +621,7 @@ public class Infected implements CommandExecutor, Listener {
 
                                     if(role != null){
                                         g.getGameMap().get(player.getWorld().getName()).removeEffects(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
-                                        if(s.getPlaying()){
+                                        if(g.getGameMap().get(player.getWorld().getName()).getPlaying()){
                                             g.getGameMap().get(player.getWorld().getName()).getStatusMap().put(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId(), role);
                                             g.getGameMap().get(player.getWorld().getName()).setRole(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
                                         }else{
@@ -681,11 +677,13 @@ public class Infected implements CommandExecutor, Listener {
                     }
 
                 case "test": case "t":
-//                    sender.sendMessage(Bukkit.getVersion());
-//                    sender.sendMessage(Bukkit.getBukkitVersion());
-//                    sender.sendMessage(pl.getIs18() + "");
-                    sender.sendMessage("isLoadoutPrices: " + pl.isLoadoutPrices());
-                    sender.sendMessage("isLoadoutPrices config: " + pl.getDefaultConfig().getBoolean("loadout-prices"));
+                    sender.sendMessage("Resource: " + pl.getResource("Scores/ScoresConfig.yml"));
+//                    sender.sendMessage("Score: " + pl.doKeepScore());
+//                    sender.sendMessage("Survivor games won: " + pl.doSurvivorGamesWon());
+//                    sender.sendMessage("infected games won: " + pl.doInfectedGamesWon());
+//                    sender.sendMessage("sur kills: " + pl.doSurvivorKills());
+//                    sender.sendMessage("infected kills: " + pl.doInfectedKills());
+//                    sender.sendMessage("games played: " + pl.doGamesPlayed());
 
                     break;
 

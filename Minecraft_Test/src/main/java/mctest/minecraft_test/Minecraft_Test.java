@@ -3,7 +3,6 @@ package mctest.minecraft_test;
 import mctest.minecraft_test.commands.*;
 import mctest.minecraft_test.handlers.PlayerHandler;
 import mctest.minecraft_test.roles.GamesList;
-import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
 import mctest.minecraft_test.util.DelayedTask;
 import org.bukkit.Bukkit;
@@ -14,6 +13,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
+
+import java.io.File;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -25,7 +26,6 @@ public final class Minecraft_Test extends JavaPlugin {
     public FileConfiguration getDefaultConfig(){
         return this.getConfig();
     }
-    private boolean loadoutPrices;
     private HashMap<UUID, Integer> gameIDMap = new HashMap<>();
     public HashMap<UUID, Integer> getGameIDMap() {
         return this.gameIDMap;
@@ -33,8 +33,18 @@ public final class Minecraft_Test extends JavaPlugin {
     public void setGameIDMap(HashMap<UUID, Integer> map) {
         this.gameIDMap = map;
     }
-    private boolean is18;
     private ConfigUtil loadoutCon = new ConfigUtil(this, "Loadouts.yml");
+
+    // Checks for things
+    private boolean is18;
+    private boolean doKeepScore;
+    private boolean loadoutPrices;
+    private boolean survivorGamesWon;
+    private boolean infectedGamesWon;
+    private boolean survivorKills;
+    private boolean infectedKills;
+    private boolean gamesPlayed;
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -42,6 +52,18 @@ public final class Minecraft_Test extends JavaPlugin {
         this.saveDefaultConfig();
         this.setIs18();
         this.setLoadoutCon();
+        this.setDoKeepScore();
+
+        File scores = new File("Scores/ScoresConfig.yml");
+        File dir = scores.getParentFile();
+        if(!dir.exists()){
+            dir.mkdir();
+        }
+        saveResource("Scores/ScoresConfig.yml", false);
+
+        if(this.doKeepScore){
+            this.setScoreOptions();
+        }
 
         // Economy
         if (!setupEconomy() ) {
@@ -59,14 +81,13 @@ public final class Minecraft_Test extends JavaPlugin {
 
         this.setLoadoutPrices();
 
-        SurvivalPlayer sp = new SurvivalPlayer(this);
         GamesList g = new GamesList(this);
 
         Objects.requireNonNull(getCommand("menu")).setExecutor(new Menu(this, g));
         Objects.requireNonNull(getCommand("spawn")).setExecutor(new Spawn(g));
         Objects.requireNonNull(getCommand("loadout")).setExecutor(new Loadout());
-        Objects.requireNonNull(getCommand("reload")).setExecutor(new Reload(sp, g));
-        Objects.requireNonNull(getCommand("infected")).setExecutor(new Infected(this, sp, g));
+        Objects.requireNonNull(getCommand("reload")).setExecutor(new Reload(g));
+        Objects.requireNonNull(getCommand("infected")).setExecutor(new Infected(this, g));
 
         new PlayerHandler(this);
         new DelayedTask(this);
@@ -126,11 +147,32 @@ public final class Minecraft_Test extends JavaPlugin {
         return econ;
     }
 
+
+    /**
+     * Config stuff
+     */
     public void setLoadoutPrices() {
         this.loadoutPrices = getDefaultConfig().getBoolean("loadout-prices") && (!Objects.equals(this.getEcon(), null));
     }
 
-    public boolean isLoadoutPrices(){
-        return this.loadoutPrices;
+    public boolean isLoadoutPrices(){ return this.loadoutPrices; }
+
+    public void setDoKeepScore(){
+        this.doKeepScore = getDefaultConfig().getBoolean("keep-score");
     }
+    public void setScoreOptions(){
+        ConfigUtil scoreCon = new ConfigUtil(this, "Scores/ScoresConfig.yml");
+        this.survivorGamesWon = scoreCon.getConfig().getBoolean("survivor-games-won");
+        this.infectedGamesWon = scoreCon.getConfig().getBoolean("infected-games-won");
+        this.survivorKills = scoreCon.getConfig().getBoolean("survivor-kills");
+        this.infectedKills = scoreCon.getConfig().getBoolean("infected-kills");
+        this.gamesPlayed = scoreCon.getConfig().getBoolean("games-played");
+    }
+
+    public boolean doKeepScore(){ return this.doKeepScore; }
+    public boolean doSurvivorGamesWon(){ return this.survivorGamesWon; }
+    public boolean doInfectedGamesWon(){ return this.infectedGamesWon; }
+    public boolean doSurvivorKills(){ return this.survivorKills; }
+    public boolean doInfectedKills(){ return this.infectedKills; }
+    public boolean doGamesPlayed(){ return this.gamesPlayed; }
 }

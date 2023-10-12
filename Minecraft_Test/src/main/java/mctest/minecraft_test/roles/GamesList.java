@@ -7,22 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("FieldMayBeFinal")
 public class GamesList {
-    @SuppressWarnings("FieldMayBeFinal")
     private HashMap<String, SurvivalPlayer> gameMap = new HashMap<>();
     private List<String> worldList;
     private ArrayList<String> gameInfos;
-
-    @SuppressWarnings("FieldMayBeFinal")
     private Minecraft_Test plugin;
-
-    @SuppressWarnings("FieldMayBeFinal")
     private HashMap<String, HashMap<Integer, SurvivalPlayer>> multiGameMap = new HashMap<>();
-
-    @SuppressWarnings("FieldMayBeFinal")
     private HashMap<String, ArrayList<SurvivalPlayer>> arrayListGameMap = new HashMap<>();
 
-    @SuppressWarnings("FieldMayBeFinal")
     private HashMap<Integer, String> idWorldMap = new HashMap<>();
 
     public GamesList(Minecraft_Test plugin) {

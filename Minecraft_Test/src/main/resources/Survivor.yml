@@ -19,7 +19,7 @@ speed: .2
 
 health: 20
 
-can-switch-loadouts-during-match: FALSE;
+can-switch-loadouts-during-match: false
 # To enable effects, remove the # in front of the next section.
 # Remove the example or you will get an error.
 # For an infinite effect use INFINITE.

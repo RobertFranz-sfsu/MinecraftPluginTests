@@ -1,0 +1,16 @@
+#Configure which scores should be tracked. More info on the wiki () or discord ()
+
+# Games won as survivor
+survivor-games-won: true
+
+# Games won as infected
+infected-games-won: true
+
+# Kills made as survivor
+survivor-kills: true
+
+# Kills made as infected
+infected-kills: true
+
+# Number of infected games played
+games-played: true
