@@ -1,26 +1,19 @@
 /*
  * TODO
  *   S:
+ *      Add version checker
+ *      Implement PAPI
  *   R:
+ *      Add player stats to last row of menu
+ *      Fix /spawn to /ispawn
+ *      Change /menu to /imenu
  *
- *  Implement scores
- *    Save to player data so save as a file with the UUID as the file name (similar to essentials)
- *      Games won as survivor
- *      Games won as infected
- *      Kills as survivor/infected
- *      Number of games played
- *      Top players
- *  Implement PAPI
- *  Fix /spawn to /ispawn
- *  Change /menu to /imenu
- *  Add player stats to last row of menu
  *  Fix end command
  *  Command to add specific games
  *  Implement switching loadout switch
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
- *  Add version checker
  *
  * */
 
