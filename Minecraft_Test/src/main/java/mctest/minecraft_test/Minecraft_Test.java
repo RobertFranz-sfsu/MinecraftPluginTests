@@ -180,7 +180,6 @@ public final class Minecraft_Test extends JavaPlugin {
     public boolean doInfectedKills(){ return this.infectedKills; }
     public boolean doGamesPlayed(){ return this.gamesPlayed; }
     private void initStatMap() {
-
         File dir = new File(this.getDataFolder().getPath() + "/Scores/");
         File[] dirList = dir.listFiles();
 
@@ -192,11 +191,11 @@ public final class Minecraft_Test extends JavaPlugin {
                 String newPath = "/Scores/" + child.getName();
                 ConfigUtil s = new ConfigUtil(this, newPath);
                 String name = (String) s.getConfig().get("username");
-                int played = (Integer)s.getConfig().get("games-played");
-                int infKills = (Integer)s.getConfig().get("infected-kills");
-                int infWins = (Integer)s.getConfig().get("infected-wins");
-                int surKills = (Integer)s.getConfig().get("survivor-kills");
-                int surWins = (Integer)s.getConfig().get("survivor-wins");
+                Integer played = (Integer)s.getConfig().get("games-played");
+                Integer infKills = (Integer)s.getConfig().get("infected-kills");
+                Integer infWins = (Integer)s.getConfig().get("infected-wins");
+                Integer surKills = (Integer)s.getConfig().get("survivor-kills");
+                Integer surWins = (Integer)s.getConfig().get("survivor-wins");
 
                 this.statsMap.put(name, new Integer[] {played, infKills, infWins, surKills, surWins});
             }
@@ -204,6 +203,7 @@ public final class Minecraft_Test extends JavaPlugin {
 //            this.statsMap.forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
 
         }
+        Bukkit.getLogger().info("DONE INITING");
     }
     public HashMap<String, Integer[]> getStatsMap() {
         return this.statsMap;

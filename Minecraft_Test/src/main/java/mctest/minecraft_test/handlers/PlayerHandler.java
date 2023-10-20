@@ -56,6 +56,7 @@ public class PlayerHandler implements Listener {
                     throw new RuntimeException(e);
                 }
             }else{
+                Bukkit.getLogger().info("Already played");
                 ConfigUtil con = new ConfigUtil(plugin, path);
                 if(!Objects.equals(con.getConfig().getString("username"), player.getName())){
                     con.getConfig().set("username", player.getName());
