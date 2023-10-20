@@ -8,6 +8,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,11 +30,19 @@ public class PlayerHandler implements Listener {
 
         if(plugin.doKeepScore()){
             String path = System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player.getUniqueId() + ".yml";
-            if(Objects.equals(plugin.getResource(path), null)){
+            File dir = new File(plugin.getDataFolder().getPath() + System.getProperty("file.separator") +"Scores" + System.getProperty("file.separator"));
+            File[] dirList = dir.listFiles();
+            assert dirList != null;
+            ArrayList<String> fileNames = new ArrayList<>();
+            for (File f : dirList) {
+                fileNames.add(f.getName());
+            }
+            if(!fileNames.contains(player.getUniqueId() + ".yml")){
                 try {
-                    File p = new File(plugin.getDataFolder().getPath()
-                        + System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player.getUniqueId() + ".yml");
+                    Bukkit.getLogger().info("Creating new profile");
+                    File p = new File(plugin.getDataFolder().getPath() + System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player.getUniqueId() + ".yml");
                     p.createNewFile();
+
 
                     ConfigUtil con = new ConfigUtil(plugin, path);
                     con.getConfig().set("username", player.getName());

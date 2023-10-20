@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.Arrays;
 
 public final class Minecraft_Test extends JavaPlugin {
     private static Economy econ = null;
@@ -26,6 +27,8 @@ public final class Minecraft_Test extends JavaPlugin {
     public FileConfiguration getDefaultConfig(){
         return this.getConfig();
     }
+
+    private final HashMap<String, Integer[]> statsMap = new HashMap<>();
     private HashMap<UUID, Integer> gameIDMap = new HashMap<>();
     public HashMap<UUID, Integer> getGameIDMap() {
         return this.gameIDMap;
@@ -63,6 +66,7 @@ public final class Minecraft_Test extends JavaPlugin {
 
         if(this.doKeepScore){
             this.setScoreOptions();
+            this.initStatMap();
         }
 
         // Economy
@@ -175,4 +179,33 @@ public final class Minecraft_Test extends JavaPlugin {
     public boolean doSurvivorKills(){ return this.survivorKills; }
     public boolean doInfectedKills(){ return this.infectedKills; }
     public boolean doGamesPlayed(){ return this.gamesPlayed; }
+    private void initStatMap() {
+
+        File dir = new File(this.getDataFolder().getPath() + "/Scores/");
+        File[] dirList = dir.listFiles();
+
+        if (dirList != null) {
+            for (File child : dirList) {
+                if (child.getName().equals("ScoresConfig.yml")) {
+                    continue;
+                }
+                String newPath = "/Scores/" + child.getName();
+                ConfigUtil s = new ConfigUtil(this, newPath);
+                String name = (String) s.getConfig().get("username");
+                int played = (Integer)s.getConfig().get("games-played");
+                int infKills = (Integer)s.getConfig().get("infected-kills");
+                int infWins = (Integer)s.getConfig().get("infected-wins");
+                int surKills = (Integer)s.getConfig().get("survivor-kills");
+                int surWins = (Integer)s.getConfig().get("survivor-wins");
+
+                this.statsMap.put(name, new Integer[] {played, infKills, infWins, surKills, surWins});
+            }
+//            Bukkit.getLogger().info("Printing Values");
+//            this.statsMap.forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
+
+        }
+    }
+    public HashMap<String, Integer[]> getStatsMap() {
+        return this.statsMap;
+    }
 }

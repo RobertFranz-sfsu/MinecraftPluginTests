@@ -1239,9 +1239,7 @@ public class SurvivalPlayer implements Listener {
         if (!statusMap.containsKey(player.getUniqueId())) {
             return;
         }
-        if (!statusMap.containsKey(player.getUniqueId())) {
-            return;
-        }
+
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
 
@@ -1314,6 +1312,31 @@ public class SurvivalPlayer implements Listener {
 
         player.setScoreboard(scoreboard);
     }
+
+    private void countdownBoard(Player player, int sec) {
+        if (!statusMap.containsKey(player.getUniqueId())) {
+            return;
+        }
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        Scoreboard scoreboard = manager.getNewScoreboard();
+
+        Objective objective = scoreboard.registerNewObjective("Countdown", "dummy");
+        String dName = (Objects.equals(this.getStatusMap().get(player.getUniqueId()), "survivor")) ? (ChatColor.GREEN + "Survivor") : (ChatColor.RED + "Infected");
+        objective.setDisplayName(dName);
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        Score newLine1 = objective.getScore("");
+        newLine1.setScore(6);
+
+        Score timer  = objective.getScore("Starting in: " + sec);
+        timer.setScore(5);
+
+        String tip = (Objects.equals(this.getStatusMap().get(player.getUniqueId()), "survivor")) ? "Prepare to survive!" : "Prepare to hunt!";
+        Score tips = objective.getScore(tip);
+        tips.setScore(4);
+
+        player.setScoreboard(scoreboard);
+    }
     
     private void removeBoard(Player player) {
         if (!statusMap.containsKey(player.getUniqueId())) {
@@ -1343,44 +1366,53 @@ public class SurvivalPlayer implements Listener {
 
     private void setScores(UUID player){
         ConfigUtil con = new ConfigUtil(plugin, "/Scores/" + player + ".yml");
+        Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName());
 
         if(plugin.doSurvivorKills() && survivorKills.containsKey(player)){
             int kills = con.getConfig().getInt("survivor-kills");
             kills += survivorKills.get(player);
             con.getConfig().set("survivor-kills", kills);
+            nArr[3] += survivorKills.get(player);
         }
 
         if(plugin.doInfectedKills() && infectedKills.containsKey(player)){
             int kills = con.getConfig().getInt("infected-kills");
             kills += infectedKills.get(player);
             con.getConfig().set("infected-kills", kills);
+            nArr[1] +=  infectedKills.get(player);
         }
 
         if(plugin.doGamesPlayed()){
             int games = con.getConfig().getInt("games-played");
             games++;
             con.getConfig().set("games-played", games);
+            nArr[0]++;
         }
 
         con.save();
+        plugin.getStatsMap().put(Objects.requireNonNull(Bukkit.getPlayer(player)).getName(), nArr);
     }
 
     private void setGamesWon(UUID player, String team){
         ConfigUtil con = new ConfigUtil(plugin, "/Scores/" + player + ".yml");
+        Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName());
 
         if(plugin.doInfectedGamesWon() && team.equalsIgnoreCase("infected")){
             int wins = con.getConfig().getInt("infected-wins");
             wins++;
             con.getConfig().set("infected-wins", wins);
+            nArr[2]++;
         }
 
         if(plugin.doSurvivorGamesWon()  && team.equalsIgnoreCase("survivor")){
             int wins = con.getConfig().getInt("survivor-wins");
             wins++;
             con.getConfig().set("survivor-wins", wins);
+            nArr[4]++;
         }
 
         con.save();
+        plugin.getStatsMap().put(Objects.requireNonNull(Bukkit.getPlayer(player)).getName(), nArr);
     }
 
     /**
