@@ -442,7 +442,13 @@ public class Loadout implements CommandExecutor {
                                 ItemMeta im = Objects.requireNonNull(item).getItemMeta();
                                 List<String> lore = Objects.requireNonNull(im).getLore();
 
-                                Objects.requireNonNull(lore).set(lore.size()-1, "Price: " + Double.valueOf(args[2]));
+                                int num = 0;
+                                for(String x : lore){
+                                    if(x.contains("Price:")){
+                                        lore.set(num, "Price: " + Double.valueOf(args[2]));
+                                    }
+                                    num++;
+                                }
 
                                 Objects.requireNonNull(im).setLore(lore);
                                 item.setItemMeta(im);

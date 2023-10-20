@@ -26,7 +26,7 @@ public class PlayerHandler implements Listener {
         Player player = event.getPlayer();
 
         if(plugin.doKeepScore()){
-            String path = "/Scores/" + player.getUniqueId() + ".yml";
+            String path = System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player.getUniqueId() + ".yml";
             if(Objects.equals(plugin.getResource(path), null)){
                 try {
                     File p = new File(plugin.getDataFolder().getPath()

@@ -3,7 +3,7 @@ version: '${project.version}'
 main: mctest.minecraft_test.Minecraft_Test
 api-version: '1.19'
 authors: [DeathsValentine, Mithraea]
-Prefix: Infected
+Prefix: InfectedMC
 
 commands:
   menu:
@@ -12,10 +12,6 @@ commands:
     aliases: [m, im]
     permission: infected.menu
     permission-message: You do not have permission to open the menu
-  setSpawn: #remove this
-    description: Sets the spawn
-    usage: /setSpawn
-    permission: spawn.set
   spawn: # maybe remove this too
     description: Teleports you to spawn
     usage: /ispawn

@@ -258,80 +258,84 @@ public class Infected implements CommandExecutor, Listener {
 
                     break;
                 case "delspawn": case "ds":
-                    try{
-                        if(args.length > 4 || args.length < 3){
-                            sender.sendMessage("Usage to delete all spawns in a world: /infected delSpawn(ds) [infected/survivor/default] [world name]");
-                            sender.sendMessage("Usage to delete a specific spawn in a world: /infected delSpawn(ds) [infected/survivor/default] [world name] [label]");
-                            break;
-                        }else{
-                            ConfigUtil c = null;
-                            String path = null;
-                            boolean isDefault = false;
-                            String type = null;
-                            String color = null;
+                    if(sender.hasPermission("infected.infected.delspawn") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")) {
+                        try {
+                            if (args.length > 4 || args.length < 3) {
+                                sender.sendMessage("Usage to delete all spawns in a world: /infected delSpawn(ds) [infected/survivor/default] [world name]");
+                                sender.sendMessage("Usage to delete a specific spawn in a world: /infected delSpawn(ds) [infected/survivor/default] [world name] [label]");
+                                break;
+                            } else {
+                                ConfigUtil c = null;
+                                String path = null;
+                                boolean isDefault = false;
+                                String type = null;
+                                String color = null;
 
-                            switch(args[1].toLowerCase()){
-                                case "infected": case "i":
-                                    c = new ConfigUtil(pl, "Infected.yml");
-                                    color = "&c";
-                                    type = "infected";
-                                    break;
-                                case "survivor": case "s":
-                                    c = new ConfigUtil(pl, "Survivor.yml");
-                                    color = "&a";
-                                    type = "survivor";
-                                    break;
-                                case "default": case "d":
-                                    path = "default-spawns";
-                                    isDefault = true;
-                                    break;
-                            }
-                            if(args.length == 3){
-                                if(isDefault){
-                                    path += ("." + args[2].toLowerCase());
+                                switch (args[1].toLowerCase()) {
+                                    case "infected":
+                                    case "i":
+                                        c = new ConfigUtil(pl, "Infected.yml");
+                                        color = "&c";
+                                        type = "infected";
+                                        break;
+                                    case "survivor":
+                                    case "s":
+                                        c = new ConfigUtil(pl, "Survivor.yml");
+                                        color = "&a";
+                                        type = "survivor";
+                                        break;
+                                    case "default":
+                                    case "d":
+                                        path = "default-spawns";
+                                        isDefault = true;
+                                        break;
+                                }
+                                if (args.length == 3) {
+                                    if (isDefault) {
+                                        path += ("." + args[2].toLowerCase());
 
-                                    if(pl.getConfig().get(path) != null){
-                                        pl.getConfig().set(path, null);
-                                        pl.saveConfig();
+                                        if (pl.getConfig().get(path) != null) {
+                                            pl.getConfig().set(path, null);
+                                            pl.saveConfig();
 
-                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted &edefault &bspawn" +
-                                                " for world &e " + args[2].toLowerCase()));
-                                    }else{
-                                        sender.sendMessage("That world doesn't exist!");
+                                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted &edefault &bspawn" +
+                                                    " for world &e " + args[2].toLowerCase()));
+                                        } else {
+                                            sender.sendMessage("That world doesn't exist!");
+                                        }
+
+                                        break;
+                                    } else {
+                                        path = "spawns." + args[2].toLowerCase();
                                     }
+                                } else {
+                                    path = "spawns." + args[2].toLowerCase() + "." + args[3].toLowerCase();
+                                }
 
+                                if (Objects.requireNonNull(c).getConfig().get(path) != null) {
+                                    c.getConfig().set(path, null);
+                                    c.save();
+                                    g.getGameMap().get(playerWorld).reloadConfigs();
+
+                                    if (args.length == 3) {
+                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted all " + color + type +
+                                                "&b spawns in world &a" + args[2].toLowerCase()));
+                                    } else {
+                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted " + color + type +
+                                                "&b spawn with label " + color + args[3].toLowerCase() + "&b in world &a" + args[2].toLowerCase()));
+                                    }
                                     break;
-                                }else{
-                                    path = "spawns." + args[2].toLowerCase();
+                                } else {
+                                    sender.sendMessage("That world doesn't exist!");
+                                    break;
                                 }
-                            }else {
-                                path = "spawns." + args[2].toLowerCase() + "." + args[3].toLowerCase();
                             }
-
-                            if(Objects.requireNonNull(c).getConfig().get(path) != null){
-                                c.getConfig().set(path, null);
-                                c.save();
-                                g.getGameMap().get(playerWorld).reloadConfigs();
-
-                                if(args.length == 3){
-                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted all " + color + type +
-                                            "&b spawns in world &a" + args[2].toLowerCase()));
-                                }else{
-                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDeleted " + color + type +
-                                            "&b spawn with label " + color + args[3].toLowerCase() + "&b in world &a" + args[2].toLowerCase()));
-                                }
-                                break;
-                            }else{
-                                sender.sendMessage("That world doesn't exist!");
-                                break;
-                            }
+                        } catch (Exception e) {
+                            sender.sendMessage("Something went wrong, please check the console");
+                            Bukkit.getLogger().warning("Something went wrong trying to delete a spawn!");
+                            e.printStackTrace();
                         }
-                    }catch(Exception e){
-                        sender.sendMessage("Something went wrong, please check the console");
-                        Bukkit.getLogger().warning("Something went wrong trying to delete a spawn!");
-                        e.printStackTrace();
                     }
-
                     break;
 
                 case "join" : case "j":
