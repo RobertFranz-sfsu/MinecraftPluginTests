@@ -17,6 +17,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import java.io.File;
+import java.util.Set;
 
 import java.util.List;
 import java.util.Map;
@@ -807,7 +809,6 @@ public class Infected implements CommandExecutor, Listener {
                     }
 
                 case "test": case "t":
-                    sender.sendMessage("Resource: " + pl.getResource("Scores/ScoresConfig.yml"));
 //                    sender.sendMessage("Score: " + pl.doKeepScore());
 //                    sender.sendMessage("Survivor games won: " + pl.doSurvivorGamesWon());
 //                    sender.sendMessage("infected games won: " + pl.doInfectedGamesWon());

@@ -18,12 +18,15 @@ import java.util.Map;
 import java.util.Objects;
 
 public class Loadout implements CommandExecutor {
-    Minecraft_Test plugin  = Minecraft_Test.getPlugin(Minecraft_Test.class);
-    ConfigUtil con = plugin.getLoadoutCon();
+    Minecraft_Test plugin;
+    public Loadout(Minecraft_Test plugin){
+        this.plugin = plugin;
+    }
 
     @SuppressWarnings({"NullableProblems", "CallToPrintStackTrace", "deprecation"}) // Removing the warning from the passed in objects.
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        ConfigUtil con = plugin.getLoadoutCon();
 
         if(args.length != 0){
             switch(args[0].toLowerCase()){
@@ -113,25 +116,37 @@ public class Loadout implements CommandExecutor {
                                     }
 
                                     if(player.getInventory().getHelmet() != null){
-                                        con.getConfig().set(args[1] + ".helmet", player.getInventory().getHelmet());
+                                        ItemStack item = new ItemStack(player.getInventory().getHelmet().getType(), 1);
+                                        item.setItemMeta(player.getInventory().getHelmet().getItemMeta());
+
+                                        con.getConfig().set(args[1] + ".helmet", item);
                                     }else{
                                         con.getConfig().set(args[1] + ".helmet", null);
                                     }
 
                                     if(player.getInventory().getChestplate() != null){
-                                        con.getConfig().set(args[1] + ".chestplate", player.getInventory().getChestplate());
+                                        ItemStack item = new ItemStack(player.getInventory().getChestplate().getType(), 1);
+                                        item.setItemMeta(player.getInventory().getChestplate().getItemMeta());
+
+                                        con.getConfig().set(args[1] + ".chestplate", item);
                                     }else{
                                         con.getConfig().set(args[1] + ".chestplate", null);
                                     }
 
                                     if(player.getInventory().getLeggings() != null){
-                                        con.getConfig().set(args[1] + ".leggings", player.getInventory().getLeggings());
+                                        ItemStack item = new ItemStack(player.getInventory().getLeggings().getType(), 1);
+                                        item.setItemMeta(player.getInventory().getLeggings().getItemMeta());
+
+                                        con.getConfig().set(args[1] + ".leggings", item);
                                     }else{
                                         con.getConfig().set(args[1] + ".leggings", null);
                                     }
 
                                     if(player.getInventory().getBoots() != null){
-                                        con.getConfig().set(args[1] + ".boots", player.getInventory().getBoots());
+                                        ItemStack item = new ItemStack(player.getInventory().getBoots().getType(), 1);
+                                        item.setItemMeta(player.getInventory().getBoots().getItemMeta());
+
+                                        con.getConfig().set(args[1] + ".boots", item);
                                     }else{
                                         con.getConfig().set(args[1] + ".boots", null);
                                     }

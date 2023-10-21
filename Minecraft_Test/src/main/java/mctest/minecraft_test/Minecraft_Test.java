@@ -89,7 +89,7 @@ public final class Minecraft_Test extends JavaPlugin {
 
         Objects.requireNonNull(getCommand("menu")).setExecutor(new Menu(this, g));
         Objects.requireNonNull(getCommand("spawn")).setExecutor(new Spawn(g));
-        Objects.requireNonNull(getCommand("loadout")).setExecutor(new Loadout());
+        Objects.requireNonNull(getCommand("loadout")).setExecutor(new Loadout(this));
         Objects.requireNonNull(getCommand("reload")).setExecutor(new Reload(g));
         Objects.requireNonNull(getCommand("infected")).setExecutor(new Infected(this, g));
 
@@ -104,7 +104,7 @@ public final class Minecraft_Test extends JavaPlugin {
     }
 
     public void setLoadoutCon(){
-        this.loadoutCon = new ConfigUtil(Minecraft_Test.getPlugin(Minecraft_Test.class), "Loadouts.yml");
+        this.loadoutCon = new ConfigUtil(this, "Loadouts.yml");
     }
 
     public ConfigUtil getLoadoutCon(){
