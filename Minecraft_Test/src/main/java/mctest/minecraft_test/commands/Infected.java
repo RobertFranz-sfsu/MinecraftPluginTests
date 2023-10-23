@@ -17,13 +17,18 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import java.io.File;
-import java.util.Set;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import org.bukkit.inventory.meta.SkullMeta;
 
+import java.lang.reflect.Field;
+import java.util.Base64;
+import java.util.UUID;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.io.File;
 import java.util.*;
@@ -675,7 +680,7 @@ public class Infected implements CommandExecutor, Listener {
 
                         // Players' Stats
                         if(pl.doKeepScore()) {
-                            String path = "/Scores/" + player.getUniqueId() + ".yml";
+                            String path = System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player.getUniqueId() + ".yml";
                             ConfigUtil con = new ConfigUtil(pl, path);
 
                             ItemStack stats = new ItemStack(Material.IRON_SWORD);
@@ -683,6 +688,7 @@ public class Infected implements CommandExecutor, Listener {
                             Objects.requireNonNull(statsMeta).setDisplayName(ChatColor.GOLD + "Your Stats");
                             ArrayList<String> statList = new ArrayList<>();
                             statList.add("");
+
                             //TODO Remove
                             int kills = con.getConfig().getInt("survivor-kills");
                             kills += 1;
@@ -704,7 +710,7 @@ public class Infected implements CommandExecutor, Listener {
                             gamesList.setItem(5, stats);
 
                             // Top Survivor Kills List
-                            ItemStack mostSurKills = new ItemStack(Material.GOLDEN_SWORD);
+                            ItemStack mostSurKills = new ItemStack(Material.IRON_INGOT);
                             ItemMeta surKillsMeta = mostSurKills.getItemMeta();
                             assert surKillsMeta != null;
                             surKillsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -725,11 +731,11 @@ public class Infected implements CommandExecutor, Listener {
                             gamesList.setItem(2, mostSurKills);
 
                             // Top Survivor Wins List
-                            ItemStack mostSurWins = new ItemStack(Material.GOLDEN_SWORD);
-                            ItemMeta surWinsMeta = mostSurWins.getItemMeta();
-                            assert surWinsMeta != null;
-                            surWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                            Objects.requireNonNull(surWinsMeta).setDisplayName(ChatColor.GOLD + "Most Wins as Survivor");
+//                            ItemStack mostSurWins = new ItemStack(Material.IRON_INGOT);
+//                            ItemMeta surWinsMeta = mostSurWins.getItemMeta();
+//                            assert surWinsMeta != null;
+//                            surWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+//                            Objects.requireNonNull(surWinsMeta).setDisplayName(ChatColor.GOLD + "Most Wins as Survivor");
                             ArrayList<String> surWinsList = new ArrayList<>();
                             surWinsList.add("");
 
@@ -741,12 +747,18 @@ public class Infected implements CommandExecutor, Listener {
                                         //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
                                     });
 
+                            ItemStack mostSurWins = new ItemStack(this.getCustomHead(surWinsList.get(0), 1, Objects.requireNonNull(Bukkit.getPlayer(surWinsList.get(0))).getUniqueId().toString()));
+                            ItemMeta surWinsMeta = mostSurWins.getItemMeta();
+                            assert surWinsMeta != null;
+                            surWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                            Objects.requireNonNull(surWinsMeta).setDisplayName(ChatColor.GOLD + "Most Wins as Survivor");
+
                             surWinsMeta.setLore(surWinsList);
                             mostSurWins.setItemMeta(surWinsMeta);
                             gamesList.setItem(3, mostSurWins);
 
                             // Top Infected Kills List
-                            ItemStack mostInfKills = new ItemStack(Material.GOLDEN_SWORD);
+                            ItemStack mostInfKills = new ItemStack(Material.IRON_INGOT);
                             ItemMeta infKillsMeta = mostInfKills.getItemMeta();
                             assert infKillsMeta != null;
                             infKillsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -767,7 +779,7 @@ public class Infected implements CommandExecutor, Listener {
                             gamesList.setItem(5, mostInfKills);
 
                             // Top Infected Wins List
-                            ItemStack mostInfWins = new ItemStack(Material.GOLDEN_SWORD);
+                            ItemStack mostInfWins = new ItemStack(Material.IRON_INGOT);
                             ItemMeta infWinsMeta = mostInfWins.getItemMeta();
                             assert infWinsMeta != null;
                             infWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -829,4 +841,58 @@ public class Infected implements CommandExecutor, Listener {
 
         return true;
     }
+
+    public ItemStack getCustomHead(String name, int amount, String url) {
+
+        ItemStack skull;
+
+        if(pl.getIs18()){
+            skull = new ItemStack(Objects.requireNonNull(Material.getMaterial("SKULL_ITEM")), amount);
+        }else{
+            skull = new ItemStack(Material.PLAYER_HEAD, amount);
+        }
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+
+        assert skullMeta != null;
+
+        if (url.length() < 16) {
+
+            skullMeta.setOwner(url);
+
+            skullMeta.setDisplayName(name);
+
+            skull.setItemMeta(skullMeta);
+            return skull;
+        }
+
+        StringBuilder s_url = new StringBuilder();
+        s_url.append("https://textures.minecraft.net/texture/").append(url); // We get the texture link.
+
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null); // We create a GameProfile
+
+        // We get the bytes from the texture in Base64 encoded that comes from the Minecraft-URL.
+        byte[] data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", s_url.toString()).getBytes());
+
+        // We set the texture property in the GameProfile.
+        gameProfile.getProperties().put("textures", new Property("textures", new String(data)));
+
+//        try {
+//
+//            if (field == null) field = skullMeta.getClass().getDeclaredField("profile"); // We get the field profile.
+//
+//            field.setAccessible(true); // We set as accessible to modify.
+//            field.set(skullMeta, gameProfile); // We set in the skullMeta the modified GameProfile that we created.
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+
+        skullMeta.setDisplayName(name); // We set a displayName to the skull
+        skull.setItemMeta(skullMeta);
+
+        return skull; //Finally, you have the custom head!
+
+    }
 }
+

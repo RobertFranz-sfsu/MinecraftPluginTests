@@ -2,7 +2,6 @@
  * TODO
  *   S:
  *      Add version checker
- *      Implement PAPI
  *   R:
  *      Add player stats to last row of menu
  *      Fix /spawn to /ispawn
@@ -14,6 +13,9 @@
  *
  *  Remove old tests/code
  *  Move code to fresh repo lol
+ *
+ *  MySQL
+ *  PAPI
  *
  * */
 
@@ -1365,21 +1367,27 @@ public class SurvivalPlayer implements Listener {
      */
 
     private void setScores(UUID player){
-        ConfigUtil con = new ConfigUtil(plugin, "/Scores/" + player + ".yml");
+        ConfigUtil con = new ConfigUtil(plugin, System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player + ".yml");
         Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName());
 
         if(plugin.doSurvivorKills() && survivorKills.containsKey(player)){
             int kills = con.getConfig().getInt("survivor-kills");
-            kills += survivorKills.get(player);
-            con.getConfig().set("survivor-kills", kills);
-            nArr[3] += survivorKills.get(player);
+
+            if(!Objects.equals(survivorKills.get(player), null)){
+                kills += survivorKills.get(player);
+                con.getConfig().set("survivor-kills", kills);
+                nArr[3] += survivorKills.get(player);
+            }
         }
 
         if(plugin.doInfectedKills() && infectedKills.containsKey(player)){
             int kills = con.getConfig().getInt("infected-kills");
-            kills += infectedKills.get(player);
-            con.getConfig().set("infected-kills", kills);
-            nArr[1] +=  infectedKills.get(player);
+
+            if(!Objects.equals(infectedKills.get(player), null)){
+                kills += infectedKills.get(player);
+                con.getConfig().set("infected-kills", kills);
+                nArr[1] +=  infectedKills.get(player);
+            }
         }
 
         if(plugin.doGamesPlayed()){

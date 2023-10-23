@@ -296,7 +296,11 @@ public class Loadout implements CommandExecutor {
                                     int count = 0;
 
                                     for (String s : arr) {
-                                        if (count > 4) {
+                                        if(s.toLowerCase().contains("price:")){
+                                            break;
+                                        }
+
+                                        if (count > 5) {
                                             lore.add(loreArr.toString());
                                             loreArr.setLength(0);
                                             count = 0;

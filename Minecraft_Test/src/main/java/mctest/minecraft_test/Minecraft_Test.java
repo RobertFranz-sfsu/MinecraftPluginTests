@@ -57,12 +57,7 @@ public final class Minecraft_Test extends JavaPlugin {
         this.setLoadoutCon();
         this.setDoKeepScore();
 
-        File scores = new File("Scores/ScoresConfig.yml");
-        File dir = scores.getParentFile();
-        if(!dir.exists()){
-            dir.mkdir();
-        }
-        saveResource("Scores/ScoresConfig.yml", false);
+        saveResource("Scores" + System.getProperty("file.separator") + "ScoresConfig.yml", false);
 
         if(this.doKeepScore){
             this.setScoreOptions();
@@ -190,12 +185,12 @@ public final class Minecraft_Test extends JavaPlugin {
                 }
                 String newPath = "/Scores/" + child.getName();
                 ConfigUtil s = new ConfigUtil(this, newPath);
-                String name = (String) s.getConfig().get("username");
-                Integer played = (Integer)s.getConfig().get("games-played");
-                Integer infKills = (Integer)s.getConfig().get("infected-kills");
-                Integer infWins = (Integer)s.getConfig().get("infected-wins");
-                Integer surKills = (Integer)s.getConfig().get("survivor-kills");
-                Integer surWins = (Integer)s.getConfig().get("survivor-wins");
+                String name = s.getConfig().getString("username");
+                int played = s.getConfig().getInt("games-played");
+                int infKills = s.getConfig().getInt("infected-kills");
+                int infWins = s.getConfig().getInt("infected-wins");
+                int surKills = s.getConfig().getInt("survivor-kills");
+                int surWins = s.getConfig().getInt("survivor-wins");
 
                 this.statsMap.put(name, new Integer[] {played, infKills, infWins, surKills, surWins});
             }
@@ -203,6 +198,11 @@ public final class Minecraft_Test extends JavaPlugin {
 //            this.statsMap.forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
 
         }
+        for(String s : statsMap.keySet()){
+            Bukkit.getLogger().severe("NAME: " + s);
+            Bukkit.getLogger().severe("[]: " + statsMap.get(s));
+        }
+
         Bukkit.getLogger().info("DONE INITING");
     }
     public HashMap<String, Integer[]> getStatsMap() {
