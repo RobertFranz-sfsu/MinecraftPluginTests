@@ -14,6 +14,3 @@ infected-kills: true
 
 # Number of infected games played
 games-played: true
-
-# Number of players listed in the leaderboards
-leaderboard-amount: 3

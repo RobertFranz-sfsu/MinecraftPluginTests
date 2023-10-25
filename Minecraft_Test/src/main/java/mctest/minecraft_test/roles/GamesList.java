@@ -1,6 +1,7 @@
 package mctest.minecraft_test.roles;
 
 import mctest.minecraft_test.Minecraft_Test;
+import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,7 +106,7 @@ public class GamesList {
     private void setGameInfos() {
         ArrayList<String> list = new ArrayList<>();
         this.getGameMap().forEach((key, value) -> {
-            String str = key + ": " + (value.getPlaying() ? "Game in session" : ("Game lobby: " + value.getStatusMap().size() + "/" + value.getMaxPl()));
+            String str = key + ": " + (value.getPlaying() ? (ChatColor.RED + "Game in session") : (ChatColor.GRAY + "Game in lobby: " + value.getStatusMap().size() + "/" + value.getMaxPl()));
             list.add(str);
         });
 
@@ -118,7 +119,7 @@ public class GamesList {
 
     public List<String> getInfoString(String world) {
         List<String> l = new ArrayList<>();
-        l.add((this.getGameMap().get(world).getPlaying() ? "Game in session" : ("Game in lobby: " + this.getGameMap().get(world).getStatusMap().size() + "/" + this.getGameMap().get(world).getMaxPl()))) ;
+        l.add((this.getGameMap().get(world).getPlaying() ? (ChatColor.RED + "Game in session") : (ChatColor.GRAY + "Game in lobby: " + this.getGameMap().get(world).getStatusMap().size() + "/" + this.getGameMap().get(world).getMaxPl()))) ;
         return l;
     }
 

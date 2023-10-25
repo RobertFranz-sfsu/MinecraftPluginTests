@@ -175,7 +175,7 @@ public final class Minecraft_Test extends JavaPlugin {
     public boolean doInfectedKills(){ return this.infectedKills; }
     public boolean doGamesPlayed(){ return this.gamesPlayed; }
     private void initStatMap() {
-        File dir = new File(this.getDataFolder().getPath() + "/Scores/");
+        File dir = new File(this.getDataFolder().getPath() + System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator"));
         File[] dirList = dir.listFiles();
 
         if (dirList != null) {
@@ -183,7 +183,7 @@ public final class Minecraft_Test extends JavaPlugin {
                 if (child.getName().equals("ScoresConfig.yml")) {
                     continue;
                 }
-                String newPath = "/Scores/" + child.getName();
+                String newPath = System.getProperty("file.separator") + "Scores"  + System.getProperty("file.separator") + child.getName();
                 ConfigUtil s = new ConfigUtil(this, newPath);
                 String name = s.getConfig().getString("username");
                 int played = s.getConfig().getInt("games-played");
@@ -198,12 +198,12 @@ public final class Minecraft_Test extends JavaPlugin {
 //            this.statsMap.forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
 
         }
+
         for(String s : statsMap.keySet()){
             Bukkit.getLogger().severe("NAME: " + s);
             Bukkit.getLogger().severe("[]: " + statsMap.get(s));
         }
 
-        Bukkit.getLogger().info("DONE INITING");
     }
     public HashMap<String, Integer[]> getStatsMap() {
         return this.statsMap;

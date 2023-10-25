@@ -286,8 +286,6 @@ public class SurvivalPlayer implements Listener {
     }
 
     public void gameInit() {
-        //TODO
-        // Set players as infected or survivor depending on amount playing,
         createNew = true;
 
         try {

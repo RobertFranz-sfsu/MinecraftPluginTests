@@ -39,6 +39,9 @@ queue-start-broadcast-enabled: true
 #Should scores be tracked
 keep-score: true
 
+# Number of players listed in the leaderboards
+leaderboard-amount: 3
+
 # If enabled you can set a specific permission for each loadout if you want them to be seen with certain permissions and
 # not just type.
 # If set to true but no permission is set, it will default to the type

@@ -7,6 +7,7 @@ import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.data.type.Switch;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -55,7 +56,7 @@ public class Infected implements CommandExecutor, Listener {
             Player player = (Player) event.getWhoClicked();
 
             if (event.getCurrentItem() != null) {
-                if (event.getSlot() < 9) {
+                if (event.getSlot() < 18) {
                     event.setCancelled(true);
                 } else {
                     if (g.getGameMap().get(Objects.requireNonNull(event.getCurrentItem().getItemMeta()).getDisplayName()).getPlaying()) {
@@ -79,6 +80,29 @@ public class Infected implements CommandExecutor, Listener {
         } catch (Exception e) {
             Bukkit.getLogger().info("Clicked on empty slot");
         }
+    }
+
+    private ItemStack createLeaderboard(int pos, String name) {
+
+        ItemStack leaderboard = new ItemStack(Material.IRON_INGOT);
+        ItemMeta leaderboardMeta = leaderboard.getItemMeta();
+        assert leaderboardMeta != null;
+        leaderboardMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        Objects.requireNonNull(leaderboardMeta).setDisplayName(ChatColor.GOLD + name);
+        ArrayList<String> topList = new ArrayList<>();
+        topList.add("");
+
+        pl.getStatsMap().entrySet().stream()
+                .sorted((k1, k2) -> -k1.getValue()[pos].compareTo(k2.getValue()[pos]))
+                .limit(3)
+                .forEach(k -> {
+                    topList.add(k.getKey() + ": " + k.getValue()[pos]);
+                    //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
+                });
+
+        leaderboardMeta.setLore(topList);
+        leaderboard.setItemMeta(leaderboardMeta);
+        return leaderboard;
     }
 
     @Override
@@ -673,137 +697,54 @@ public class Infected implements CommandExecutor, Listener {
                         // List of all games
                         ItemStack list = new ItemStack(Material.GOLD_BLOCK);
                         ItemMeta meta = list.getItemMeta();
-                        Objects.requireNonNull(meta).setDisplayName(ChatColor.GOLD + "Worlds available");
+                        Objects.requireNonNull(meta).setDisplayName(ChatColor.GOLD + "Worlds Available");
                         meta.setLore(g.getGameInfos());
                         list.setItemMeta(meta);
-                        gamesList.setItem(4, list);
+                        gamesList.setItem(13, list);
 
                         // Players' Stats
                         if(pl.doKeepScore()) {
+                            ConfigUtil scoreCon = new ConfigUtil(pl, System.getProperty("file.separator") + "config.yml");
                             String path = System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player.getUniqueId() + ".yml";
                             ConfigUtil con = new ConfigUtil(pl, path);
 
+                            // Personal Stats List
                             ItemStack stats = new ItemStack(Material.IRON_SWORD);
                             ItemMeta statsMeta = stats.getItemMeta();
-                            Objects.requireNonNull(statsMeta).setDisplayName(ChatColor.GOLD + "Your Stats");
+                            Objects.requireNonNull(statsMeta).setDisplayName(ChatColor.GOLD + "Personal Stats");
                             ArrayList<String> statList = new ArrayList<>();
                             statList.add("");
 
-                            //TODO Remove
-                            int kills = con.getConfig().getInt("survivor-kills");
-                            kills += 1;
-                            Integer[] tArr = (pl.getStatsMap().get(player.getName()));
-                            tArr[3]++;
-                            pl.getStatsMap().put(player.getName(), tArr);
-                            con.getConfig().set("survivor-kills", kills);
-                            con.save();
-
-                            statList.add(ChatColor.BLUE + "Games Played: " + con.getConfig().get("games-played"));
+                            statList.add(ChatColor.GRAY + "Games Played: " + con.getConfig().get("games-played"));
+                            int kills = con.getConfig().getInt("infected-kills") + con.getConfig().getInt("survivor-kills");
+                            statList.add(ChatColor.GRAY + "Total Kills: " + kills);
                             statList.add(ChatColor.RED + "Kills as Infected: " + con.getConfig().get("infected-kills"));
                             statList.add(ChatColor.RED + "Infected Wins: " + con.getConfig().get("infected-wins"));
-                            //int kills = (int)con.getConfig().get("infected-kills") + (int)con.getConfig().get("survivor-kills");
-                            //statList.add(ChatColor.BLUE + "Total Kills: " + kills);
                             statList.add(ChatColor.GREEN + "Kills as Survivor: " + con.getConfig().get("survivor-kills"));
                             statList.add(ChatColor.GREEN + "Survivor Wins: " + con.getConfig().get("survivor-wins"));
                             statsMeta.setLore(statList);
+                            statsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                             stats.setItemMeta(statsMeta);
-                            gamesList.setItem(5, stats);
+                            gamesList.setItem(4, stats);
 
-                            // Top Survivor Kills List
-                            ItemStack mostSurKills = new ItemStack(Material.IRON_INGOT);
-                            ItemMeta surKillsMeta = mostSurKills.getItemMeta();
-                            assert surKillsMeta != null;
-                            surKillsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                            Objects.requireNonNull(surKillsMeta).setDisplayName(ChatColor.GOLD + "Most Kills as Survivor");
-                            ArrayList<String> surKillsList = new ArrayList<>();
-                            surKillsList.add("");
-
-                            pl.getStatsMap().entrySet().stream()
-                                    .sorted((k1, k2) -> -k1.getValue()[3].compareTo(k2.getValue()[3]))
-                                    .limit(3)
-                                    .forEach(k -> {
-                                        surKillsList.add(k.getKey() + ": " + k.getValue()[3]);
-                                        //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
-                                    });
-
-                            surKillsMeta.setLore(surKillsList);
-                            mostSurKills.setItemMeta(surKillsMeta);
-                            gamesList.setItem(2, mostSurKills);
+                            //Top Survivor Kills List
+                            gamesList.setItem(2, createLeaderboard(3, "Most Kills as Survivor"));
 
                             // Top Survivor Wins List
-//                            ItemStack mostSurWins = new ItemStack(Material.IRON_INGOT);
-//                            ItemMeta surWinsMeta = mostSurWins.getItemMeta();
-//                            assert surWinsMeta != null;
-//                            surWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-//                            Objects.requireNonNull(surWinsMeta).setDisplayName(ChatColor.GOLD + "Most Wins as Survivor");
-                            ArrayList<String> surWinsList = new ArrayList<>();
-                            surWinsList.add("");
-
-                            pl.getStatsMap().entrySet().stream()
-                                    .sorted((k1, k2) -> -k1.getValue()[4].compareTo(k2.getValue()[4]))
-                                    .limit(3)
-                                    .forEach(k -> {
-                                        surWinsList.add(k.getKey() + ": " + k.getValue()[4]);
-                                        //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
-                                    });
-
-                            ItemStack mostSurWins = new ItemStack(this.getCustomHead(surWinsList.get(0), 1, Objects.requireNonNull(Bukkit.getPlayer(surWinsList.get(0))).getUniqueId().toString()));
-                            ItemMeta surWinsMeta = mostSurWins.getItemMeta();
-                            assert surWinsMeta != null;
-                            surWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                            Objects.requireNonNull(surWinsMeta).setDisplayName(ChatColor.GOLD + "Most Wins as Survivor");
-
-                            surWinsMeta.setLore(surWinsList);
-                            mostSurWins.setItemMeta(surWinsMeta);
-                            gamesList.setItem(3, mostSurWins);
+                            gamesList.setItem(3, createLeaderboard(4, "Most Wins as Survivor"));
 
                             // Top Infected Kills List
-                            ItemStack mostInfKills = new ItemStack(Material.IRON_INGOT);
-                            ItemMeta infKillsMeta = mostInfKills.getItemMeta();
-                            assert infKillsMeta != null;
-                            infKillsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                            Objects.requireNonNull(infKillsMeta).setDisplayName(ChatColor.GOLD + "Most Kills as Infected");
-                            ArrayList<String> infKillsList = new ArrayList<>();
-                            infKillsList.add("");
-
-                            pl.getStatsMap().entrySet().stream()
-                                    .sorted((k1, k2) -> -k1.getValue()[1].compareTo(k2.getValue()[1]))
-                                    .limit(3)
-                                    .forEach(k -> {
-                                        infKillsList.add(k.getKey() + ": " + k.getValue()[1]);
-                                        //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
-                                    });
-
-                            infKillsMeta.setLore(infKillsList);
-                            mostInfKills.setItemMeta(infKillsMeta);
-                            gamesList.setItem(5, mostInfKills);
+                            gamesList.setItem(5, createLeaderboard(1, "Most Kills as Infected"));
 
                             // Top Infected Wins List
-                            ItemStack mostInfWins = new ItemStack(Material.IRON_INGOT);
-                            ItemMeta infWinsMeta = mostInfWins.getItemMeta();
-                            assert infWinsMeta != null;
-                            infWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                            Objects.requireNonNull(infWinsMeta).setDisplayName(ChatColor.GOLD + "Most Wins as Infected");
-                            ArrayList<String> infWinsList = new ArrayList<>();
-                            infWinsList.add("");
+                            gamesList.setItem(6, createLeaderboard(2, "Most Wins as Infected"));
 
-                            pl.getStatsMap().entrySet().stream()
-                                    .sorted((k1, k2) -> -k1.getValue()[2].compareTo(k2.getValue()[2]))
-                                    .limit(3)
-                                    .forEach(k -> {
-                                        infWinsList.add(k.getKey() + ": " + k.getValue()[2]);
-                                        //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
-                                    });
-
-                            infWinsMeta.setLore(infWinsList);
-                            mostInfWins.setItemMeta(infWinsMeta);
-                            gamesList.setItem(6, mostInfWins);
 
                             //pl.getStatsMap().forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
                         }
 
                         // Each game that is available
-                        int i = 9;
+                        int i = 18;
                         for (Map.Entry<String, SurvivalPlayer> entry : g.getGameMap().entrySet()) {
                             ItemStack game = new ItemStack(Material.DIAMOND_BLOCK);
                             ItemMeta m = game.getItemMeta();
