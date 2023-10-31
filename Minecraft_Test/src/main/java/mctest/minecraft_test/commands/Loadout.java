@@ -287,35 +287,17 @@ public class Loadout implements CommandExecutor {
                                 if(!con.getConfig().contains(args[1])){
                                     sender.sendMessage("This loadout does not exist!");
                                 }else{
-                                    ArrayList<String> lore = new ArrayList<>();
-                                    StringBuilder loreArr = new StringBuilder();
-
-                                    String l = con.getConfig().getString(args[1] + ".description");
-                                    String[] arr = Objects.requireNonNull(l).split(" ");
-
-                                    int count = 0;
-
-                                    for (String s : arr) {
-                                        if(s.toLowerCase().contains("price:")){
-                                            break;
-                                        }
-
-                                        if (count > 5) {
-                                            lore.add(loreArr.toString());
-                                            loreArr.setLength(0);
-                                            count = 0;
-                                        }
-                                        loreArr.append(s).append(" ");
-                                        count++;
-                                    }
-                                    lore.add(loreArr.toString());
-
                                     ItemStack item;
+
                                     if(plugin.getIs18()){
                                         item = player.getInventory().getItemInHand().clone();
                                     }else{
                                         item = player.getInventory().getItemInMainHand();
                                     }
+
+                                    ItemStack itemLore = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[1])).getItemStack("placeholder");
+                                    ItemMeta imLore = Objects.requireNonNull(itemLore).getItemMeta();
+                                    List<String> lore = Objects.requireNonNull(imLore).getLore();
 
                                     ItemMeta im = item.getItemMeta();
                                     Objects.requireNonNull(im).setDisplayName(ChatColor.translateAlternateColorCodes ('&', String.valueOf(args[1].replaceAll("_", " "))));
@@ -351,12 +333,16 @@ public class Loadout implements CommandExecutor {
                                     ArrayList<String> lore = new ArrayList<>();
                                     StringBuilder loreArr = new StringBuilder();;
 
+                                    int count = 0;
+
                                     for(int i = 2; i < args.length; i++){
-                                        if(i == (args.length-2)/2){
+                                        if(count == 5){
                                             lore.add(loreArr.toString());
                                             loreArr.setLength(0);
+                                            count = 0;
                                         }
                                         loreArr.append(ChatColor.translateAlternateColorCodes ('&', args[i] + " "));
+                                        count++;
                                     }
                                     lore.add(loreArr.toString());
 

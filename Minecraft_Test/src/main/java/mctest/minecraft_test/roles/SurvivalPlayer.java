@@ -1212,7 +1212,7 @@ public class SurvivalPlayer implements Listener {
             objective = scoreboard.registerNewObjective("Game Status", "dummy");
             objective.setDisplayName(ChatColor.GOLD + "Survival Status");
         }else{
-            objective = scoreboard.registerNewObjective("Game Status", Criteria.DUMMY, ChatColor.GOLD + "Survival Status");
+            objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Survival Status");
         }
 
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -1248,7 +1248,7 @@ public class SurvivalPlayer implements Listener {
             objective = scoreboard.registerNewObjective("Game Status", "dummy");
             objective.setDisplayName(ChatColor.GOLD + "Survival Status");
         }else{
-            objective = scoreboard.registerNewObjective("Game Status", Criteria.DUMMY, ChatColor.GOLD + "Survival Status");
+            objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Survival Status");
         }
 
 //        Bukkit.getLogger().severe("2 INFECTED: " + infected.getPlayers());
@@ -1290,7 +1290,7 @@ public class SurvivalPlayer implements Listener {
             objective = scoreboard.registerNewObjective("Game Status", "dummy");
             objective.setDisplayName(ChatColor.GOLD + "Waiting on players");
         }else{
-            objective = scoreboard.registerNewObjective("Game Status", Criteria.DUMMY, ChatColor.GOLD + "Waiting on players");
+            objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Waiting on players");
         }
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
