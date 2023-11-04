@@ -57,6 +57,10 @@ public class Loadout implements CommandExecutor {
                                     im.setLore(lore);
                                     item.setItemMeta(im);
 
+                                    for(String x : lore){
+                                        sender.sendMessage(x);
+                                    }
+
                                     con.getConfig().set(args[1] + ".placeholder", item);
                                     con.save();
 
@@ -252,7 +256,7 @@ public class Loadout implements CommandExecutor {
 
                                 for(String x : config.keySet()){
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                                            "tellraw " + pl.getUniqueId() + " {" +
+                                            "tellraw " + pl.getName() + " {" +
                                                     "\"text\": \"" + ChatColor.translateAlternateColorCodes ('&', count + ") " + x.replaceAll("_", " ")) + "\"," +
                                                     "\"hoverEvent\": {" +
                                                     "\"action\": \"show_text\"," +
@@ -441,7 +445,6 @@ public class Loadout implements CommandExecutor {
                         }else{
                             try{
                                 con.getConfig().set(args[1] + ".price", Double.valueOf(args[2]));
-                                con.save();
 
                                 ItemStack item = Objects.requireNonNull(con.getConfig().getConfigurationSection(args[1])).getItemStack("placeholder");
                                 ItemMeta im = Objects.requireNonNull(item).getItemMeta();
@@ -457,6 +460,7 @@ public class Loadout implements CommandExecutor {
 
                                 Objects.requireNonNull(im).setLore(lore);
                                 item.setItemMeta(im);
+                                con.save();
 
                                 sender.sendMessage("The price for " + args[1] + " has been set to " + Double.valueOf(args[2]));
                             }catch(Exception e){

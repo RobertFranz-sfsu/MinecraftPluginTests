@@ -5,6 +5,7 @@ import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
+import net.md_5.bungee.api.chat.*;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -89,12 +90,6 @@ public class Infected implements CommandExecutor, Listener {
     }
 
     private ItemStack createLeaderboard(int pos, String name) {
-
-        ItemStack leaderboard = new ItemStack(Material.IRON_INGOT);
-        ItemMeta leaderboardMeta = leaderboard.getItemMeta();
-        assert leaderboardMeta != null;
-        leaderboardMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        Objects.requireNonNull(leaderboardMeta).setDisplayName(ChatColor.GOLD + name);
         ArrayList<String> topList = new ArrayList<>();
         topList.add("");
 
@@ -105,6 +100,12 @@ public class Infected implements CommandExecutor, Listener {
                     topList.add(k.getKey() + ": " + k.getValue()[pos]);
                     //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
                 });
+
+        ItemStack leaderboard = new ItemStack(this.getCustomHead(Objects.requireNonNull(Bukkit.getPlayer(topList.get(0))).getUniqueId()));
+        ItemMeta leaderboardMeta = leaderboard.getItemMeta();
+        assert leaderboardMeta != null;
+        leaderboardMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        Objects.requireNonNull(leaderboardMeta).setDisplayName(ChatColor.GOLD + name);
 
         leaderboardMeta.setLore(topList);
         leaderboard.setItemMeta(leaderboardMeta);
@@ -509,7 +510,7 @@ public class Infected implements CommandExecutor, Listener {
                                 for(String x : worldList){
                                     String world = count + ") " + x;
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                                            "tellraw " + ((Player) sender).getUniqueId() + " {" +
+                                            "tellraw " + sender.getName() + " {" +
                                                     "\"text\": \"" + world + "\"," +
                                                     "\"hoverEvent\": {" +
                                                     "\"action\": \"show_text\"," +
@@ -617,9 +618,10 @@ public class Infected implements CommandExecutor, Listener {
                                 int count = 1;
                                 for(String x : worlds){
                                     String world = count + ") " + x;
+
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                                            "tellraw " + ((Player) sender).getUniqueId() + " {" +
-                                                    "\"text\": \"" + world + "\"," +
+                                            "tellraw " + sender.getName() + " {" +
+                                                    "\"text\": \"" + world +"\"," +
                                                     "\"hoverEvent\": {" +
                                                     "\"action\": \"show_text\"," +
                                                     "\"value\": \"Shift click to copy to chat\"" +
@@ -725,60 +727,11 @@ public class Infected implements CommandExecutor, Listener {
                             stats.setItemMeta(statsMeta);
                             gamesList.setItem(4, stats);
 
-
-                            //Top Survivor Kills List
-                            gamesList.setItem(2, createLeaderboard(3, "Most Kills as Survivor"));
-
                             // Top Survivor Wins List
                             gamesList.setItem(3, createLeaderboard(4, "Most Wins as Survivor"));
 
                             // Top Survivor Kills List
-                            ItemStack mostSurKills = new ItemStack(Material.IRON_INGOT);
-                            ItemMeta surKillsMeta = mostSurKills.getItemMeta();
-                            assert surKillsMeta != null;
-                            surKillsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                            Objects.requireNonNull(surKillsMeta).setDisplayName(ChatColor.GOLD + "Most Kills as Survivor");
-                            ArrayList<String> surKillsList = new ArrayList<>();
-                            surKillsList.add("");
-
-                            pl.getStatsMap().entrySet().stream()
-                                    .sorted((k1, k2) -> -k1.getValue()[3].compareTo(k2.getValue()[3]))
-                                    .limit(3)
-                                    .forEach(k -> {
-                                        surKillsList.add(k.getKey() + ": " + k.getValue()[3]);
-                                    });
-
-                            surKillsMeta.setLore(surKillsList);
-                            mostSurKills.setItemMeta(surKillsMeta);
-                            gamesList.setItem(2, mostSurKills);
-
-                            // Top Survivor Wins List
-//                            ItemStack mostSurWins = new ItemStack(Material.IRON_INGOT);
-//                            ItemMeta surWinsMeta = mostSurWins.getItemMeta();
-//                            assert surWinsMeta != null;
-//                            surWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-//                            Objects.requireNonNull(surWinsMeta).setDisplayName(ChatColor.GOLD + "Most Wins as Survivor");
-                            ArrayList<String> surWinsList = new ArrayList<>();
-                            surWinsList.add("");
-
-                            pl.getStatsMap().entrySet().stream()
-                                    .sorted((k1, k2) -> -k1.getValue()[4].compareTo(k2.getValue()[4]))
-                                    .limit(3)
-                                    .forEach(k -> {
-                                        surWinsList.add(k.getKey() + ": " + k.getValue()[4]);
-                                        //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
-                                    });
-
-                            ItemStack mostSurWins = new ItemStack(this.getCustomHead(surWinsList.get(0), Objects.requireNonNull(Bukkit.getPlayer(surWinsList.get(0))).getName(), Objects.requireNonNull(Bukkit.getPlayer(surWinsList.get(0))).getUniqueId()));
-//                            ItemStack mostSurWins = new ItemStack(Material.GOLD_INGOT);
-                            ItemMeta surWinsMeta = mostSurWins.getItemMeta();
-                            assert surWinsMeta != null;
-                            surWinsMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                            Objects.requireNonNull(surWinsMeta).setDisplayName(ChatColor.GOLD + "Most Wins as Survivor");
-
-                            surWinsMeta.setLore(surWinsList);
-                            mostSurWins.setItemMeta(surWinsMeta);
-                            gamesList.setItem(3, mostSurWins);
+                            gamesList.setItem(2, createLeaderboard(3, "Most Kills as Survivor"));
 
                             // Top Infected Kills List
                             gamesList.setItem(5, createLeaderboard(1, "Most Kills as Infected"));
@@ -830,12 +783,11 @@ public class Infected implements CommandExecutor, Listener {
         return true;
     }
 
-    public ItemStack getCustomHead(String name, String url, UUID url1) {
+    public ItemStack getCustomHead(UUID url1) {
         ItemStack skull;
 
         if(pl.getIs18()){
-//            skull = new ItemStack(Objects.requireNonNull(Material.getMaterial("SKULL_ITEM")));Material.SKULL_ITEM
-            skull = new ItemStack(Objects.requireNonNull(Material.getMaterial("SKULL_ITEM")));
+            return new ItemStack(Objects.requireNonNull(Material.getMaterial("GOLD_INGOT")));
         }else{
             skull = new ItemStack(Material.PLAYER_HEAD);
         }

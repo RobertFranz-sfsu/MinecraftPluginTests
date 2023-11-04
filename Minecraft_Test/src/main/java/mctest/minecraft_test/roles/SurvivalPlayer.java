@@ -155,7 +155,7 @@ public class SurvivalPlayer implements Listener {
                         for (String w : val) {
                             if (Bukkit.getWorld(w) != null) {
                                 Objects.requireNonNull(Bukkit.getWorld(w)).getPlayers().forEach(player -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                                        "tellraw " + player.getUniqueId() + " {" +
+                                        "tellraw " + player.getName() + " {" +
                                                 "\"text\": \"" + msg + "\"," +
                                                 "\"hoverEvent\": {" +
                                                 "\"action\": \"show_text\"," +
@@ -394,51 +394,63 @@ public class SurvivalPlayer implements Listener {
 
     private void setEffects(Player player) {
         if (Objects.equals(statusMap.get(player.getUniqueId()), "infected")) {
+            if(Objects.equals(infConfig.getConfig().getConfigurationSection("effects"), null)){
+                return;
+            }
+
             for (String x : Objects.requireNonNull(infConfig.getConfig().getConfigurationSection("effects")).getKeys(false)) {
-                String path = ("effects." + x);
-                boolean force = false;
+                if(!Objects.equals(x, null)){
+                    String path = ("effects." + x);
+                    boolean force = false;
 
-                int duration;
-                if (Objects.requireNonNull(infConfig.getConfig().getString((path + ".duration"))).equalsIgnoreCase("INFINITE")) {
-                    duration = Integer.MAX_VALUE;
-                    force = true;
-                } else {
-                    duration = infConfig.getConfig().getInt(path + ".duration");
-                }
+                    int duration;
+                    if (Objects.requireNonNull(infConfig.getConfig().getString((path + ".duration"))).equalsIgnoreCase("INFINITE")) {
+                        duration = Integer.MAX_VALUE;
+                        force = true;
+                    } else {
+                        duration = infConfig.getConfig().getInt(path + ".duration");
+                    }
 
-                if(plugin.getIs18()){
-                    player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
-                                    duration,
-                                    infConfig.getConfig().getInt(path + ".level")),
-                            force);
-                }else{
-                    player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
-                                    duration,
-                                    infConfig.getConfig().getInt(path + ".level")));
+                    if(plugin.getIs18()){
+                        player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
+                                        duration,
+                                        infConfig.getConfig().getInt(path + ".level")),
+                                force);
+                    }else{
+                        player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
+                                duration,
+                                infConfig.getConfig().getInt(path + ".level")));
+                    }
                 }
             }
         } else if (Objects.equals(statusMap.get(player.getUniqueId()), "survivor")) {
+            if(Objects.equals(surConfig.getConfig().getConfigurationSection("effects"), null)){
+                return;
+            }
+
             for (String x : Objects.requireNonNull(surConfig.getConfig().getConfigurationSection("effects")).getKeys(false)) {
-                String path = ("effects." + x);
-                boolean force = false;
+                if(!Objects.equals(x, null)){
+                    String path = ("effects." + x);
+                    boolean force = false;
 
-                int duration;
-                if (Objects.requireNonNull(surConfig.getConfig().getString((path + ".duration"))).equalsIgnoreCase("INFINITE")) {
-                    duration = Integer.MAX_VALUE;
-                    force = true;
-                } else {
-                    duration = surConfig.getConfig().getInt(path + ".duration");
-                }
+                    int duration;
+                    if (Objects.requireNonNull(surConfig.getConfig().getString((path + ".duration"))).equalsIgnoreCase("INFINITE")) {
+                        duration = Integer.MAX_VALUE;
+                        force = true;
+                    } else {
+                        duration = surConfig.getConfig().getInt(path + ".duration");
+                    }
 
-                if(plugin.getIs18()){
-                    player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
-                                    duration,
-                                    surConfig.getConfig().getInt(path + ".level")),
-                            force);
-                }else{
-                    player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
-                            duration,
-                            infConfig.getConfig().getInt(path + ".level")));
+                    if(plugin.getIs18()){
+                        player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
+                                        duration,
+                                        surConfig.getConfig().getInt(path + ".level")),
+                                force);
+                    }else{
+                        player.addPotionEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(x)),
+                                duration,
+                                infConfig.getConfig().getInt(path + ".level")));
+                    }
                 }
             }
         }

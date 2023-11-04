@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.Arrays;
 
 public final class Minecraft_Test extends JavaPlugin {
     private static Economy econ = null;
