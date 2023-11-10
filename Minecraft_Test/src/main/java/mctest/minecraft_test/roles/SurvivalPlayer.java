@@ -1380,13 +1380,19 @@ public class SurvivalPlayer implements Listener {
         ConfigUtil con = new ConfigUtil(plugin, System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player + ".yml");
         Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName());
 
+        for(String x : plugin.getStatsMap().keySet()){
+            Bukkit.getLogger().severe("NAME: " + x);
+            Bukkit.getLogger().severe("STUFF 1: " + plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName()).toString());
+            Bukkit.getLogger().severe("STUFF 2: " + plugin.getStatsMap().get(x).toString());
+        }
+
         if(plugin.doSurvivorKills() && survivorKills.containsKey(player)){
             int kills = con.getConfig().getInt("survivor-kills");
 
             if(!Objects.equals(survivorKills.get(player), null)){
-                kills += survivorKills.get(player);
+                kills += survivorKills.getOrDefault(player, 0);
                 con.getConfig().set("survivor-kills", kills);
-                nArr[3] += survivorKills.get(player);
+                nArr[3] += survivorKills.getOrDefault(player, 0);
             }
         }
 
@@ -1394,9 +1400,9 @@ public class SurvivalPlayer implements Listener {
             int kills = con.getConfig().getInt("infected-kills");
 
             if(!Objects.equals(infectedKills.get(player), null)){
-                kills += infectedKills.get(player);
+                kills += infectedKills.getOrDefault(player, 0);
                 con.getConfig().set("infected-kills", kills);
-                nArr[1] +=  infectedKills.get(player);
+                nArr[1] +=  infectedKills.getOrDefault(player, 0);
             }
         }
 

@@ -5,12 +5,10 @@ import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
-import net.md_5.bungee.api.chat.*;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.data.type.Switch;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -46,7 +44,6 @@ import java.util.*;
 public class Infected implements CommandExecutor, Listener {
     private GamesList g;
 
-    @SuppressWarnings("FieldMayBeFinal")
     private Minecraft_Test pl = Minecraft_Test.getPlugin(Minecraft_Test.class);
     public Infected(Minecraft_Test plugin, GamesList g){
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -91,17 +88,19 @@ public class Infected implements CommandExecutor, Listener {
 
     private ItemStack createLeaderboard(int pos, String name) {
         ArrayList<String> topList = new ArrayList<>();
+        ArrayList<UUID> uid = new ArrayList<>();
         topList.add("");
 
         pl.getStatsMap().entrySet().stream()
                 .sorted((k1, k2) -> -k1.getValue()[pos].compareTo(k2.getValue()[pos]))
                 .limit(3)
                 .forEach(k -> {
-                    topList.add(k.getKey() + ": " + k.getValue()[pos]);
-                    //Bukkit.getLogger().info(k.getKey() + ": " + Arrays.toString(k.getValue()));
+                    UUID u = UUID.fromString(k.getKey());
+                    uid.add(u);
+                    topList.add(Bukkit.getOfflinePlayer(u).getName() + ": " + k.getValue()[pos]);
                 });
 
-        ItemStack leaderboard = new ItemStack(this.getCustomHead(Objects.requireNonNull(Bukkit.getPlayer(topList.get(0))).getUniqueId()));
+        ItemStack leaderboard = new ItemStack(this.getCustomHead(uid.get(0)));
         ItemMeta leaderboardMeta = leaderboard.getItemMeta();
         assert leaderboardMeta != null;
         leaderboardMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -124,7 +123,6 @@ public class Infected implements CommandExecutor, Listener {
                         try{
                             sender.sendMessage("Starting match.");
                             g.getGameMap().get(player.getWorld().getName()).setTimer(0);
-//                            s.setTimer(0);
                         }catch(Exception e){
                             sender.sendMessage("Something went wrong, please check the console");
                             e.printStackTrace();
@@ -140,7 +138,6 @@ public class Infected implements CommandExecutor, Listener {
                         try{
                             sender.sendMessage("Ending match.");
                             g.getGameMap().get(player.getWorld().getName()).setTimer(-42);
-//                            s.setTimer(-42);
                         }catch(Exception e){
                             sender.sendMessage("Something went wrong, please check the console");
                             e.printStackTrace();
@@ -738,9 +735,6 @@ public class Infected implements CommandExecutor, Listener {
 
                             // Top Infected Wins List
                             gamesList.setItem(6, createLeaderboard(2, "Most Wins as Infected"));
-
-
-                            //pl.getStatsMap().forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
                         }
 
                         // Each game that is available
@@ -760,16 +754,6 @@ public class Infected implements CommandExecutor, Listener {
                         sender.sendMessage("You do not have permission to do this!");
                         break;
                     }
-
-                case "test": case "t":
-//                    sender.sendMessage("Score: " + pl.doKeepScore());
-//                    sender.sendMessage("Survivor games won: " + pl.doSurvivorGamesWon());
-//                    sender.sendMessage("infected games won: " + pl.doInfectedGamesWon());
-//                    sender.sendMessage("sur kills: " + pl.doSurvivorKills());
-//                    sender.sendMessage("infected kills: " + pl.doInfectedKills());
-//                    sender.sendMessage("games played: " + pl.doGamesPlayed());
-
-                    break;
 
                 default:
                     sender.sendMessage("Valid sub commands: start, end, games (g), addSpawn (as), setLobby (sl), delLobby (dl)," +
@@ -795,17 +779,6 @@ public class Infected implements CommandExecutor, Listener {
 
         assert skullMeta != null;
 
-//        if (url.length() < 16) {
-//            if(pl.getIs18()){;
-//                skullMeta.setOwner(url);
-//            }else{
-//                skullMeta.setOwningPlayer(Bukkit.getPlayer(url1));
-//            }
-//
-//            skull.setItemMeta(skullMeta);
-//            return skull;
-//        }
-
         StringBuilder s_url = new StringBuilder();
         s_url.append("https://sessionserver.mojang.com/session/minecraft/profile/").append(url1.toString()); // Texture link.
 
@@ -824,8 +797,6 @@ public class Infected implements CommandExecutor, Listener {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-//        Bukkit.getLogger().severe("JSON: " + json);
-//        Bukkit.getLogger().severe("VALUE: " + json.get("properties"));
 
         String[] je = json.get("properties").toString().split(":");
         String id = "";
@@ -839,10 +810,7 @@ public class Infected implements CommandExecutor, Listener {
         }
 
         GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null); // Create a GameProfile
-        // Get the bytes from the texture in Base64 encoded that comes from the Minecraft-URL.
         byte[] data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", s_url.toString()).getBytes());
-        String test = new String(data);
-//        Bukkit.getLogger().severe("DATA?!?!?!?!?!?!: " + test);
 
         // Set the texture property in the GameProfile.
         gameProfile.getProperties().put("textures", new Property("textures", new String(data)));
@@ -859,10 +827,9 @@ public class Infected implements CommandExecutor, Listener {
         if(pl.getIs18()){;
             skullMeta.setOwner(url1.toString());
         }else{
-            skullMeta.setOwningPlayer(Bukkit.getPlayer(url1));
+            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(url1));
         }
 
-//        skullMeta.setDisplayName(name); // Set a displayName to the skull
         skull.setItemMeta(skullMeta);
         return skull;
     }

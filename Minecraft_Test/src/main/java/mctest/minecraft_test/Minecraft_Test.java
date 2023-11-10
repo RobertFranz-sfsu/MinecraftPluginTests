@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class Minecraft_Test extends JavaPlugin {
     private static Economy econ = null;
@@ -27,7 +28,7 @@ public final class Minecraft_Test extends JavaPlugin {
         return this.getConfig();
     }
 
-    private final HashMap<String, Integer[]> statsMap = new HashMap<>();
+    private final ConcurrentHashMap<String, Integer[]> statsMap = new ConcurrentHashMap<>();
     private HashMap<UUID, Integer> gameIDMap = new HashMap<>();
     public HashMap<UUID, Integer> getGameIDMap() {
         return this.gameIDMap;
@@ -184,7 +185,8 @@ public final class Minecraft_Test extends JavaPlugin {
                 }
                 String newPath = System.getProperty("file.separator") + "Scores"  + System.getProperty("file.separator") + child.getName();
                 ConfigUtil s = new ConfigUtil(this, newPath);
-                String name = s.getConfig().getString("username");
+//                String name = s.getConfig().getString("username");
+                String name = child.getName().substring(0, child.getName().length() - 4);
                 int played = s.getConfig().getInt("games-played");
                 int infKills = s.getConfig().getInt("infected-kills");
                 int infWins = s.getConfig().getInt("infected-wins");
@@ -204,7 +206,7 @@ public final class Minecraft_Test extends JavaPlugin {
         }
 
     }
-    public HashMap<String, Integer[]> getStatsMap() {
+    public ConcurrentHashMap<String, Integer[]> getStatsMap() {
         return this.statsMap;
     }
 }
