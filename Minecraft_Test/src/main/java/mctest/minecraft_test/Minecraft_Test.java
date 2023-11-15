@@ -15,6 +15,7 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -195,16 +196,10 @@ public final class Minecraft_Test extends JavaPlugin {
 
                 this.statsMap.put(name, new Integer[] {played, infKills, infWins, surKills, surWins});
             }
-//            Bukkit.getLogger().info("Printing Values");
-//            this.statsMap.forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
+            Bukkit.getLogger().info("Printing Values");
+            this.statsMap.forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
 
         }
-
-        for(String s : statsMap.keySet()){
-            Bukkit.getLogger().severe("NAME: " + s);
-            Bukkit.getLogger().severe("[]: " + statsMap.get(s));
-        }
-
     }
     public ConcurrentHashMap<String, Integer[]> getStatsMap() {
         return this.statsMap;

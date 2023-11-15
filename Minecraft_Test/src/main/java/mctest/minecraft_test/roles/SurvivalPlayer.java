@@ -1378,13 +1378,15 @@ public class SurvivalPlayer implements Listener {
 
     private void setScores(UUID player){
         ConfigUtil con = new ConfigUtil(plugin, System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player + ".yml");
-        Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName());
+        Integer[] nArr = plugin.getStatsMap().get(player.toString());
 
-        for(String x : plugin.getStatsMap().keySet()){
-            Bukkit.getLogger().severe("NAME: " + x);
-            Bukkit.getLogger().severe("STUFF 1: " + plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName()).toString());
-            Bukkit.getLogger().severe("STUFF 2: " + plugin.getStatsMap().get(x).toString());
-        }
+//        for(String x : plugin.getStatsMap().keySet()){
+//            Bukkit.getLogger().severe("NAME: " + x);
+//            if(player!= null){
+//                Bukkit.getLogger().severe("STUFF 1: " + plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName()).toString());
+//            }
+//            Bukkit.getLogger().severe("STUFF 2: " + Arrays.toString(plugin.getStatsMap().get(x)));
+//        }
 
         if(plugin.doSurvivorKills() && survivorKills.containsKey(player)){
             int kills = con.getConfig().getInt("survivor-kills");

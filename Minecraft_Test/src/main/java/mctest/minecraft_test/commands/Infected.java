@@ -755,6 +755,16 @@ public class Infected implements CommandExecutor, Listener {
                         break;
                     }
 
+                case "test":
+                    Integer[] nArr = pl.getStatsMap().get(Objects.requireNonNull(((Player) sender).getUniqueId().toString()));
+                    for(Integer x : nArr){
+                        sender.sendMessage(nArr[x] + "");
+                    }
+//                    for(String x : pl.getStatsMap().keySet()){
+//                        sender.sendMessage("UUID: " + x);
+//                        sender.sendMessage("VALS: " + Arrays.toString(pl.getStatsMap().get(x)));
+//                    }
+                    break;
                 default:
                     sender.sendMessage("Valid sub commands: start, end, games (g), addSpawn (as), setLobby (sl), delLobby (dl)," +
                             " listLobbies (ll), setWorld(sw), delWorld (dw), listWorlds (lw), setRole (sr).");
