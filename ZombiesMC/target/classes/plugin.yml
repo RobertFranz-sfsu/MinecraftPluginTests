@@ -1,0 +1,6 @@
+name: ZombiesMC
+version: '1.0.0'
+main: com.valiantrealms.zombiesmc.ZombiesMC
+api-version: '1.13'
+authors: [DeathsValentine, Mithraea]
+Prefix: ZombiesMC

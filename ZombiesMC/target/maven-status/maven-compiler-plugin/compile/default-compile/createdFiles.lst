@@ -1,0 +1,5 @@
+com\valiantrealms\zombiesmc\util\ConfigUtil.class
+com\valiantrealms\zombiesmc\util\BlockListener.class
+com\valiantrealms\zombiesmc\util\PlayerHandler.class
+com\valiantrealms\zombiesmc\commands\Reload.class
+com\valiantrealms\zombiesmc\ZombiesMC.class
