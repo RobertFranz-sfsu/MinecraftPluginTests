@@ -7,10 +7,13 @@ zombies only break blocks when trying to get to the player
     maybe make it so the blocks must be player placed as well?
 zombie behavior
 stamina
+    maybe use xp bar as a stamina bar?
 zombie hordes (configurable timers)
+loot tables
 customize xp gain/player damage through config file
 Hashmap of breakable blocks (key: block, value: durability)
 repairing blocks (configure what materials are needed to repair a block)
+parties
 
 config.yml:
     enable/disable mobs breaking blocks
@@ -69,6 +72,8 @@ skills (each should have a config file)
     melee
         % increase of damage
         % chance of crit
+    luck (MAYBE)
+        % chance for better loot (maybe per tier?)
     crafting (MAYBE NOT THIS)
 
 plugin integrations: (OR create a claiming function)
@@ -90,3 +95,12 @@ Possible:
     quests
     custom spawners
     custom texture pack
+    thirst
+    wounds
+    bandages
+    infection
+    sickness
+    illness
+    temperature
+    pets
+    mounts

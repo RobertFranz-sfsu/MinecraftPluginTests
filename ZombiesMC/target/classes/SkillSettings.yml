@@ -1,0 +1,94 @@
+cooking:
+  base:
+    health-regen: 1.0
+  leveling:
+    saturation-increase: 1.0
+    extra-hunger-given: 1.0
+
+farming:
+  base:
+    double-chance: 5.0
+  leveling:
+    double-chance: 1.0
+
+husbandry:
+  base:
+    # Number from 0%-100%
+    increased-drop-chance: 5.0
+
+    # Number from 0%-100%
+    increased-drops-from-kills: 5.0
+
+    # Number from 0%-100%
+    chance-of-multi-breeding: 5.0
+
+    # Number from 0%-100%
+    instant-adult-while-breeding: 5.0
+  leveling:
+    # Number from 0%-100%
+    increased-drop-chance: 1.0
+
+    increased-drops-from-kills: 5.0
+
+    # Number from 0%-100%
+    chance-of-multi-breeding: 5.0
+
+    # Number from 0%-100%
+    instant-adult-while-breeding: 5.0
+
+lockpicking:
+  base:
+    # Number from 0%-100%
+    success-chance: 5.0
+    break-pick-chance: 1.0
+
+  leveling:
+    # Number from 0%-100%
+    chance-increase: 5.0
+    break-pick-chance: 1.0
+
+melee:
+  damage-increase: 1.0
+  crit-chance: 1.0
+  crit-damage-multiplier: 1.0
+
+ranged:
+  damage-multiplier: 1.0
+  crit-chance: 1.0
+  crit-damage-multiplier: 1.0
+  reload-speed: 1.0 #maybe
+
+salvage:
+  base:
+    # Number from 0%-100%
+    base-resource-return: 10.0
+
+  leveling:
+    # Number from 0%-100%
+    resource-return-increase: 1.0
+
+sneaking:
+  base:
+    # Number of blocks
+    detection-radius: 1.0
+
+    # Number from 0%-100%
+    detection-chance: 95.0
+
+  leveling:
+    # Number from 0%-100%
+    detection-reduction: 1.0
+
+stamina:
+  base:
+    stamina: 100.0
+
+  leveling:
+    # Applied per level
+    stamina-increase: 1.0
+
+strength:
+  health-incrase-per-level: 1.0
+  unarmed-damage-increase: 1.0
+  mine-speed-multiplier: 1.0 #maybe
+  jump-height-multiplier: 1.0 #maybe

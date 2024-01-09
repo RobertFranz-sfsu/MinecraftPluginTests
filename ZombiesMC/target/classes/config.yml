@@ -1,0 +1,10 @@
+# Only makes a new file if the player has not played before. This may use less resources
+# if there are many people joining, however it will not create a file for them if they've played
+# before even if no file currently exists
+#check-has-played: false
+
+enable-custom-perms: true
+save-timer: 600 #written in seconds, server must be restarted for this change to take effect
+
+custom-perms:
+  - example.perm

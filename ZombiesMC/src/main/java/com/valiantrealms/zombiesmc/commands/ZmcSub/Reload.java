@@ -1,16 +1,16 @@
-package com.valiantrealms.zombiesmc.commands;
+package com.valiantrealms.zombiesmc.commands.ZmcSub;
 
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 
-public class Reload implements CommandExecutor {
+public class Reload {
     private ZombiesMC plugin;
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public Reload(ZombiesMC plugin){
+        this.plugin = plugin;
+    }
+
+    public void ReloadAll(){
         try{
             Bukkit.getLogger().info("Reloading config.yml...");
             plugin.reloadConfig();
@@ -21,11 +21,16 @@ public class Reload implements CommandExecutor {
             c1.save();
             Bukkit.getLogger().info("Saved BlockListener.yml...");
 
+            Bukkit.getLogger().info("Reloading SkillSettings.yml...");
+            ConfigUtil c2 = new ConfigUtil(plugin, "SkillSettings.yml");
+            c2.save();
+            plugin.setSkillSettings();
+            Bukkit.getLogger().info("Saved SkillSettings.yml...");
+
         }catch(Exception e){
-            sender.sendMessage("Something went wrong, please check the console.");
+            Bukkit.getLogger().severe("Something went wrong trying to reload the configs," +
+                    " please check the console.");
             e.printStackTrace();
         }
-
-        return true;
     }
 }

@@ -1,15 +1,20 @@
 package com.valiantrealms.zombiesmc.util;
 
 import com.valiantrealms.zombiesmc.ZombiesMC;
+import com.valiantrealms.zombiesmc.util.skills.Strength;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.UUID;
 
 public class PlayerHandler implements Listener {
     ZombiesMC plugin;
@@ -21,6 +26,8 @@ public class PlayerHandler implements Listener {
 
     @EventHandler
     public void OnPlayerJoin(PlayerJoinEvent event){
+        ConfigUtil check = new ConfigUtil(plugin, "config.yml");
+
         Player player = event.getPlayer();
         String path = System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + player.getUniqueId() + ".yml";
         File dir = new File(plugin.getDataFolder().getPath() + System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator"));
@@ -54,11 +61,33 @@ public class PlayerHandler implements Listener {
                 con.getConfig().set("skills.cooking", 0);
                 con.getConfig().set("skills.ranged", 0);
                 con.getConfig().set("skills.melee", 0);
-                con.getConfig().set("custom-perms", null);
                 con.save();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-}
+
+        plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
+    }
+
+    @EventHandler
+    public void OnPlayerQuit(PlayerQuitEvent event){
+        UUID id = event.getPlayer().getUniqueId();
+
+        plugin.getPlayers().get(id).unregister(id);
+    }
+
+    @EventHandler
+    public void isHandEmpty(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+        player.getInventory().getItem(event.getNewSlot());
+
+        if (Objects.equals(player.getInventory().getItem(event.getNewSlot()), null) && !plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty()) {
+            plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(true);
+            player.sendMessage("if: " + plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty());
+        } else if (!Objects.equals(player.getInventory().getItem(event.getNewSlot()), null) && plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty()){
+            plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(false);
+            player.sendMessage("if else: " + plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty());
+        }
+    }
 }
