@@ -71,6 +71,14 @@ public class ZMC implements CommandExecutor {
                         sender.sendMessage(String.valueOf(plugin.getPlayers().get(player.getUniqueId()).getSkills()[i]));
                     }
                     break;
+                case "e":
+                    if(args.length == 1){
+                        plugin.getPlayers().get(player.getUniqueId()).getSkills()[5] = 0;
+                    }else{
+                        plugin.getPlayers().get(player.getUniqueId()).getSkills()[5] = Integer.parseInt(args[1]);
+                    }
+
+                    break;
                 case "wow":
                     ConcurrentHashMap<UUID, PlayerProfile> test = plugin.getPlayers();
 

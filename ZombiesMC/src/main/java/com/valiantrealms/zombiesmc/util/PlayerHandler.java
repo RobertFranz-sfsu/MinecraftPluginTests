@@ -1,13 +1,18 @@
 package com.valiantrealms.zombiesmc.util;
 
+import com.valiantrealms.zombiesmc.PlayerProfile;
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.skills.Strength;
+import com.valiantrealms.zombiesmc.util.skills.Unarmed;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.io.File;
@@ -25,7 +30,7 @@ public class PlayerHandler implements Listener {
     }
 
     @EventHandler
-    public void OnPlayerJoin(PlayerJoinEvent event){
+    public void OnPlayerJoin(PlayerLoginEvent event){
         ConfigUtil check = new ConfigUtil(plugin, "config.yml");
 
         Player player = event.getPlayer();
@@ -68,6 +73,10 @@ public class PlayerHandler implements Listener {
         }
 
         plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
+        if(Objects.equals(player.getInventory().getItemInMainHand(), null)){
+            plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(true);
+        }
+        Bukkit.getLogger().severe("Registered player: " + player.getUniqueId());
     }
 
     @EventHandler
@@ -82,12 +91,33 @@ public class PlayerHandler implements Listener {
         Player player = event.getPlayer();
         player.getInventory().getItem(event.getNewSlot());
 
-        if (Objects.equals(player.getInventory().getItem(event.getNewSlot()), null) && !plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty()) {
-            plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(true);
-            player.sendMessage("if: " + plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty());
-        } else if (!Objects.equals(player.getInventory().getItem(event.getNewSlot()), null) && plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty()){
-            plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(false);
-            player.sendMessage("if else: " + plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty());
+//        if (Objects.equals(player.getInventory().getItem(event.getNewSlot()), null) && !plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty()) {
+//            plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(true);
+//            player.sendMessage("if: " + plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty());
+//        } else if (!Objects.equals(player.getInventory().getItem(event.getNewSlot()), null) && plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty()){
+//            plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(false);
+//            player.sendMessage("if else: " + plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty());
+//        }
+        plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(Objects.equals(player.getInventory().getItem(event.getNewSlot()), null) && !plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty());
+    }
+
+    @EventHandler
+    public void damageHandler(EntityDamageByEntityEvent event){
+        if(event.getDamager() instanceof Player){
+            Player player = (Player) event.getDamager();
+
+            PlayerProfile profile = plugin.getPlayers().get(player.getUniqueId());
+
+            if(profile.isMainHandEmpty()){
+                Unarmed unarmed = new Unarmed(plugin);
+                LivingEntity ent = (LivingEntity) event.getEntity();
+                Bukkit.getLogger().severe("DAMAGE BEFORE: " + event.getDamage());
+                Bukkit.getLogger().severe("HEALTH BEFORE: " + ent.getHealth());
+                event.setDamage(unarmed.unarmedDamage(player.getUniqueId(), event.getDamage()));
+                Bukkit.getLogger().severe("DAMAGE AFTER: " + event.getDamage());
+                Bukkit.getLogger().severe("HEALTH AFTER: " + ent.getHealth());
+
+            }
         }
     }
 }

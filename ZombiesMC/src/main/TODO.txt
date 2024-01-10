@@ -58,6 +58,8 @@ skills (each should have a config file)
     strength
         multiplier for health
         unarmed damage
+            % increase of damage (increase by .01% every level)
+            % chance of crit (increase by .1% every level, max at 80%)
         (MAYBE) mine speed
         (MAYBE) jump height
     cooking

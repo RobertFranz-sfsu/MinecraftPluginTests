@@ -5,6 +5,7 @@ import com.valiantrealms.zombiesmc.commands.ZmcSub.Reload;
 import com.valiantrealms.zombiesmc.util.BlockListener;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
 import com.valiantrealms.zombiesmc.util.PlayerHandler;
+import com.valiantrealms.zombiesmc.util.skills.Unarmed;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -30,6 +31,9 @@ public final class ZombiesMC extends JavaPlugin {
     private Reload reload;
     private PlayerProfile profile;
     private PlayerLoader loader;
+
+    // Skills
+    private Unarmed unarmed;
 
     ConfigUtil skillSettings;
     @Override
@@ -63,6 +67,7 @@ public final class ZombiesMC extends JavaPlugin {
         // Enabling utils
         new PlayerHandler(this);
         new BlockListener(this);
+        this.setUnarmed();
 
         // Saving breakable blocks
     }
@@ -93,6 +98,9 @@ public final class ZombiesMC extends JavaPlugin {
      */
     private void setReload(){ this.reload = new Reload(this); }
     public Reload getReload(){ return this.reload; }
+
+    private void setUnarmed(){ this.unarmed = new Unarmed(this); }
+    public Unarmed getUnarmed(){ return this.unarmed; }
 
     public PlayerProfile getProfile(UUID id) { return this.profile; }
 

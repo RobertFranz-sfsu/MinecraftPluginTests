@@ -6,9 +6,11 @@ import java.util.UUID;
 
 public class PlayerProfile {
     ZombiesMC plugin;
+    UUID uid;
     int health;
     int stamina;
     boolean isMainHandEmpty;
+    ConfigUtil config;
 
     double[] skills = new double[9];
     /**
@@ -28,6 +30,7 @@ public class PlayerProfile {
     public void register(UUID id){
         ConfigUtil con = new ConfigUtil(plugin, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + id + ".yml");
 
+        this.uid = id;
         this.health = con.getConfig().getInt("health");
         this.stamina = con.getConfig().getInt("stamina");
 
@@ -58,6 +61,41 @@ public class PlayerProfile {
         con.getConfig().set("skills.ranged", skills[7]);
         con.getConfig().set("skills.melee", skills[8]);
         con.save();
+
+        this.config = con;
+    }
+
+    public void reload(){
+        ConfigUtil con = new ConfigUtil(plugin, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + uid + ".yml");
+
+        con.getConfig().set("health", this.health);
+        con.getConfig().set("stamina", this.stamina);
+
+        con.getConfig().set("skills.lockpicking", skills[0]);
+        con.getConfig().set("skills.farming", skills[1]);
+        con.getConfig().set("skills.stamina", skills[2]);
+        con.getConfig().set("skills.salvage", skills[3]);
+        con.getConfig().set("skills.husbandry", skills[4]);
+        con.getConfig().set("skills.strength", skills[5]);
+        con.getConfig().set("skills.cooking", skills[6]);
+        con.getConfig().set("skills.ranged", skills[7]);
+        con.getConfig().set("skills.melee", skills[8]);
+        con.save();
+
+        this.health = con.getConfig().getInt("health");
+        this.stamina = con.getConfig().getInt("stamina");
+
+        skills[0] = con.getConfig().getDouble("skills.lockpicking");
+        skills[1] = con.getConfig().getDouble("skills.farming");
+        skills[2] = con.getConfig().getDouble("skills.stamina");
+        skills[3] = con.getConfig().getDouble("skills.salvage");
+        skills[4] = con.getConfig().getDouble("skills.husbandry");
+        skills[5] = con.getConfig().getDouble("skills.strength");
+        skills[6] = con.getConfig().getDouble("skills.cooking");
+        skills[7] = con.getConfig().getDouble("skills.ranged");
+        skills[8] = con.getConfig().getDouble("skills.melee");
+
+        this.config = con;
     }
 
     public void unregister(UUID id){
@@ -73,4 +111,6 @@ public class PlayerProfile {
     public void setMainHandEmpty(boolean isEmpty){
         this.isMainHandEmpty = isEmpty;
     }
+
+    public ConfigUtil getConfig(){ return this.config; }
 }
