@@ -447,8 +447,8 @@ public class Infected implements CommandExecutor, Listener {
 
                 case "listlobbies": case "ll":
                     list.list(player);
-
                     break;
+
                 case "setworld": case "sw":
                     if(sender.hasPermission("infected.infected.setworld") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
@@ -529,8 +529,8 @@ public class Infected implements CommandExecutor, Listener {
 
                 case "listworlds": case "lw":
                     listWorlds.List(player);
-
                     break;
+
                 case "setrole": case "sr": case "role":
                     if(sender.hasPermission("infected.infected.setrole") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{

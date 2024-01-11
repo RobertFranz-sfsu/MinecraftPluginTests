@@ -8,7 +8,6 @@ mctest\minecraft_test\roles\SurvivalPlayer.class
 mctest\minecraft_test\commands\InfectedSubCommands\GamesListCommand.class
 mctest\minecraft_test\commands\Loadout.class
 mctest\minecraft_test\util\ConfigUtil.class
-mctest\minecraft_test\commands\InfectedSubCommands\Spawns.class
 mctest\minecraft_test\commands\InfectedSubCommands\End.class
 mctest\minecraft_test\util\CountdownTimer.class
 mctest\minecraft_test\commands\Infected.class
