@@ -14,16 +14,21 @@ public class Reload {
     public void ReloadAll(){
         try{
             plugin.reloadConfig();
-            Bukkit.getLogger().info("Reloaded config.yml.");
+//            Bukkit.getLogger().info("Reloaded config.yml.");
 
-            ConfigUtil c1 = new ConfigUtil(plugin, "BlockListener.yml");
-            c1.save();
-            Bukkit.getLogger().info("Saved BlockListener.yml...");
+//            ConfigUtil c1 = new ConfigUtil(plugin, "BlockValues.yml");
+//            c1.save();
+//            Bukkit.getLogger().info("Saved BlockListener.yml...");
 
-            ConfigUtil c2 = new ConfigUtil(plugin, "SkillSettings.yml");
-            c2.save();
-            plugin.setSkillSettings();
-            Bukkit.getLogger().info("Saved SkillSettings.yml...");
+//            ConfigUtil c2 = new ConfigUtil(plugin, "SkillSettings.yml");
+//            c2.save();
+//            plugin.setSkillSettings();
+//            Bukkit.getLogger().info("Saved SkillSettings.yml...");
+//
+//            ConfigUtil c3 = new ConfigUtil(plugin, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + "SkillSettings.yml");
+//            c3.save();
+//            plugin.setPlayerSettings();
+            plugin.saveConfigs();
 
             plugin.getPlayers().forEach((key, value) -> value.reload());
             Bukkit.getLogger().info("Saved player files...");

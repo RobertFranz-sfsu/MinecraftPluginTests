@@ -1,6 +1,7 @@
 package com.valiantrealms.zombiesmc;
 
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerPortalEvent;
 
 import java.util.UUID;
@@ -12,6 +13,11 @@ public class PlayerLoader {
     public PlayerProfile loadPlayer(UUID id){
         PlayerProfile profile = new PlayerProfile(plugin);
         profile.register(id);
+
+//        if(!Bukkit.getPlayer(id).isOp()){
+//            profile.setHealth();
+//        }
+//        profile.setHealth();
         /**
          * String UUID
          * int health

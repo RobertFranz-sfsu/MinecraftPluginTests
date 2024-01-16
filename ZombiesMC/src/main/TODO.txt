@@ -14,6 +14,7 @@ customize xp gain/player damage through config file
 Hashmap of breakable blocks (key: block, value: durability)
 repairing blocks (configure what materials are needed to repair a block)
 parties
+integrate items adder for custom status bars/HUD things (ie stamina)
 
 config.yml:
     enable/disable mobs breaking blocks
@@ -77,6 +78,7 @@ skills (each should have a config file)
     luck (MAYBE)
         % chance for better loot (maybe per tier?)
     crafting (MAYBE NOT THIS)
+    fishing(?)
 
 plugin integrations: (OR create a claiming function)
     vault
@@ -106,3 +108,4 @@ Possible:
     temperature
     pets
     mounts
+    special moves

@@ -14,4 +14,6 @@ public class Strength {
     public void setStrength(UUID player){
 
     }
+
+    public double getStrength() { return this.strength; }
 }

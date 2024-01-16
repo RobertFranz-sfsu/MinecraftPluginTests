@@ -1,16 +1,20 @@
 package com.valiantrealms.zombiesmc;
 
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
+import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 
+import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerProfile {
     ZombiesMC plugin;
-    UUID uid;
-    int health;
-    int stamina;
-    boolean isMainHandEmpty;
-    ConfigUtil config;
+    private UUID uid;
+    private double health;
+    private double stamina;
+    private boolean isMainHandEmpty;
+    private ConfigUtil config;
 
     double[] skills = new double[9];
     /**
@@ -31,8 +35,8 @@ public class PlayerProfile {
         ConfigUtil con = new ConfigUtil(plugin, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + id + ".yml");
 
         this.uid = id;
-        this.health = con.getConfig().getInt("health");
-        this.stamina = con.getConfig().getInt("stamina");
+        this.health = con.getConfig().getDouble("health");
+        this.stamina = con.getConfig().getDouble("stamina");
 
         skills[0] = con.getConfig().getDouble("skills.lockpicking");
         skills[1] = con.getConfig().getDouble("skills.farming");
@@ -43,6 +47,8 @@ public class PlayerProfile {
         skills[6] = con.getConfig().getDouble("skills.cooking");
         skills[7] = con.getConfig().getDouble("skills.ranged");
         skills[8] = con.getConfig().getDouble("skills.melee");
+
+//        this.setHealth();
     }
 
     public void save(UUID id){
@@ -82,8 +88,8 @@ public class PlayerProfile {
         con.getConfig().set("skills.melee", skills[8]);
         con.save();
 
-        this.health = con.getConfig().getInt("health");
-        this.stamina = con.getConfig().getInt("stamina");
+        this.health = con.getConfig().getDouble("health");
+        this.stamina =con.getConfig().getDouble("stamina");
 
         skills[0] = con.getConfig().getDouble("skills.lockpicking");
         skills[1] = con.getConfig().getDouble("skills.farming");
@@ -96,6 +102,23 @@ public class PlayerProfile {
         skills[8] = con.getConfig().getDouble("skills.melee");
 
         this.config = con;
+    }
+
+    public void setSkillsFromConfig(){
+        ConfigUtil con = new ConfigUtil(plugin, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + uid + ".yml");
+
+        this.health = con.getConfig().getDouble("health");
+        this.stamina = con.getConfig().getDouble("stamina");
+
+        skills[0] = con.getConfig().getDouble("skills.lockpicking");
+        skills[1] = con.getConfig().getDouble("skills.farming");
+        skills[2] = con.getConfig().getDouble("skills.stamina");
+        skills[3] = con.getConfig().getDouble("skills.salvage");
+        skills[4] = con.getConfig().getDouble("skills.husbandry");
+        skills[5] = con.getConfig().getDouble("skills.strength");
+        skills[6] = con.getConfig().getDouble("skills.cooking");
+        skills[7] = con.getConfig().getDouble("skills.ranged");
+        skills[8] = con.getConfig().getDouble("skills.melee");
     }
 
     public void unregister(UUID id){
@@ -113,4 +136,13 @@ public class PlayerProfile {
     }
 
     public ConfigUtil getConfig(){ return this.config; }
+
+    public void setHealth(){
+        this.health = (BigDecimal.valueOf(plugin.getPlayers().get(uid).getSkills()[5]).multiply(BigDecimal.valueOf(plugin.getSkillSettings().getConfig().getDouble("strength.health-increase-per-level")))).add(BigDecimal.valueOf(plugin.getPlayerSettings().getConfig().getDouble("starting-health"))).doubleValue();
+
+        Objects.requireNonNull(Bukkit.getPlayer(uid).getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(this.health);
+        Bukkit.getPlayer(uid).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+    }
+
+    public double getHealth() { return this.health; }
 }

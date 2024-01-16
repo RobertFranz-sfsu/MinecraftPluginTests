@@ -5,6 +5,7 @@ import com.valiantrealms.zombiesmc.commands.ZmcSub.Reload;
 import com.valiantrealms.zombiesmc.util.BlockListener;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
 import com.valiantrealms.zombiesmc.util.PlayerHandler;
+import com.valiantrealms.zombiesmc.util.Vault;
 import com.valiantrealms.zombiesmc.util.skills.Unarmed;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
@@ -19,9 +20,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ZombiesMC extends JavaPlugin {
-    private static Economy econ = null;
-    private static Permission perms = null;
-    private static Chat chat = null;
 
     // Info
     private static HashMap<String, Integer> breakableBlocks = new HashMap<>();
@@ -29,13 +27,19 @@ public final class ZombiesMC extends JavaPlugin {
 
     // Sub Commands
     private Reload reload;
-    private PlayerProfile profile;
     private PlayerLoader loader;
 
     // Skills
     private Unarmed unarmed;
 
+    // Configs
     ConfigUtil skillSettings;
+    ConfigUtil playerSettings;
+    ConfigUtil blockValuesConfig;
+
+    // Other plugins
+    Vault econ;
+
     @Override
     public void onEnable() {
         Bukkit.getLogger().info("Enabling ZombiesMC");
@@ -44,30 +48,29 @@ public final class ZombiesMC extends JavaPlugin {
         this.saveDefaultConfig();
 
         saveResource("PlayerInfo" + System.getProperty("file.separator") + "PlayerSettings.yml", false);
-
         saveResource("BlockValues.yml", false);
-
         saveResource("SkillSettings.yml", false);
-        this.setSkillSettings();
+
+        this.setConfigs();
+        this.setEcon();
 
         // Economy
-        if (!setupEconomy() ) {
+        if (!econ.setupEconomy() ) {
             getLogger().warning("Vault not found! Economy features will not work");
         }else{
             getLogger().info("Setting up the economy!");
-            setupPermissions();
-            setupChat();
+            econ.setupPermissions();
+            econ.setupChat();
         }
 
         // Enabling commands
         Objects.requireNonNull(getCommand("zmc")).setExecutor(new ZMC(this));
-        this.setReload();
-        this.setLoader();
+        this.setSubCommands();
 
         // Enabling utils
         new PlayerHandler(this);
         new BlockListener(this);
-        this.setUnarmed();
+        this.setSkills();
 
         // Saving breakable blocks
     }
@@ -75,6 +78,7 @@ public final class ZombiesMC extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        this.savePlayerData();
         Bukkit.getServer().getScheduler().cancelTask(867530942); // Canceling save process
         Bukkit.getLogger().info("Disabling ZombiesMC");
     }
@@ -87,54 +91,67 @@ public final class ZombiesMC extends JavaPlugin {
 
     }
 
+    public void savePlayerData(UUID id){
+        if(!this.players.isEmpty()){
+            this.players.get(id).save(id);
+        }else{
+            Bukkit.getLogger().info("Nothing to save!");
+        }
+    }
+    public void savePlayerData(){
+        Bukkit.getLogger().info("Attempting to save all player data...");
+
+        if(!this.players.isEmpty()){
+            this.players.forEach((key, value) -> value.save(key));
+            Bukkit.getLogger().info("Done saving all player data!");
+        }else{
+            Bukkit.getLogger().info("Nothing to save!");
+        }
+    }
+
+    public void updatePlayerFromConfig(UUID id){
+        this.getPlayers().get(id).setSkillsFromConfig();
+    }
+
     /**
      * Config Files
      */
-    public void setSkillSettings() { this.skillSettings = new ConfigUtil(this, "SkillSettings.yml"); }
-    public ConfigUtil getSkillSettings() { return this.skillSettings; }
+    public void saveConfigs() {
+        this.skillSettings.save();
+        this.playerSettings.save();
+        this.blockValuesConfig.save();
 
+        this.setConfigs();
+    }
+
+    public void setConfigs(){
+        this.skillSettings = new ConfigUtil(this, "SkillSettings.yml");
+        this.playerSettings = new ConfigUtil(this, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + "PlayerSettings.yml");
+        this.blockValuesConfig = new ConfigUtil(this, "BlockValues.yml");
+    }
+
+    public ConfigUtil getSkillSettings() { return this.skillSettings; }
+    public ConfigUtil getPlayerSettings() { return this.playerSettings; }
+    public ConfigUtil getBlockValuesConfig() { return this.blockValuesConfig; }
     /**
      * Sub-Commands
      */
-    private void setReload(){ this.reload = new Reload(this); }
+
+    private void setSubCommands(){
+        this.reload = new Reload(this);
+        this.loader = new PlayerLoader(this);
+    }
+
+    private void setSkills(){
+        this.unarmed = new Unarmed(this);
+    }
+
     public Reload getReload(){ return this.reload; }
-
-    private void setUnarmed(){ this.unarmed = new Unarmed(this); }
     public Unarmed getUnarmed(){ return this.unarmed; }
-
-    public PlayerProfile getProfile(UUID id) { return this.profile; }
-
-    private void setLoader(){ this.loader = new PlayerLoader(this); }
     public PlayerLoader getLoader() { return this.loader; }
 
     /**
      * ECONOMY STUFF
      */
-    private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        econ = rsp.getProvider();
-        return econ != null;
-    }
-
-    private boolean setupChat() {
-        RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
-        chat = rsp.getProvider();
-        return chat != null;
-    }
-
-    private boolean setupPermissions() {
-        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        perms = rsp.getProvider();
-        return perms != null;
-    }
-
-    public Economy getEcon(){
-        return econ;
-    }
+    public void setEcon() { this.econ = new Vault(this); }
 }

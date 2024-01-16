@@ -9,12 +9,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ZMC implements CommandExecutor {
     private ZombiesMC plugin;
-    int id = 867530942;
+    private int id = 867530942;
 
     Long saveTime;
     public ZMC(ZombiesMC plugin){
@@ -25,16 +26,7 @@ public class ZMC implements CommandExecutor {
 
     public void startSaveTask(){
         id = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            Bukkit.getLogger().info("Attempting to save all player data...");
-
-            ConcurrentHashMap<UUID, PlayerProfile> saving = plugin.getPlayers();
-
-            if(!saving.isEmpty()){
-                saving.forEach((key, value) -> value.save(key));
-                Bukkit.getLogger().info("Done saving all player data!");
-            }else{
-                Bukkit.getLogger().info("Nothing to save!");
-            }
+            plugin.savePlayerData();
         }, 0L, saveTime);
     }
 
@@ -50,20 +42,72 @@ public class ZMC implements CommandExecutor {
             assert player != null;
 
             switch(args[0].toLowerCase()){
-                case "reload": case "r":
-                    plugin.getReload().ReloadAll();
-                    this.setSaveTime();
-                    Bukkit.getServer().getScheduler().cancelTask(id);
-                    this.startSaveTask();
+                case "reload": case "r": // Reloads all configs
+                    try{
+                        plugin.getReload().ReloadAll();
+
+                        // Restarting the save task to update timer if time has changed
+                        if(!Objects.equals(plugin.getConfig().getLong("save-timer"), this.getSaveTime())){
+                            Bukkit.getServer().getScheduler().cancelTask(id);
+                            this.setSaveTime();
+                            this.startSaveTask();
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        sender.sendMessage("Something went wrong. Please check the console.");
+                        Bukkit.getLogger().severe("Something went wrong trying to update player from config.");
+                    }
+
+                    break;
+
+                case "save": // Saves all player data to config
+                    try{
+                        plugin.savePlayerData();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        sender.sendMessage("Something went wrong. Please check the console.");
+                        Bukkit.getLogger().severe("Something went wrong trying to update player from config.");
+                    }
+                    break;
+
+                case "saveplayer": case "sp": // Save one player's skills to config
+                    try{
+                        if(args.length == 1){
+                            plugin.savePlayerData(player.getUniqueId());
+                        }else if(args.length == 2){
+                            plugin.savePlayerData(Bukkit.getPlayer(args[1]).getUniqueId());
+                        }else{
+                            sender.sendMessage("Correct usage: /zmc saveplayer (optional)[username]");
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        sender.sendMessage("Something went wrong. Please check the console.");
+                        Bukkit.getLogger().severe("Something went wrong trying to update player from config.");
+                    }
+                    break;
+
+                case "updateplayer": case "up": // Update player skills from config
+                    try{
+                        if(args.length == 1){
+                            plugin.updatePlayerFromConfig(player.getUniqueId());
+                        }else if(args.length == 2){
+                            plugin.updatePlayerFromConfig(Bukkit.getPlayer(args[1]).getUniqueId());
+                        }else{
+                            sender.sendMessage("Correct usage: /zmc updateplayer (optional)[username]");
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        sender.sendMessage("Something went wrong. Please check the console.");
+                        Bukkit.getLogger().severe("Something went wrong trying to update player from config.");
+                    }
                     break;
 
                 /**
                  * TESTING SECTION
                  */
                 case "test":
-//                    plugin.getPlayers().get(testPlay.getUniqueId()).getSkills();
-                    plugin.getPlayers().get(player.getUniqueId()).setSkill(2, 42);
-                    break;
+                  plugin.getPlayers().get(((Player) sender).getUniqueId()).setHealth();
+                  break;
 
                 case "t":
 //                    plugin.getPlayers().get(testPlay.getUniqueId()).getSkills();
@@ -94,4 +138,5 @@ public class ZMC implements CommandExecutor {
     }
 
     public void setSaveTime(){ this.saveTime = 20 * plugin.getConfig().getLong("save-timer"); }
+    public long getSaveTime() { return this.saveTime; }
 }

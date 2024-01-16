@@ -88,11 +88,13 @@ stamina:
     stamina-increase: 1.0
 
 strength:
-  health-incrase-per-level: 1.0
+  health-increase-per-level: 1.0
   mine-speed-multiplier: 1.0 #maybe
   jump-height-multiplier: 1.0 #maybe
   unarmed:
     max-crit-chance: 80.0
-    damage-increase: 0.01 #% increase per level
-    crit-chance-increase: 0.1 # number starting from 0.0. Equation is: final damage = damage + (original damage * (unarmed level * crit chance increase))
+    #% increase per level
+    damage-increase: 0.1
+    # number starting from 0.0. Equation is: final damage = damage + (original damage * (unarmed level * crit chance increase))
+    crit-chance-increase: 0.1
     crit-damage-mult: 2.0
