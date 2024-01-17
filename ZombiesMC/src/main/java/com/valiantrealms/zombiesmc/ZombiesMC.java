@@ -6,12 +6,8 @@ import com.valiantrealms.zombiesmc.util.BlockListener;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
 import com.valiantrealms.zombiesmc.util.PlayerHandler;
 import com.valiantrealms.zombiesmc.util.Vault;
-import com.valiantrealms.zombiesmc.util.skills.Unarmed;
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
+import com.valiantrealms.zombiesmc.util.skills.Strength;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -28,9 +24,11 @@ public final class ZombiesMC extends JavaPlugin {
     // Sub Commands
     private Reload reload;
     private PlayerLoader loader;
+    private PlayerHandler playerHandler;
+    private BlockListener blockListener;
 
     // Skills
-    private Unarmed unarmed;
+    private Strength strength;
 
     // Configs
     ConfigUtil skillSettings;
@@ -68,8 +66,6 @@ public final class ZombiesMC extends JavaPlugin {
         this.setSubCommands();
 
         // Enabling utils
-        new PlayerHandler(this);
-        new BlockListener(this);
         this.setSkills();
 
         // Saving breakable blocks
@@ -87,9 +83,6 @@ public final class ZombiesMC extends JavaPlugin {
      * Main Stuff
      */
     public ConcurrentHashMap<UUID, PlayerProfile> getPlayers() { return this.players; }
-    public void setPlayers(UUID id, PlayerProfile pm){
-
-    }
 
     public void savePlayerData(UUID id){
         if(!this.players.isEmpty()){
@@ -133,22 +126,25 @@ public final class ZombiesMC extends JavaPlugin {
     public ConfigUtil getSkillSettings() { return this.skillSettings; }
     public ConfigUtil getPlayerSettings() { return this.playerSettings; }
     public ConfigUtil getBlockValuesConfig() { return this.blockValuesConfig; }
-    /**
-     * Sub-Commands
-     */
 
+    /**
+     * Sub-Commands & Skills
+     */
     private void setSubCommands(){
         this.reload = new Reload(this);
         this.loader = new PlayerLoader(this);
+        this.playerHandler = new PlayerHandler(this);
+        this.blockListener = new BlockListener(this);
     }
 
     private void setSkills(){
-        this.unarmed = new Unarmed(this);
+        this.strength = new Strength(this);
     }
-
     public Reload getReload(){ return this.reload; }
-    public Unarmed getUnarmed(){ return this.unarmed; }
+    public Strength getStrength(){ return this.strength; }
     public PlayerLoader getLoader() { return this.loader; }
+    public PlayerHandler getPlayerHandler() { return this.playerHandler; }
+    public BlockListener getBlockListener() { return this.blockListener; }
 
     /**
      * ECONOMY STUFF

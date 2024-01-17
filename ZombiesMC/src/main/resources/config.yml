@@ -4,7 +4,10 @@
 #check-has-played: false
 
 enable-custom-perms: true
-save-timer: 600 #written in seconds, server must be restarted for this change to take effect
+
+#written in seconds, server must be restarted for this change to take effect
+save-timer: 600
+
 
 custom-perms:
   - example.perm

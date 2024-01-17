@@ -1,8 +1,6 @@
 package com.valiantrealms.zombiesmc.commands.ZmcSub;
 
 import com.valiantrealms.zombiesmc.ZombiesMC;
-import com.valiantrealms.zombiesmc.util.ConfigUtil;
-import com.valiantrealms.zombiesmc.util.skills.Unarmed;
 import org.bukkit.Bukkit;
 
 public class Reload {
@@ -34,7 +32,7 @@ public class Reload {
             Bukkit.getLogger().info("Saved player files...");
 
             // Setting config files again
-            plugin.getUnarmed().setConfig();
+            plugin.getStrength().setConfig();
         }catch(Exception e){
             Bukkit.getLogger().severe("Something went wrong trying to reload the configs," +
                     " please check the console.");

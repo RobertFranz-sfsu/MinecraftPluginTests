@@ -127,7 +127,6 @@ public class PlayerProfile {
     }
 
     public double[] getSkills(){ return this.skills; }
-    public void setSkill(int index, int val){ this.skills[index] = val; }
 
     public boolean isMainHandEmpty() { return isMainHandEmpty; }
 
@@ -145,4 +144,10 @@ public class PlayerProfile {
     }
 
     public double getHealth() { return this.health; }
+
+    public boolean setSkillCommand(String input, double level){
+        plugin.getPlayers().get(uid).getSkills()[plugin.getPlayerHandler().skillNumber(input)] = level;
+        plugin.getPlayers().get(uid).save(uid);
+        return true;
+    }
 }

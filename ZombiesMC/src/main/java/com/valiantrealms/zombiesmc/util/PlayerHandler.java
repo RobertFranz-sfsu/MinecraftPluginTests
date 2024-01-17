@@ -3,7 +3,6 @@ package com.valiantrealms.zombiesmc.util;
 import com.valiantrealms.zombiesmc.PlayerProfile;
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.skills.Strength;
-import com.valiantrealms.zombiesmc.util.skills.Unarmed;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
@@ -29,6 +28,43 @@ public class PlayerHandler implements Listener {
     public PlayerHandler(ZombiesMC plugin){
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
+    }
+
+    public int skillNumber(String input){
+        /**
+         * 0 lockpicking
+         * 1 farming
+         * 2 stamina (skill)
+         * 3 salvage
+         * 4 husbandry
+         * 5 strength
+         * 6 cooking
+         * 7 ranged
+         * 8 melee
+         */
+
+        switch(input.toLowerCase()){
+            case "lockpicking":
+                return 0;
+            case "farming":
+                return 1;
+            case "stamina":
+                return 2;
+            case "salvage":
+                return 3;
+            case "husbandry":
+                return 4;
+            case "strength":
+                return 5;
+            case "cooking":
+                return 6;
+            case "ranged":
+                return 7;
+            case "melee":
+                return 8;
+            default:
+                return -1;
+        }
     }
 
     @EventHandler
@@ -97,7 +133,6 @@ public class PlayerHandler implements Listener {
             }.runTaskLater(plugin, 40);
         }
 
-
 //        try{
 //            if(Objects.equals(player.getInventory().getItemInMainHand(), null) && !player.isOp()){
 //                plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(true);
@@ -133,11 +168,11 @@ public class PlayerHandler implements Listener {
             PlayerProfile profile = plugin.getPlayers().get(player.getUniqueId());
 
             if(profile.isMainHandEmpty()){
-                Unarmed unarmed = new Unarmed(plugin);
+                Strength strength = new Strength(plugin);
                 LivingEntity ent = (LivingEntity) event.getEntity();
                 Bukkit.getLogger().severe("DAMAGE BEFORE: " + event.getDamage());
                 Bukkit.getLogger().severe("HEALTH BEFORE: " + ent.getHealth());
-                event.setDamage(unarmed.unarmedDamage(player.getUniqueId(), event.getDamage()));
+                event.setDamage(strength.unarmedDamage(player.getUniqueId(), event.getDamage()));
                 Bukkit.getLogger().severe("DAMAGE AFTER: " + event.getDamage());
                 Bukkit.getLogger().severe("HEALTH AFTER: " + ent.getHealth());
 

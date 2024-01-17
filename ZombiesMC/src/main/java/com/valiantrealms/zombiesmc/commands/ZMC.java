@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings({"CallToPrintStackTrace"})
 public class ZMC implements CommandExecutor {
     private ZombiesMC plugin;
     private int id = 867530942;
@@ -99,6 +100,21 @@ public class ZMC implements CommandExecutor {
                         e.printStackTrace();
                         sender.sendMessage("Something went wrong. Please check the console.");
                         Bukkit.getLogger().severe("Something went wrong trying to update player from config.");
+                    }
+                    break;
+
+                case "setskill": case "ss":
+                    // 1 - username, 2 - skill, 3 - numbers
+                    if (args.length != 4) {
+                        sender.sendMessage("Correct usage: /zmc setskill [Username] [skill] [skill level]");
+                        break;
+                    }
+                    try{
+                        plugin.getPlayers().get(Bukkit.getPlayer(args[1]).getUniqueId()).setSkillCommand(args[2], Double.parseDouble(args[3]));
+                    }catch(Exception e){
+                        e.printStackTrace();
+                        sender.sendMessage("Something went wrong. Please check the console.");
+                        Bukkit.getLogger().severe("Something went wrong trying to update player skill.");
                     }
                     break;
 

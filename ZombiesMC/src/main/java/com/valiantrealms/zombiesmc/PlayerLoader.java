@@ -14,10 +14,6 @@ public class PlayerLoader {
         PlayerProfile profile = new PlayerProfile(plugin);
         profile.register(id);
 
-//        if(!Bukkit.getPlayer(id).isOp()){
-//            profile.setHealth();
-//        }
-//        profile.setHealth();
         /**
          * String UUID
          * int health
