@@ -95,6 +95,12 @@ public class PlayerHandler implements Listener {
                 con.getConfig().set("username", player.getName());
                 con.getConfig().set("health", con1.getConfig().getInt("starting-health"));
                 con.getConfig().set("stamina", con1.getConfig().getInt("starting-stamina"));
+
+                con.getConfig().set("melee-damage", 0.0);
+                con.getConfig().set("ranged-damage", 0.0);
+                con.getConfig().set("ranged-crit-chance", 0.0);
+                con.getConfig().set("melee-crit-chance", 0.0);
+
                 con.getConfig().set("skills.lockpicking", 0.0);
                 con.getConfig().set("skills.farming", 0.0);
                 con.getConfig().set("skills.stamina", 0.0);
@@ -106,16 +112,19 @@ public class PlayerHandler implements Listener {
                 con.getConfig().set("skills.melee", 0.0);
                 con.save();
 
+                plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
 
+                plugin.getPlayers().get(player.getUniqueId()).setMeleeDamage();
+                plugin.getPlayers().get(player.getUniqueId()).setMeleeCritChance();
+                plugin.getPlayers().get(player.getUniqueId()).setRangedDamage();
+                plugin.getPlayers().get(player.getUniqueId()).setRangedCritChance();
+                plugin.getPlayers().get(player.getUniqueId()).reload();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }else{
+            plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
         }
-
-        plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
-
-        plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(true);
-        plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(Objects.equals(player.getInventory().getItemInMainHand(), null));
 
         Bukkit.getLogger().severe("Registered player: " + player.getUniqueId());
     }
@@ -169,7 +178,7 @@ public class PlayerHandler implements Listener {
             if(event.getCause() != EntityDamageEvent.DamageCause.PROJECTILE){
                 event.setDamage(plugin.getStrength().meleeDamage(player.getUniqueId(), event.getDamage()));
             }else if(Objects.equals(event.getCause(), EntityDamageEvent.DamageCause.PROJECTILE)){
-                event.setDamage(plugin.getRanged());
+                event.setDamage(plugin.getRanged().rangedDamage(player.getUniqueId(), event.getDamage()));
             }
         }
     }

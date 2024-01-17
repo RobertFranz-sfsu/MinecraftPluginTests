@@ -33,6 +33,7 @@ public class Reload {
 
             // Setting config files again
             plugin.getStrength().setConfig();
+            plugin.getRanged().setConfig();
         }catch(Exception e){
             Bukkit.getLogger().severe("Something went wrong trying to reload the configs," +
                     " please check the console.");
