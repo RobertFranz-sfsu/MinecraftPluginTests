@@ -5,11 +5,11 @@ import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.skills.Strength;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerHandler implements Listener {
-    ZombiesMC plugin;
+    private final ZombiesMC plugin;
 
     public PlayerHandler(ZombiesMC plugin){
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -164,18 +164,12 @@ public class PlayerHandler implements Listener {
     public void damageHandler(EntityDamageByEntityEvent event){
         if(event.getDamager() instanceof Player){
             Player player = (Player) event.getDamager();
-
             PlayerProfile profile = plugin.getPlayers().get(player.getUniqueId());
 
-            if(profile.isMainHandEmpty()){
-                Strength strength = new Strength(plugin);
-                LivingEntity ent = (LivingEntity) event.getEntity();
-                Bukkit.getLogger().severe("DAMAGE BEFORE: " + event.getDamage());
-                Bukkit.getLogger().severe("HEALTH BEFORE: " + ent.getHealth());
-                event.setDamage(strength.unarmedDamage(player.getUniqueId(), event.getDamage()));
-                Bukkit.getLogger().severe("DAMAGE AFTER: " + event.getDamage());
-                Bukkit.getLogger().severe("HEALTH AFTER: " + ent.getHealth());
-
+            if(event.getCause() != EntityDamageEvent.DamageCause.PROJECTILE){
+                event.setDamage(plugin.getStrength().meleeDamage(player.getUniqueId(), event.getDamage()));
+            }else if(Objects.equals(event.getCause(), EntityDamageEvent.DamageCause.PROJECTILE)){
+                event.setDamage(plugin.getRanged());
             }
         }
     }

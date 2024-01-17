@@ -9,13 +9,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerProfile {
-    ZombiesMC plugin;
+    private final ZombiesMC plugin;
     private UUID uid;
     private double health;
     private double stamina;
     private boolean isMainHandEmpty;
     private ConfigUtil config;
-
     double[] skills = new double[9];
     /**
      * 0 lockpicking
@@ -47,8 +46,6 @@ public class PlayerProfile {
         skills[6] = con.getConfig().getDouble("skills.cooking");
         skills[7] = con.getConfig().getDouble("skills.ranged");
         skills[8] = con.getConfig().getDouble("skills.melee");
-
-//        this.setHealth();
     }
 
     public void save(UUID id){
@@ -126,16 +123,6 @@ public class PlayerProfile {
         plugin.getPlayers().remove(id);
     }
 
-    public double[] getSkills(){ return this.skills; }
-
-    public boolean isMainHandEmpty() { return isMainHandEmpty; }
-
-    public void setMainHandEmpty(boolean isEmpty){
-        this.isMainHandEmpty = isEmpty;
-    }
-
-    public ConfigUtil getConfig(){ return this.config; }
-
     public void setHealth(){
         this.health = (BigDecimal.valueOf(plugin.getPlayers().get(uid).getSkills()[5]).multiply(BigDecimal.valueOf(plugin.getSkillSettings().getConfig().getDouble("strength.health-increase-per-level")))).add(BigDecimal.valueOf(plugin.getPlayerSettings().getConfig().getDouble("starting-health"))).doubleValue();
 
@@ -143,11 +130,25 @@ public class PlayerProfile {
         Bukkit.getPlayer(uid).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
     }
 
-    public double getHealth() { return this.health; }
-
     public boolean setSkillCommand(String input, double level){
         plugin.getPlayers().get(uid).getSkills()[plugin.getPlayerHandler().skillNumber(input)] = level;
         plugin.getPlayers().get(uid).save(uid);
         return true;
     }
+
+    public void setMainHandEmpty(boolean isEmpty){
+        this.isMainHandEmpty = isEmpty;
+    }
+
+
+    /**
+     * Getters
+     */
+    public double[] getSkills(){ return this.skills; }
+
+    public boolean isMainHandEmpty() { return isMainHandEmpty; }
+
+    public ConfigUtil getConfig(){ return this.config; }
+
+    public double getHealth() { return this.health; }
 }

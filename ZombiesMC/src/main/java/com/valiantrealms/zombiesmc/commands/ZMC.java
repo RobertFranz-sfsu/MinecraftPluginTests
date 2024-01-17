@@ -4,6 +4,7 @@ import com.valiantrealms.zombiesmc.PlayerProfile;
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings({"CallToPrintStackTrace"})
 public class ZMC implements CommandExecutor {
-    private ZombiesMC plugin;
+    private final ZombiesMC plugin;
     private int id = 867530942;
 
     Long saveTime;
@@ -109,8 +110,14 @@ public class ZMC implements CommandExecutor {
                         sender.sendMessage("Correct usage: /zmc setskill [Username] [skill] [skill level]");
                         break;
                     }
+
                     try{
-                        plugin.getPlayers().get(Bukkit.getPlayer(args[1]).getUniqueId()).setSkillCommand(args[2], Double.parseDouble(args[3]));
+                        boolean setSkill = plugin.getPlayers().get(Bukkit.getPlayer(args[1]).getUniqueId()).setSkillCommand(args[2], Double.parseDouble(args[3]));
+                        if(setSkill){
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully updated &b" + args[1] + "'s &c" + args[2] + " &flevel to &c" + args[3] + "&f."));
+                        }else{
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cCouldn't update player skill. Check the input arguments and try again."));
+                        }
                     }catch(Exception e){
                         e.printStackTrace();
                         sender.sendMessage("Something went wrong. Please check the console.");

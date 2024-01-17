@@ -6,7 +6,6 @@ com\valiantrealms\zombiesmc\commands\ZmcSub\Reload.class
 com\valiantrealms\zombiesmc\util\ConfigUtil.class
 com\valiantrealms\zombiesmc\util\BlockListener.class
 com\valiantrealms\zombiesmc\util\PlayerHandler.class
-com\valiantrealms\zombiesmc\util\skills\Unarmed.class
 com\valiantrealms\zombiesmc\util\PlayerHandler$1.class
 com\valiantrealms\zombiesmc\PlayerLoader.class
 com\valiantrealms\zombiesmc\PlayerProfile.class

@@ -3,9 +3,11 @@ block health values (configurable with blockvalues.yml)
     use -1 to make block unbreakable
 locking containers (similar to lwc)
 different zombie types
-zombies only break blocks when trying to get to the player
-    maybe make it so the blocks must be player placed as well?
+
 zombie behavior
+    zombies only break blocks when trying to get to the player
+        maybe make it so the blocks must be player placed as well?
+
 stamina
     maybe use xp bar as a stamina bar?
 zombie hordes (configurable timers)
@@ -64,7 +66,7 @@ skills (each should have a config file)
         (MAYBE) mine speed
         (MAYBE) jump height
     cooking
-        health regen amount
+        hunger regen amount
         % saturation increase
         % hunger given back
     gunsmith/ranged
@@ -72,9 +74,6 @@ skills (each should have a config file)
         % chance of crit
         crit damage multiplier
         (MAYBE) reload speed?
-    melee
-        % increase of damage
-        % chance of crit
     luck (MAYBE)
         % chance for better loot (maybe per tier?)
     crafting (MAYBE NOT THIS)
@@ -90,12 +89,12 @@ plugin integrations: (OR create a claiming function)
     towny(?)
     factions(?)
     kingdoms(?)
+    citizens
 
 Possible:
     custom items:
         turrets
         vehicles
-    integration with citizens (look into builder for citizens)
     quests
     custom spawners
     custom texture pack

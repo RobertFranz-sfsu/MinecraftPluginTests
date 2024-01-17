@@ -7,7 +7,7 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import java.util.UUID;
 
 public class PlayerLoader {
-    ZombiesMC plugin;
+    private final ZombiesMC plugin;
     public PlayerLoader(ZombiesMC plugin){ this.plugin = plugin; }
 
     public PlayerProfile loadPlayer(UUID id){

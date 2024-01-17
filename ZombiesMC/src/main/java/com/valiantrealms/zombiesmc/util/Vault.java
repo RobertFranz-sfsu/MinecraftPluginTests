@@ -7,7 +7,7 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class Vault {
-    private ZombiesMC plugin;
+    private final ZombiesMC plugin;
     private static Economy econ = null;
     private static Permission perms = null;
     private static Chat chat = null;

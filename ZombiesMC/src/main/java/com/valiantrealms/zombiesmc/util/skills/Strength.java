@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.UUID;
 
 public class Strength implements Listener {
-    private ZombiesMC plugin;
+    private final ZombiesMC plugin;
     private ConfigUtil con;
     private Random rand = new Random();
 
@@ -22,12 +22,12 @@ public class Strength implements Listener {
         plugin.getPlayers().get(id).setHealth();
     }
 
-    public double unarmedDamage(UUID id, double originalDamage){
-        double unarmed = (plugin.getPlayers().get(id).getSkills()[5]) * con.getConfig().getDouble("strength.unarmed.damage-increase");
-        double critChance = unarmed * con.getConfig().getDouble("strength.unarmed.crit-chance-increase");
+    public double meleeDamage(UUID id, double originalDamage){
+        double unarmed = (plugin.getPlayers().get(id).getSkills()[5]) * con.getConfig().getDouble("strength.damage-increase");
+        double critChance = unarmed * con.getConfig().getDouble("strength.crit-chance-increase");
 
-        if(critChance > con.getConfig().getDouble("strength.unarmed.max-crit-chance")){
-            critChance = con.getConfig().getDouble("strength.unarmed.max-crit-chance");
+        if(critChance > con.getConfig().getDouble("strength.max-crit-chance")){
+            critChance = con.getConfig().getDouble("strength.max-crit-chance");
         }
 
         double damage = originalDamage + (unarmed * originalDamage);
@@ -35,7 +35,7 @@ public class Strength implements Listener {
         double num = (Math.floor(rand.nextDouble() * 1000))/10;
 
         boolean isCrit = (num <= critChance);
-        if(isCrit){ damage = damage * con.getConfig().getDouble("strength.unarmed.crit-damage-mult"); }
+        if(isCrit){ damage = damage * con.getConfig().getDouble("strength.crit-damage-mult"); }
 
         return damage;
     }

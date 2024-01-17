@@ -6,6 +6,7 @@ import com.valiantrealms.zombiesmc.util.BlockListener;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
 import com.valiantrealms.zombiesmc.util.PlayerHandler;
 import com.valiantrealms.zombiesmc.util.Vault;
+import com.valiantrealms.zombiesmc.util.skills.Ranged;
 import com.valiantrealms.zombiesmc.util.skills.Strength;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,6 +30,7 @@ public final class ZombiesMC extends JavaPlugin {
 
     // Skills
     private Strength strength;
+    private Ranged ranged;
 
     // Configs
     ConfigUtil skillSettings;
@@ -139,12 +141,15 @@ public final class ZombiesMC extends JavaPlugin {
 
     private void setSkills(){
         this.strength = new Strength(this);
+        this.ranged = new Ranged(this);
     }
+
     public Reload getReload(){ return this.reload; }
     public Strength getStrength(){ return this.strength; }
     public PlayerLoader getLoader() { return this.loader; }
     public PlayerHandler getPlayerHandler() { return this.playerHandler; }
     public BlockListener getBlockListener() { return this.blockListener; }
+    public Ranged getRanged() { return this.ranged; }
 
     /**
      * ECONOMY STUFF

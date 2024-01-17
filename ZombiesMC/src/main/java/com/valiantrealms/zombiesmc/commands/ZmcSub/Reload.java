@@ -4,7 +4,7 @@ import com.valiantrealms.zombiesmc.ZombiesMC;
 import org.bukkit.Bukkit;
 
 public class Reload {
-    private ZombiesMC plugin;
+    private final ZombiesMC plugin;
     public Reload(ZombiesMC plugin){
         this.plugin = plugin;
     }
