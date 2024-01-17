@@ -161,13 +161,6 @@ public class PlayerHandler implements Listener {
         plugin.getPlayers().get(id).unregister(id);
     }
 
-    @EventHandler
-    public void isHandEmpty(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-        player.getInventory().getItem(event.getNewSlot());
-
-        plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(Objects.equals(player.getInventory().getItem(event.getNewSlot()), null) && !plugin.getPlayers().get(player.getUniqueId()).isMainHandEmpty());
-    }
 
     @EventHandler
     public void damageHandler(EntityDamageByEntityEvent event){

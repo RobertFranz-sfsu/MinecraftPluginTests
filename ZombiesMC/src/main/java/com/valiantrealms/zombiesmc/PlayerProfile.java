@@ -17,7 +17,6 @@ public class PlayerProfile {
     private double meleeDamage;
     private double rangedCritChance;
     private double meleeCritChance;
-    private boolean isMainHandEmpty;
     ConfigUtil playerCon;
     double[] skills = new double[9];
     /**
@@ -182,9 +181,6 @@ public class PlayerProfile {
         return true;
     }
 
-    public void setMainHandEmpty(boolean isEmpty){
-        this.isMainHandEmpty = isEmpty;
-    }
     public void setRangedDamage(){
         this.rangedDamage = (plugin.getPlayers().get(uid).getSkills()[7]) * plugin.getSkillSettings().getConfig().getDouble("ranged.damage-increase");
         playerCon.getConfig().set("ranged-damage", this.rangedDamage);
@@ -232,7 +228,6 @@ public class PlayerProfile {
      * Getters
      */
     public double[] getSkills(){ return this.skills; }
-    public boolean isMainHandEmpty() { return isMainHandEmpty; }
     public ConfigUtil getPlayerConfig(){ return this.playerCon; }
     public double getHealth() { return this.health; }
     public double getRangedDamage() { return this.rangedDamage; }
