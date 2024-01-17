@@ -24,6 +24,7 @@ package mctest.minecraft_test.roles;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.util.ConfigUtil;
 import mctest.minecraft_test.util.CountdownTimer;
+import mctest.minecraft_test.util.Scoreboards;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
@@ -87,6 +88,7 @@ public class SurvivalPlayer implements Listener {
     private Integer gameID;
     private boolean createNew = true;
     private int endTime;
+    public Scoreboards scoreboard = new Scoreboards(plugin, this);
     public Integer getGameID() {
         return this.gameID;
     }
@@ -168,13 +170,18 @@ public class SurvivalPlayer implements Listener {
                     }
                 }
 
-                statusMap.forEach((key, value) -> this.waitBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
+                statusMap.forEach((key, value) -> scoreboard.waitBoard(Objects.requireNonNull(Bukkit.getPlayer(key))));
                 // if max amount of players have joined or if the timer has hit 0, start the game
                 if (statusMap.size() == this.getMaxPl() || this.getTimer() == 0) {
-                    Bukkit.getLogger().info("Game Starting");
-                    statusMap.forEach((key, value) -> Objects.requireNonNull(Bukkit.getPlayer(key)).sendMessage("Game starting"));
-                    gameInit();
-                    this.setTimer(Integer.MIN_VALUE);
+                    if (this.getInfSpawn() ==  null || this.getSurSpawn() == null || this.getDefaultSpawn(currentWorld) == null) {
+                        Bukkit.getLogger().info("Spawns are not set up");
+                        this.setTimer(Integer.MIN_VALUE);
+                    } else {
+                        Bukkit.getLogger().info("Game Starting");
+                        statusMap.forEach((key, value) -> Objects.requireNonNull(Bukkit.getPlayer(key)).sendMessage("Game starting"));
+                        this.gameInit();
+                        this.setTimer(Integer.MIN_VALUE);
+                    }
                 }
             }
 
@@ -187,7 +194,7 @@ public class SurvivalPlayer implements Listener {
                 this.setSurvivorCnt();
                 statusMap.forEach((key, value) -> {
                     if (Objects.equals(healthMap.get(key), "alive")) {
-                        this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key)));
+                        scoreboard.setBoard(Objects.requireNonNull(Bukkit.getPlayer(key)));
                     }
 
                 });
@@ -316,7 +323,7 @@ public class SurvivalPlayer implements Listener {
                 entry.setValue((pList.contains(iter++)) ? "infected" : "survivor");
                 this.saveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-                this.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                scoreboard.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 this.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
                 if(entry.getValue().equalsIgnoreCase("infected")){
@@ -470,7 +477,7 @@ public class SurvivalPlayer implements Listener {
         player.setFoodLevel(20);
         this.setAttributes(player, .2f, 20, 20);
 
-        this.removeBoard(player);
+        scoreboard.removeBoard(player);
         statusMap.remove(player.getUniqueId());
         healthMap.remove(player.getUniqueId());
 
@@ -490,7 +497,6 @@ public class SurvivalPlayer implements Listener {
 
         removeEffects(player);
         player.sendMessage("No longer playing");
-        //TODO Store players' items and give them back
     }
 
     public void setUnassigned(Player player) {
@@ -821,7 +827,7 @@ public class SurvivalPlayer implements Listener {
                                     // What happens during each tick
                                     (t) -> {
                                         if (this.getPlaying()) {
-                                            this.respawnBoard(player, t.getSecondsLeft());
+                                            scoreboard.respawnBoard(player, t.getSecondsLeft());
                                         }
                                     }).scheduleTimer();
                         }
@@ -876,7 +882,7 @@ public class SurvivalPlayer implements Listener {
                             // What happens during each tick
                             (t) -> {
                                 if (this.getPlaying()) {
-                                    this.respawnBoard(player, t.getSecondsLeft());
+                                    scoreboard.respawnBoard(player, t.getSecondsLeft());
                                 }
                             }).scheduleTimer();
                 }
@@ -951,7 +957,7 @@ public class SurvivalPlayer implements Listener {
     private void setMinPl(){
         this.minPl = plugin.getConfig().getInt("min-players");
     }
-    private int getMinPl(){
+    public int getMinPl(){
 //        this.setMinPl();
         return this.minPl;
     }
@@ -1203,164 +1209,7 @@ public class SurvivalPlayer implements Listener {
         return this.currentWorld;
     }
 
-    /**
-     * Scoreboards
-     * setBoard is the in-game scoreboard.
-     * waitBoard is the scoreboard for while in game lobby.
-     * removeBoard removes the current scoreboard.
-     */
-//    ScoreboardManager manager = Bukkit.getScoreboardManager();
-//    Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
 
-    private void setBoard(Player player) {
-        if (!statusMap.containsKey(player.getUniqueId())) {
-            return;
-        }
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
-
-        Objective objective;
-        if(plugin.getIs18()){
-            objective = scoreboard.registerNewObjective("Game Status", "dummy");
-            objective.setDisplayName(ChatColor.GOLD + "Survival Status");
-        }else{
-            objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Survival Status");
-        }
-
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-        Score newLine1 = objective.getScore("");
-        newLine1.setScore(6);
-
-        String minutes = String.valueOf(this.getTimer() / 60);
-        String seconds = ((this.getTimer()%60 < 10) ? "0" : "") + this.getTimer()%60 ;
-        Score timer = objective.getScore("Time left in game: " + minutes + ":" + seconds);
-        timer.setScore(4);
-        Score newLine2 = objective.getScore("");
-        newLine2.setScore(3);
-
-        Score survivorScore = objective.getScore(ChatColor.GREEN + "Survivors: " + this.getSurvivorCnt());
-        survivorScore.setScore(2);
-        Score infectedScore = objective.getScore(ChatColor.RED + "Infected:   " + this.getInfectedCnt());
-        infectedScore.setScore(1);
-
-        player.setScoreboard(scoreboard);
-    }
-
-    private  void respawnBoard(Player player, int sec) {
-        if (!statusMap.containsKey(player.getUniqueId())) {
-            return;
-        }
-
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
-
-        Objective objective;
-        if(plugin.getIs18()){
-            objective = scoreboard.registerNewObjective("Game Status", "dummy");
-            objective.setDisplayName(ChatColor.GOLD + "Survival Status");
-        }else{
-            objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Survival Status");
-        }
-
-//        Bukkit.getLogger().severe("2 INFECTED: " + infected.getPlayers());
-//        Bukkit.getLogger().severe("2 SURVIVORS: " + survivors.getPlayers());
-
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-        Score newLine1 = objective.getScore("");
-        newLine1.setScore(6);
-
-        String ellipsis = ".";
-        ellipsis =  new String(new char[3-(this.getTimer() % 4)]).replace("\0", ellipsis);
-        Score wait = objective.getScore("Respawning in: " + sec + ellipsis);
-        wait.setScore(5);
-
-        String minutes = String.valueOf(this.getTimer() / 60);
-        String seconds = ((this.getTimer()%60 < 10) ? "0" : "") + this.getTimer()%60 ;
-        Score timer = objective.getScore("Time left in game: " + minutes + ":" + seconds);
-        timer.setScore(4);
-        Score newLine2 = objective.getScore("");
-        newLine2.setScore(3);
-
-        Score survivorScore = objective.getScore(ChatColor.GREEN + "Survivors: " + this.getSurvivorCnt());
-        survivorScore.setScore(2);
-        Score infectedScore = objective.getScore(ChatColor.RED + "Infected:   " + this.getInfectedCnt());
-        infectedScore.setScore(1);
-
-        player.setScoreboard(scoreboard);
-    }
-    private void waitBoard(Player player) {
-        if (!statusMap.containsKey(player.getUniqueId())) {
-            return;
-        }
-        ScoreboardManager manager1 = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = Objects.requireNonNull(manager1).getNewScoreboard();
-
-        Objective objective;
-        if(plugin.getIs18()){
-            objective = scoreboard.registerNewObjective("Game Status", "dummy");
-            objective.setDisplayName(ChatColor.GOLD + "Waiting on players");
-        }else{
-            objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Waiting on players");
-        }
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-        Score newLine1 = objective.getScore("");
-        newLine1.setScore(5);
-        if (statusMap.size() >= getMinPl()) {
-            String minutes = String.valueOf(this.getTimer() / 60);
-            String seconds = ((this.getTimer()%60 < 10) ? "0" : "") + this.getTimer()%60 ;
-            Score timer = objective.getScore("Time left: " + minutes + ":" + seconds);
-            timer.setScore(4);
-        } else {
-            Score waiting = objective.getScore("Waiting for at least " + (this.getMinPl() - statusMap.size()) + " more player(s).");
-            waiting.setScore(4);
-        }
-        Score amount = objective.getScore("Players: " + statusMap.size() + " / " + this.getMaxPl());
-        amount.setScore(3);
-        Score min = objective.getScore("Minimum required to start: " + this.getMinPl());
-        min.setScore(2);
-
-        player.setScoreboard(scoreboard);
-    }
-
-    private void countdownBoard(Player player, int sec) {
-        if (!statusMap.containsKey(player.getUniqueId())) {
-            return;
-        }
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = manager.getNewScoreboard();
-
-        Objective objective = scoreboard.registerNewObjective("Countdown", "dummy");
-        String dName = (Objects.equals(this.getStatusMap().get(player.getUniqueId()), "survivor")) ? (ChatColor.GREEN + "Survivor") : (ChatColor.RED + "Infected");
-        objective.setDisplayName(dName);
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-        Score newLine1 = objective.getScore("");
-        newLine1.setScore(6);
-
-        Score timer  = objective.getScore("Starting in: " + sec);
-        timer.setScore(5);
-
-        String tip = (Objects.equals(this.getStatusMap().get(player.getUniqueId()), "survivor")) ? "Prepare to survive!" : "Prepare to hunt!";
-        Score tips = objective.getScore(tip);
-        tips.setScore(4);
-
-        player.setScoreboard(scoreboard);
-    }
-    
-    private void removeBoard(Player player) {
-        if (!statusMap.containsKey(player.getUniqueId())) {
-            return;
-        }
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
-//        infected.unregister();
-//        survivors.unregister();
-        player.setScoreboard(scoreboard);
-
-    }
 
     private void setEndTime(){
         this.endTime = plugin.getConfig().getInt("end-time");
