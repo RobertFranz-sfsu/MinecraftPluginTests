@@ -33,7 +33,7 @@ public class PlayerProfile {
 
     public PlayerProfile(ZombiesMC plugin){ this.plugin = plugin; }
 
-    public void register(UUID id){ // Loads player
+    public void register(UUID id){ // Loads player from saved file
         this.setPlayerCon();
 
         this.uid = id;
@@ -54,16 +54,9 @@ public class PlayerProfile {
         skills[6] = playerCon.getConfig().getDouble("skills.cooking");
         skills[7] = playerCon.getConfig().getDouble("skills.ranged");
         skills[8] = playerCon.getConfig().getDouble("skills.melee");
-
-        this.setHealth();
-
-        this.setRangedDamage();
-        this.setRangedCritChance();
-        this.setMeleeDamage();
-        this.setMeleeCritChance();
     }
 
-    public void save(UUID id){ // Saves current stats to config
+    public void save(UUID id){ // Saves current stats to config then sets config to updated version
         playerCon.getConfig().set("health", this.health);
         playerCon.getConfig().set("stamina", this.stamina);
 
@@ -86,7 +79,7 @@ public class PlayerProfile {
         this.setPlayerCon();
     }
 
-    public void reload(){ // Writes current stats to the config then reloads
+    public void reload(){ // Writes current in-game stats to the config then reloads
         playerCon.getConfig().set("health", this.health);
         playerCon.getConfig().set("stamina", this.stamina);
 
@@ -132,6 +125,33 @@ public class PlayerProfile {
         this.setMeleeCritChance();
 
         this.setPlayerCon();
+    }
+
+    public void reloadNoSave(){
+        this.health = playerCon.getConfig().getDouble("health");
+        this.stamina =playerCon.getConfig().getDouble("stamina");
+
+        this.rangedDamage = playerCon.getConfig().getDouble("ranged-damage");
+        this.meleeDamage = playerCon.getConfig().getDouble("melee-damage");
+        this.rangedCritChance = playerCon.getConfig().getDouble("ranged-crit-chance");
+        this.meleeCritChance = playerCon.getConfig().getDouble("melee-crit-chance");
+
+        skills[0] = playerCon.getConfig().getDouble("skills.lockpicking");
+        skills[1] = playerCon.getConfig().getDouble("skills.farming");
+        skills[2] = playerCon.getConfig().getDouble("skills.stamina");
+        skills[3] = playerCon.getConfig().getDouble("skills.salvage");
+        skills[4] = playerCon.getConfig().getDouble("skills.husbandry");
+        skills[5] = playerCon.getConfig().getDouble("skills.strength");
+        skills[6] = playerCon.getConfig().getDouble("skills.cooking");
+        skills[7] = playerCon.getConfig().getDouble("skills.ranged");
+        skills[8] = playerCon.getConfig().getDouble("skills.melee");
+
+        this.setHealth();
+
+        this.setRangedDamage();
+        this.setRangedCritChance();
+        this.setMeleeDamage();
+        this.setMeleeCritChance();
     }
 
     public void setSkillsFromConfig(){ // Updates to new player config then updates player server stats

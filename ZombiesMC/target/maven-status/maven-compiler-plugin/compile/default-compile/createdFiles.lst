@@ -9,3 +9,4 @@ com\valiantrealms\zombiesmc\util\PlayerHandler.class
 com\valiantrealms\zombiesmc\util\PlayerHandler$1.class
 com\valiantrealms\zombiesmc\PlayerLoader.class
 com\valiantrealms\zombiesmc\PlayerProfile.class
+com\valiantrealms\zombiesmc\util\skills\Ranged.class

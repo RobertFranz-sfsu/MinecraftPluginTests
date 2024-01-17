@@ -69,8 +69,6 @@ public class PlayerHandler implements Listener {
 
     @EventHandler
     public void OnPlayerLogin(PlayerLoginEvent event){
-        ConfigUtil check = new ConfigUtil(plugin, "config.yml");
-
         Player player = event.getPlayer();
         String path = System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + player.getUniqueId() + ".yml";
         File dir = new File(plugin.getDataFolder().getPath() + System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator"));
@@ -131,27 +129,16 @@ public class PlayerHandler implements Listener {
 
     @EventHandler
     public void OnPlayerJoin(PlayerJoinEvent event){
-        Player player = event.getPlayer();
+        new BukkitRunnable(){
+            @Override
+            public void run(){
+            Player player = event.getPlayer();
 
-        if(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() != plugin.getPlayers().get(player.getUniqueId()).getHealth()){
-            new BukkitRunnable(){
-                @Override
-                public void run(){
-                    plugin.getPlayers().get(player.getUniqueId()).setHealth();
-                }
-            }.runTaskLater(plugin, 40);
-        }
-
-//        try{
-//            if(Objects.equals(player.getInventory().getItemInMainHand(), null) && !player.isOp()){
-//                plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(true);
-//            }
-//        }catch(Exception e){
-//            e.printStackTrace();
-//        }
-
-        // Check if main hand is empty on login
-//        plugin.getPlayers().get(player.getUniqueId()).setMainHandEmpty(Objects.equals(player.getInventory().getItemInMainHand(), null));
+            if(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() != plugin.getPlayers().get(player.getUniqueId()).getHealth()){
+                plugin.getPlayers().get(player.getUniqueId()).setHealth();
+            }
+            }
+        }.runTaskLater(plugin, 40);
     }
 
     @EventHandler

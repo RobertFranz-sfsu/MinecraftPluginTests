@@ -47,16 +47,14 @@ lockpicking:
     chance-increase: 5.0
     break-pick-chance: 1.0
 
-melee:
-  damage-increase: 1.0
-  crit-chance: 1.0
-  crit-damage-multiplier: 1.0
-
 ranged:
-  damage-multiplier: 1.0
-  crit-chance: 1.0
+  damage-increase: 0.5
   crit-damage-multiplier: 1.0
+  max-crit-chance: 80.0
+  crit-chance-increase: 0.1
+  crit-damage-mult: 2.0
   reload-speed: 1.0 #maybe
+  increase-per-level: 1.0
 
 salvage:
   base:
@@ -91,10 +89,10 @@ strength:
   health-increase-per-level: 1.0
   mine-speed-multiplier: 1.0 #maybe
   jump-height-multiplier: 1.0 #maybe
-  unarmed:
-    max-crit-chance: 80.0
-    #% increase per level
-    damage-increase: 0.1
-    # number starting from 0.0. Equation is: final damage = damage + (original damage * (unarmed level * crit chance increase))
-    crit-chance-increase: 0.1
-    crit-damage-mult: 2.0
+  max-crit-chance: 80.0
+  #% increase per level
+  damage-increase: 0.1
+  # number starting from 0.0. Equation is: final damage = damage + (original damage * (unarmed level * crit chance increase))
+  crit-chance-increase: 0.1
+  crit-damage-multiplier: 2.0
+  increase-per-level: 1.0
