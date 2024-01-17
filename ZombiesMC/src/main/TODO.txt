@@ -1,0 +1,110 @@
+block health values (configurable with blockvalues.yml)
+    maybe use custom anvils or something similar?
+    use -1 to make block unbreakable
+locking containers (similar to lwc)
+different zombie types
+
+zombie behavior
+    zombies only break blocks when trying to get to the player
+        maybe make it so the blocks must be player placed as well?
+
+stamina
+    maybe use xp bar as a stamina bar?
+zombie hordes (configurable timers)
+loot tables
+customize xp gain/player damage through config file
+Hashmap of breakable blocks (key: block, value: durability)
+repairing blocks (configure what materials are needed to repair a block)
+parties
+integrate items adder for custom status bars/HUD things (ie stamina)
+
+config.yml:
+    enable/disable mobs breaking blocks
+    enable/disable blocks dropping
+    enable/disable hordes
+        change horde timer
+    enable/disable custom xp gain/skill gain
+
+default player stats:
+    health - strength skill
+    stamina - stamina skill
+    skills
+    levels - configurable multiplier
+    xp gain rate - configurable multipliers for each skill
+    skill point gain configuration
+
+individual yml files for players:
+    health
+    stamina
+    skill levels & xp progress (save as double)
+    any custom perm
+
+skills (each should have a config file)
+    lock picking
+        % chances of success for different levels
+        configurable levels
+    farming
+        % chances of doubles
+        % chances of auto using bone meal
+    sneaking
+        detection radius
+        % chance of detection by mobs/npcs
+    stamina
+        multiplier for amount of stamina
+    salvage
+        % of resources to get back
+    husbandry
+        % chance of increased drops when harvesting
+        % chance of increased drops when killing farm animals
+        % chance of multiple babies when breeding
+        % chance of breeding spawning an adult
+    strength
+        multiplier for health
+        strength damage
+            % increase of damage (increase by .01% every level)
+            % chance of crit (increase by .1% every level, max at 80%)
+        (MAYBE) mine speed
+        (MAYBE) jump height
+    cooking
+        hunger regen amount
+        % saturation increase
+        % hunger given back
+    gunsmith/ranged
+        % increase of damage
+        % chance of crit
+        crit damage multiplier
+        (MAYBE) reload speed?
+    luck (MAYBE)
+        % chance for better loot (maybe per tier?)
+    crafting (MAYBE NOT THIS)
+    fishing(?)
+
+plugin integrations: (OR create a claiming function)
+    vault
+    world guard
+    permission managers
+    advanced weaponry (may not need specific integration)
+    mythic mobs
+    custom spawner plugins
+    towny(?)
+    factions(?)
+    kingdoms(?)
+    citizens
+
+Possible:
+    custom items:
+        turrets
+        vehicles
+    quests
+    custom spawners
+    custom texture pack
+    thirst
+    wounds
+    bandages
+    infection
+    sickness
+    illness
+    temperature
+    pets
+    mounts
+    special moves

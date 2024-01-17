@@ -1,6 +1,7 @@
 package mctest.minecraft_test;
 
 import mctest.minecraft_test.commands.*;
+import mctest.minecraft_test.commands.InfectedSubCommands.*;
 import mctest.minecraft_test.handlers.PlayerHandler;
 import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.util.ConfigUtil;
@@ -15,10 +16,7 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class Minecraft_Test extends JavaPlugin {
@@ -48,6 +46,16 @@ public final class Minecraft_Test extends JavaPlugin {
     private boolean survivorKills;
     private boolean infectedKills;
     private boolean gamesPlayed;
+
+    //Sub Commands
+    Start start;
+    End end;
+    ListLobbies listLobbies;
+    ListWorlds listWorlds;
+    GamesListCommand glc;
+    GamesList g;
+    GetCustomHead head;
+    Infected infected;
 
     @Override
     public void onEnable() {
@@ -81,17 +89,46 @@ public final class Minecraft_Test extends JavaPlugin {
 
         this.setLoadoutPrices();
 
-        GamesList g = new GamesList(this);
+        this.g = new GamesList(this);
+
+        //Sub Commands
+        this.start = new Start(this, g);
+        this.end = new End(this, g);
+        this.listLobbies = new ListLobbies(this);
+        this.listWorlds = new ListWorlds(this);
+        this.head = new GetCustomHead(this);
+        this.glc = new GamesListCommand(this, g);
+        this.infected = new Infected(this, g);
 
         Objects.requireNonNull(getCommand("menu")).setExecutor(new Menu(this, g));
         Objects.requireNonNull(getCommand("spawn")).setExecutor(new Spawn(g));
         Objects.requireNonNull(getCommand("loadout")).setExecutor(new Loadout(this));
-        Objects.requireNonNull(getCommand("reload")).setExecutor(new Reload(g));
-        Objects.requireNonNull(getCommand("infected")).setExecutor(new Infected(this, g));
+        Objects.requireNonNull(getCommand("reload")).setExecutor(new Reload(this, g));
+        Objects.requireNonNull(getCommand("infected")).setExecutor(infected);
 
         new PlayerHandler(this);
         new DelayedTask(this);
     }
+
+    /**
+     * MOVE LATER
+     */
+    public void reloadSubCommands(){
+        this.start = new Start(this, g);
+        this.end = new End(this, g);
+        this.listLobbies = new ListLobbies(this);
+        this.listWorlds = new ListWorlds(this);
+        this.head = new GetCustomHead(this);
+        this.glc = new GamesListCommand(this, g);
+    }
+    public Start getStart() { return this.start; }
+    public End getEnd() { return this.end; }
+    public ListLobbies getListLobbies() { return this.listLobbies; }
+    public ListWorlds getListWorlds() { return this.listWorlds; }
+    public GamesListCommand getGamesListCommand() { return this.glc; }
+    public GetCustomHead getCustomHead() { return this.head; }
+    public Infected getInfected() { return this.infected; }
+
 
     @Override
     public void onDisable() {

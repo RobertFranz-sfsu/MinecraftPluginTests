@@ -13,45 +13,43 @@ import org.bukkit.entity.Player;
 public class Reload implements CommandExecutor {
 
     private GamesList g;
-    private Minecraft_Test plugin = Minecraft_Test.getPlugin(Minecraft_Test.class);
+    private Minecraft_Test plugin;
 
-    public Reload(GamesList g){
+    public Reload(Minecraft_Test plugin, GamesList g){
+        this.plugin = plugin;
         this.g = g;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try{
-            Bukkit.getLogger().info("Reloading config.yml...");
             plugin.reloadConfig();
             Bukkit.getLogger().info("Reloaded config.yml.");
 
-            Bukkit.getLogger().info("Saving Infected.yml...");
             ConfigUtil c1 = new ConfigUtil(plugin, "Infected.yml");
             c1.save();
             Bukkit.getLogger().info("Saved Infected.yml.");
 
-            Bukkit.getLogger().info("Saving Survivor.yml...");
             ConfigUtil c2 = new ConfigUtil(plugin, "Survivor.yml");
             c2.save();
             Bukkit.getLogger().info("Saved Survivor.yml.");
 
-            Bukkit.getLogger().info("Saving Loadouts.yml...");
             ConfigUtil c3 = new ConfigUtil(plugin, "Loadouts.yml");
             c3.save();
             Bukkit.getLogger().info("Saved Loadouts.yml.");
 
-            Bukkit.getLogger().info("Reloading Loadouts.yml...");
             plugin.setLoadoutCon();
             Bukkit.getLogger().info("Reloaded Loadouts.yml.");
 
-            Bukkit.getLogger().info("Checking main config settings...");
+            plugin.reloadSubCommands();
+            plugin.getInfected().setSubCommands();
+            Bukkit.getLogger().info("Reloaded sub-commands.");
+
             plugin.setLoadoutPrices();
             plugin.setDoKeepScore();
             plugin.setScoreOptions();
             Bukkit.getLogger().info("Finished checking main config settings.");
 
-            Bukkit.getLogger().info("Reloading infected/survivor configs and applying new values for each map.");
             for(String x : g.getGameMap().keySet()){
                 g.getGameMap().get(x).reloadConfigs();
             }

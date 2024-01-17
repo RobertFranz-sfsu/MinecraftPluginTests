@@ -1,0 +1,13 @@
+name: ZombiesMC
+version: '1.0.0'
+main: com.valiantrealms.zombiesmc.ZombiesMC
+api-version: '1.13'
+authors: [DeathsValentine, Mithraea]
+Prefix: ZombiesMC
+
+commands:
+  zmc:
+    description: Default command.
+    usage: /zmc
+    permission: zmc
+    permission-message: You do not have permission to run this command.
