@@ -41,6 +41,7 @@ public class PlayerHandler implements Listener {
          * 6 cooking
          * 7 ranged
          * 8 melee
+         * 9 stealth
          */
 
         switch(input.toLowerCase()){
@@ -62,6 +63,8 @@ public class PlayerHandler implements Listener {
                 return 7;
             case "melee":
                 return 8;
+            case "stealth":
+                return 9;
             default:
                 return -1;
         }
@@ -88,7 +91,7 @@ public class PlayerHandler implements Listener {
                 p.createNewFile();
 
                 ConfigUtil con = new ConfigUtil(plugin, path);
-                ConfigUtil con1 = new ConfigUtil(plugin, "PlayerInfo" + System.getProperty("file.separator") + "PlayerSettings.yml");
+                ConfigUtil con1 = new ConfigUtil(plugin, "PlayerInfo" + System.getProperty("file.separator") + "DefaultPlayerSettings.yml");
 
                 con.getConfig().set("username", player.getName());
                 con.getConfig().set("health", con1.getConfig().getInt("starting-health"));
@@ -108,6 +111,7 @@ public class PlayerHandler implements Listener {
                 con.getConfig().set("skills.cooking", 0.0);
                 con.getConfig().set("skills.ranged", 0.0);
                 con.getConfig().set("skills.melee", 0.0);
+                con.getConfig().set("skills.stealth", 0.0);
                 con.save();
 
                 plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
@@ -116,6 +120,7 @@ public class PlayerHandler implements Listener {
                 plugin.getPlayers().get(player.getUniqueId()).setMeleeCritChance();
                 plugin.getPlayers().get(player.getUniqueId()).setRangedDamage();
                 plugin.getPlayers().get(player.getUniqueId()).setRangedCritChance();
+
                 plugin.getPlayers().get(player.getUniqueId()).reload();
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -145,7 +150,7 @@ public class PlayerHandler implements Listener {
     public void OnPlayerQuit(PlayerQuitEvent event){
         UUID id = event.getPlayer().getUniqueId();
 
-        plugin.getPlayers().get(id).unregister(id);
+        plugin.getPlayers().get(id).unregister();
     }
 
 
@@ -153,7 +158,6 @@ public class PlayerHandler implements Listener {
     public void damageHandler(EntityDamageByEntityEvent event){
         if(event.getDamager() instanceof Player){
             Player player = (Player) event.getDamager();
-            PlayerProfile profile = plugin.getPlayers().get(player.getUniqueId());
 
             if(event.getCause() != EntityDamageEvent.DamageCause.PROJECTILE){
                 event.setDamage(plugin.getStrength().meleeDamage(player.getUniqueId(), event.getDamage()));
