@@ -344,6 +344,7 @@ public class SurvivalPlayer implements Listener {
 
             for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
                 if (entry.getKey() != null) {
+                    plugin.getIsPlayingSet().add(entry.getKey());
                     Bukkit.dispatchCommand(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())), "m");
                 }
             }
@@ -479,6 +480,7 @@ public class SurvivalPlayer implements Listener {
 
         scoreboard.removeBoard(player);
         statusMap.remove(player.getUniqueId());
+        plugin.getIsPlayingSet().remove(player.getUniqueId());
         healthMap.remove(player.getUniqueId());
 
 //        if(statusMap.get(player.getUniqueId()).equalsIgnoreCase("infected")){

@@ -36,6 +36,14 @@ public final class Minecraft_Test extends JavaPlugin {
         this.gameIDMap = map;
     }
     private ConfigUtil loadoutCon = new ConfigUtil(this, "Loadouts.yml");
+    private HashSet<UUID> isPlayingSet = new HashSet<>();
+
+    public HashSet<UUID> getIsPlayingSet() {
+        return this.isPlayingSet;
+    }
+    public void setIsPlayingSet(HashSet<UUID> set) {
+        this.isPlayingSet = set;
+    }
 
     // Checks for things
     private boolean is18;

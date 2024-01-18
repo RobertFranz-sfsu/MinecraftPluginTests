@@ -63,7 +63,9 @@ public class Infected implements CommandExecutor, Listener {
                     }
                     else if (g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getStatusMap().containsKey(player.getUniqueId())) {
                         player.sendMessage("You're already in the game");
-                    }else {
+                    } else if (plugin.getIsPlayingSet().contains(player.getUniqueId())) {
+                        player.sendMessage("You're already in an active game");
+                    } else {
                         String current = player.getWorld().getName();
 
                         player.teleport(g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getDefaultSpawn(event.getCurrentItem().getItemMeta().getDisplayName()));
