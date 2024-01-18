@@ -18,7 +18,7 @@ public class PlayerProfile {
     private double rangedCritChance;
     private double meleeCritChance;
     ConfigUtil playerCon;
-    double[] skills = new double[9];
+    double[] skills = new double[10];
     /**
      * 0 lockpicking
      * 1 farming
@@ -29,6 +29,7 @@ public class PlayerProfile {
      * 6 cooking
      * 7 ranged
      * 8 melee
+     * 9 stealth
      */
 
     public PlayerProfile(ZombiesMC plugin){ this.plugin = plugin; }
@@ -54,9 +55,10 @@ public class PlayerProfile {
         skills[6] = playerCon.getConfig().getDouble("skills.cooking");
         skills[7] = playerCon.getConfig().getDouble("skills.ranged");
         skills[8] = playerCon.getConfig().getDouble("skills.melee");
+        skills[9] = playerCon.getConfig().getDouble("skills.stealth");
     }
 
-    public void save(UUID id){ // Saves current stats to config then sets config to updated version
+    public void save(){ // Saves current stats to config then sets config to updated version
         playerCon.getConfig().set("health", this.health);
         playerCon.getConfig().set("stamina", this.stamina);
 
@@ -74,6 +76,7 @@ public class PlayerProfile {
         playerCon.getConfig().set("skills.cooking", skills[6]);
         playerCon.getConfig().set("skills.ranged", skills[7]);
         playerCon.getConfig().set("skills.melee", skills[8]);
+        playerCon.getConfig().set("skills.stealth", skills[9]);
 
         playerCon.save();
         this.setPlayerCon();
@@ -97,6 +100,7 @@ public class PlayerProfile {
         playerCon.getConfig().set("skills.cooking", skills[6]);
         playerCon.getConfig().set("skills.ranged", skills[7]);
         playerCon.getConfig().set("skills.melee", skills[8]);
+        playerCon.getConfig().set("skills.stealth", skills[9]);
         playerCon.save();
 
         this.health = playerCon.getConfig().getDouble("health");
@@ -116,6 +120,7 @@ public class PlayerProfile {
         skills[6] = playerCon.getConfig().getDouble("skills.cooking");
         skills[7] = playerCon.getConfig().getDouble("skills.ranged");
         skills[8] = playerCon.getConfig().getDouble("skills.melee");
+        skills[9] = playerCon.getConfig().getDouble("skills.stealth");
 
         this.setHealth();
 
@@ -145,6 +150,7 @@ public class PlayerProfile {
         skills[6] = playerCon.getConfig().getDouble("skills.cooking");
         skills[7] = playerCon.getConfig().getDouble("skills.ranged");
         skills[8] = playerCon.getConfig().getDouble("skills.melee");
+        skills[9] = playerCon.getConfig().getDouble("skills.stealth");
 
         this.setHealth();
 
@@ -174,6 +180,7 @@ public class PlayerProfile {
         skills[6] = playerCon.getConfig().getDouble("skills.cooking");
         skills[7] = playerCon.getConfig().getDouble("skills.ranged");
         skills[8] = playerCon.getConfig().getDouble("skills.melee");
+        skills[9] = playerCon.getConfig().getDouble("skills.stealth");
 
         this.setHealth();
 
@@ -183,9 +190,9 @@ public class PlayerProfile {
         this.setMeleeCritChance();
     }
 
-    public void unregister(UUID id){
-        this.save(id);
-        plugin.getPlayers().remove(id);
+    public void unregister(){
+        this.save();
+        plugin.getPlayers().remove(uid);
     }
 
     public void setHealth(){
@@ -197,7 +204,7 @@ public class PlayerProfile {
 
     public boolean setSkillCommand(String input, double level){
         plugin.getPlayers().get(uid).getSkills()[plugin.getPlayerHandler().skillNumber(input)] = level;
-        plugin.getPlayers().get(uid).save(uid);
+        plugin.getPlayers().get(uid).save();
         return true;
     }
 

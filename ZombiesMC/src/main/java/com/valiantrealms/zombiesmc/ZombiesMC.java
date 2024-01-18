@@ -47,7 +47,7 @@ public final class ZombiesMC extends JavaPlugin {
         //Configs
         this.saveDefaultConfig();
 
-        saveResource("PlayerInfo" + System.getProperty("file.separator") + "PlayerSettings.yml", false);
+        saveResource("PlayerInfo" + System.getProperty("file.separator") + "DefaultPlayerSettings.yml", false);
         saveResource("BlockValues.yml", false);
         saveResource("SkillSettings.yml", false);
 
@@ -88,7 +88,7 @@ public final class ZombiesMC extends JavaPlugin {
 
     public void savePlayerData(UUID id){
         if(!this.players.isEmpty()){
-            this.players.get(id).save(id);
+            this.players.get(id).save();
         }else{
             Bukkit.getLogger().info("Nothing to save!");
         }
@@ -97,7 +97,7 @@ public final class ZombiesMC extends JavaPlugin {
         Bukkit.getLogger().info("Attempting to save all player data...");
 
         if(!this.players.isEmpty()){
-            this.players.forEach((key, value) -> value.save(key));
+            this.players.forEach((key, value) -> value.save());
             Bukkit.getLogger().info("Done saving all player data!");
         }else{
             Bukkit.getLogger().info("Nothing to save!");
@@ -121,7 +121,7 @@ public final class ZombiesMC extends JavaPlugin {
 
     public void setConfigs(){
         this.skillSettings = new ConfigUtil(this, "SkillSettings.yml");
-        this.playerSettings = new ConfigUtil(this, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + "PlayerSettings.yml");
+        this.playerSettings = new ConfigUtil(this, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + "DefaultPlayerSettings.yml");
         this.blockValuesConfig = new ConfigUtil(this, "BlockValues.yml");
     }
 

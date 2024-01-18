@@ -3,7 +3,6 @@
  *   S:
  *      Add version checker
  *   R:
- *      Add player stats to last row of menu
  *      Fix /spawn to /ispawn
  *      Change /menu to /imenu
  *
