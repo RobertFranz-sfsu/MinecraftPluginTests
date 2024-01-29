@@ -9,7 +9,7 @@ import java.util.UUID;
 public class Ranged {
     private final ZombiesMC plugin;
     private ConfigUtil con;
-    private Random rand = new Random();
+    private final Random rand = new Random();
     private double maxCritChance;
 
     public Ranged(ZombiesMC plugin){

@@ -1,16 +1,17 @@
 package com.valiantrealms.zombiesmc.util;
 
-import com.valiantrealms.zombiesmc.PlayerProfile;
 import com.valiantrealms.zombiesmc.ZombiesMC;
-import com.valiantrealms.zombiesmc.util.skills.Strength;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -31,17 +32,17 @@ public class PlayerHandler implements Listener {
     }
 
     public int skillNumber(String input){
-        /**
-         * 0 lockpicking
-         * 1 farming
-         * 2 stamina (skill)
-         * 3 salvage
-         * 4 husbandry
-         * 5 strength
-         * 6 cooking
-         * 7 ranged
-         * 8 melee
-         * 9 stealth
+        /*
+          0 lockpicking
+          1 farming
+          2 stamina (skill)
+          3 salvage
+          4 husbandry
+          5 strength
+          6 cooking
+          7 ranged
+          8 melee
+          9 stealth
          */
 
         switch(input.toLowerCase()){
@@ -70,6 +71,7 @@ public class PlayerHandler implements Listener {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @EventHandler
     public void OnPlayerLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
@@ -93,6 +95,8 @@ public class PlayerHandler implements Listener {
                 ConfigUtil con = new ConfigUtil(plugin, path);
                 ConfigUtil con1 = new ConfigUtil(plugin, "PlayerInfo" + System.getProperty("file.separator") + "DefaultPlayerSettings.yml");
 
+                // TODO
+                //  set these to base values from configs!!!
                 con.getConfig().set("username", player.getName());
                 con.getConfig().set("health", con1.getConfig().getInt("starting-health"));
                 con.getConfig().set("stamina", con1.getConfig().getInt("starting-stamina"));
@@ -101,6 +105,9 @@ public class PlayerHandler implements Listener {
                 con.getConfig().set("ranged-damage", 0.0);
                 con.getConfig().set("ranged-crit-chance", 0.0);
                 con.getConfig().set("melee-crit-chance", 0.0);
+                con.getConfig().set("husbandry-instant-adult-chance", 0.0);
+                con.getConfig().set("husbandry-multi-breeding-chance", 0.0);
+                con.getConfig().set("husbandry-multi-drop-chance", 0.0);
 
                 con.getConfig().set("skills.lockpicking", 0.0);
                 con.getConfig().set("skills.farming", 0.0);
@@ -110,18 +117,28 @@ public class PlayerHandler implements Listener {
                 con.getConfig().set("skills.strength", 0.0);
                 con.getConfig().set("skills.cooking", 0.0);
                 con.getConfig().set("skills.ranged", 0.0);
-                con.getConfig().set("skills.melee", 0.0);
                 con.getConfig().set("skills.stealth", 0.0);
+
+                con.getConfig().set("saved-cooking-devices", 0.0);
                 con.save();
 
                 plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
 
+                // Melee
                 plugin.getPlayers().get(player.getUniqueId()).setMeleeDamage();
                 plugin.getPlayers().get(player.getUniqueId()).setMeleeCritChance();
+
+                // Ranged
                 plugin.getPlayers().get(player.getUniqueId()).setRangedDamage();
                 plugin.getPlayers().get(player.getUniqueId()).setRangedCritChance();
 
-                plugin.getPlayers().get(player.getUniqueId()).reload();
+                // Husbandry
+                plugin.getPlayers().get(player.getUniqueId()).setInstantAdultChance();
+                plugin.getPlayers().get(player.getUniqueId()).setMultiBreedChance();
+                plugin.getPlayers().get(player.getUniqueId()).setHusbandryAnimalDrops();
+
+                plugin.getPlayers().get(player.getUniqueId()).save();
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -139,7 +156,7 @@ public class PlayerHandler implements Listener {
             public void run(){
             Player player = event.getPlayer();
 
-            if(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() != plugin.getPlayers().get(player.getUniqueId()).getHealth()){
+            if(Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getBaseValue() != plugin.getPlayers().get(player.getUniqueId()).getHealth()){
                 plugin.getPlayers().get(player.getUniqueId()).setHealth();
             }
             }
@@ -159,11 +176,34 @@ public class PlayerHandler implements Listener {
         if(event.getDamager() instanceof Player){
             Player player = (Player) event.getDamager();
 
-            if(event.getCause() != EntityDamageEvent.DamageCause.PROJECTILE){
+            if(!event.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)){
+                Bukkit.getLogger().info("MELEE");
                 event.setDamage(plugin.getStrength().meleeDamage(player.getUniqueId(), event.getDamage()));
-            }else if(Objects.equals(event.getCause(), EntityDamageEvent.DamageCause.PROJECTILE)){
-                event.setDamage(plugin.getRanged().rangedDamage(player.getUniqueId(), event.getDamage()));
             }
+        }else if(event.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE) && (((Projectile) event.getDamager()).getShooter() instanceof Player)){
+            Player player = (Player) ((Projectile) event.getDamager()).getShooter();
+
+            Bukkit.getLogger().info("PROJECTILE");
+            event.setDamage(plugin.getRanged().rangedDamage(player.getUniqueId(), event.getDamage()));
+        }
+    }
+
+    @EventHandler
+    public void breedingHandler(EntityBreedEvent event){
+        plugin.getHusbandry().breeding(event);
+    }
+
+    @EventHandler
+    public void killHandler(EntityDeathEvent event){
+        if(!(event.getEntity() instanceof Player)){
+
+        }
+
+        // Husbandry
+        if(event.getEntity() instanceof Animals){
+            Bukkit.getLogger().info("ANIMAL KILL");
+
+            plugin.getHusbandry().onAnimalKill(event);
         }
     }
 }

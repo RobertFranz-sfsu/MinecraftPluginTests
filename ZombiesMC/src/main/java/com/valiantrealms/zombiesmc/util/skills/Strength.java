@@ -26,7 +26,7 @@ public class Strength implements Listener {
 
     public double meleeDamage(UUID id, double originalDamage){
         double melee = plugin.getPlayers().get(id).getMeleeDamage();
-        double critChance = plugin.getPlayers().get(id).getMeleeCritChance();
+        double critChance = Math.min(maxCritChance, plugin.getPlayers().get(id).getMeleeCritChance());
 
         if(critChance > maxCritChance){
             critChance = maxCritChance;

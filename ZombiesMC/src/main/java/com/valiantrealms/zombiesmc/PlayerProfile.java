@@ -17,8 +17,11 @@ public class PlayerProfile {
     private double meleeDamage;
     private double rangedCritChance;
     private double meleeCritChance;
+    private double instantAdultChance;
+    private double multiBreedChance;
+    private double husbandryAnimalDrops;
     ConfigUtil playerCon;
-    double[] skills = new double[10];
+    double[] skills = new double[9];
     /**
      * 0 lockpicking
      * 1 farming
@@ -28,8 +31,7 @@ public class PlayerProfile {
      * 5 strength
      * 6 cooking
      * 7 ranged
-     * 8 melee
-     * 9 stealth
+     * 8 stealth
      */
 
     public PlayerProfile(ZombiesMC plugin){ this.plugin = plugin; }
@@ -45,6 +47,9 @@ public class PlayerProfile {
         this.meleeDamage = playerCon.getConfig().getDouble("melee-damage");
         this.rangedCritChance = playerCon.getConfig().getDouble("ranged-crit-chance");
         this.meleeCritChance = playerCon.getConfig().getDouble("melee-crit-chance");
+        this.instantAdultChance = playerCon.getConfig().getDouble("husbandry-instant-adult-chance");
+        this.multiBreedChance = playerCon.getConfig().getDouble("husbandry-multi-breeding-chance");
+        this.husbandryAnimalDrops = playerCon.getConfig().getDouble("husbandry-multi-drop-chance");
 
         skills[0] = playerCon.getConfig().getDouble("skills.lockpicking");
         skills[1] = playerCon.getConfig().getDouble("skills.farming");
@@ -54,8 +59,7 @@ public class PlayerProfile {
         skills[5] = playerCon.getConfig().getDouble("skills.strength");
         skills[6] = playerCon.getConfig().getDouble("skills.cooking");
         skills[7] = playerCon.getConfig().getDouble("skills.ranged");
-        skills[8] = playerCon.getConfig().getDouble("skills.melee");
-        skills[9] = playerCon.getConfig().getDouble("skills.stealth");
+        skills[8] = playerCon.getConfig().getDouble("skills.stealth");
     }
 
     public void save(){ // Saves current stats to config then sets config to updated version
@@ -66,6 +70,9 @@ public class PlayerProfile {
         playerCon.getConfig().set("ranged-crit-chance", this.rangedCritChance);
         playerCon.getConfig().set("melee-damage", this.meleeDamage);
         playerCon.getConfig().set("melee-crit-chance", this.meleeCritChance);
+        playerCon.getConfig().set("husbandry-instant-adult-chance", this.instantAdultChance);
+        playerCon.getConfig().set("husbandry-multi-breeding-chance", this.multiBreedChance);
+        playerCon.getConfig().set("husbandry-multi-drop-chance", this.husbandryAnimalDrops);
 
         playerCon.getConfig().set("skills.lockpicking", skills[0]);
         playerCon.getConfig().set("skills.farming", skills[1]);
@@ -75,119 +82,15 @@ public class PlayerProfile {
         playerCon.getConfig().set("skills.strength", skills[5]);
         playerCon.getConfig().set("skills.cooking", skills[6]);
         playerCon.getConfig().set("skills.ranged", skills[7]);
-        playerCon.getConfig().set("skills.melee", skills[8]);
-        playerCon.getConfig().set("skills.stealth", skills[9]);
+        playerCon.getConfig().set("skills.stealth", skills[8]);
 
         playerCon.save();
         this.setPlayerCon();
     }
 
     public void reload(){ // Writes current in-game stats to the config then reloads
-        playerCon.getConfig().set("health", this.health);
-        playerCon.getConfig().set("stamina", this.stamina);
-
-        this.rangedDamage = playerCon.getConfig().getDouble("ranged-damage");
-        this.meleeDamage = playerCon.getConfig().getDouble("melee-damage");
-        this.rangedCritChance = playerCon.getConfig().getDouble("ranged-crit-chance");
-        this.meleeCritChance = playerCon.getConfig().getDouble("melee-crit-chance");
-
-        playerCon.getConfig().set("skills.lockpicking", skills[0]);
-        playerCon.getConfig().set("skills.farming", skills[1]);
-        playerCon.getConfig().set("skills.stamina", skills[2]);
-        playerCon.getConfig().set("skills.salvage", skills[3]);
-        playerCon.getConfig().set("skills.husbandry", skills[4]);
-        playerCon.getConfig().set("skills.strength", skills[5]);
-        playerCon.getConfig().set("skills.cooking", skills[6]);
-        playerCon.getConfig().set("skills.ranged", skills[7]);
-        playerCon.getConfig().set("skills.melee", skills[8]);
-        playerCon.getConfig().set("skills.stealth", skills[9]);
-        playerCon.save();
-
-        this.health = playerCon.getConfig().getDouble("health");
-        this.stamina =playerCon.getConfig().getDouble("stamina");
-
-        this.rangedDamage = playerCon.getConfig().getDouble("ranged-damage");
-        this.meleeDamage = playerCon.getConfig().getDouble("melee-damage");
-        this.rangedCritChance = playerCon.getConfig().getDouble("ranged-crit-chance");
-        this.meleeCritChance = playerCon.getConfig().getDouble("melee-crit-chance");
-
-        skills[0] = playerCon.getConfig().getDouble("skills.lockpicking");
-        skills[1] = playerCon.getConfig().getDouble("skills.farming");
-        skills[2] = playerCon.getConfig().getDouble("skills.stamina");
-        skills[3] = playerCon.getConfig().getDouble("skills.salvage");
-        skills[4] = playerCon.getConfig().getDouble("skills.husbandry");
-        skills[5] = playerCon.getConfig().getDouble("skills.strength");
-        skills[6] = playerCon.getConfig().getDouble("skills.cooking");
-        skills[7] = playerCon.getConfig().getDouble("skills.ranged");
-        skills[8] = playerCon.getConfig().getDouble("skills.melee");
-        skills[9] = playerCon.getConfig().getDouble("skills.stealth");
-
-        this.setHealth();
-
-        this.setRangedDamage();
-        this.setRangedCritChance();
-        this.setMeleeDamage();
-        this.setMeleeCritChance();
-
-        this.setPlayerCon();
-    }
-
-    public void reloadNoSave(){
-        this.health = playerCon.getConfig().getDouble("health");
-        this.stamina =playerCon.getConfig().getDouble("stamina");
-
-        this.rangedDamage = playerCon.getConfig().getDouble("ranged-damage");
-        this.meleeDamage = playerCon.getConfig().getDouble("melee-damage");
-        this.rangedCritChance = playerCon.getConfig().getDouble("ranged-crit-chance");
-        this.meleeCritChance = playerCon.getConfig().getDouble("melee-crit-chance");
-
-        skills[0] = playerCon.getConfig().getDouble("skills.lockpicking");
-        skills[1] = playerCon.getConfig().getDouble("skills.farming");
-        skills[2] = playerCon.getConfig().getDouble("skills.stamina");
-        skills[3] = playerCon.getConfig().getDouble("skills.salvage");
-        skills[4] = playerCon.getConfig().getDouble("skills.husbandry");
-        skills[5] = playerCon.getConfig().getDouble("skills.strength");
-        skills[6] = playerCon.getConfig().getDouble("skills.cooking");
-        skills[7] = playerCon.getConfig().getDouble("skills.ranged");
-        skills[8] = playerCon.getConfig().getDouble("skills.melee");
-        skills[9] = playerCon.getConfig().getDouble("skills.stealth");
-
-        this.setHealth();
-
-        this.setRangedDamage();
-        this.setRangedCritChance();
-        this.setMeleeDamage();
-        this.setMeleeCritChance();
-    }
-
-    public void setSkillsFromConfig(){ // Updates to new player config then updates player server stats
-        this.setPlayerCon();
-
-        this.health = playerCon.getConfig().getDouble("health");
-        this.stamina = playerCon.getConfig().getDouble("stamina");
-
-        this.rangedDamage = playerCon.getConfig().getDouble("ranged-damage");
-        this.meleeDamage = playerCon.getConfig().getDouble("melee-damage");
-        this.rangedCritChance = playerCon.getConfig().getDouble("ranged-crit-chance");
-        this.meleeCritChance = playerCon.getConfig().getDouble("melee-crit-chance");
-
-        skills[0] = playerCon.getConfig().getDouble("skills.lockpicking");
-        skills[1] = playerCon.getConfig().getDouble("skills.farming");
-        skills[2] = playerCon.getConfig().getDouble("skills.stamina");
-        skills[3] = playerCon.getConfig().getDouble("skills.salvage");
-        skills[4] = playerCon.getConfig().getDouble("skills.husbandry");
-        skills[5] = playerCon.getConfig().getDouble("skills.strength");
-        skills[6] = playerCon.getConfig().getDouble("skills.cooking");
-        skills[7] = playerCon.getConfig().getDouble("skills.ranged");
-        skills[8] = playerCon.getConfig().getDouble("skills.melee");
-        skills[9] = playerCon.getConfig().getDouble("skills.stealth");
-
-        this.setHealth();
-
-        this.setRangedDamage();
-        this.setRangedCritChance();
-        this.setMeleeDamage();
-        this.setMeleeCritChance();
+        this.save();
+        this.register(uid);
     }
 
     public void unregister(){
@@ -231,6 +134,20 @@ public class PlayerProfile {
         playerCon.getConfig().set("melee-crit-chance", this.meleeCritChance);
         playerCon.save();
     }
+
+    public void setInstantAdultChance(){
+        this.instantAdultChance = plugin.getSkillSettings().getConfig().getDouble("husbandry.base-instant-adult-while-breeding") +
+                (plugin.getPlayers().get(uid).getSkills()[4] * plugin.getSkillSettings().getConfig().getDouble("husbandry.instant-adult-while-breeding-increase"));
+    }
+
+    public void setMultiBreedChance(){
+        this.multiBreedChance = plugin.getSkillSettings().getConfig().getDouble("husbandry.base-chance-of-multi-breeding") +
+                (plugin.getPlayers().get(uid).getSkills()[4] * plugin.getSkillSettings().getConfig().getDouble("husbandry.chance-of-multi-breeding-increase"));
+    }
+
+    public void setHusbandryAnimalDrops(){
+
+    }
     public void setPlayerCon(){ playerCon = new ConfigUtil(plugin, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + uid + ".yml"); }
 
     /**
@@ -259,6 +176,35 @@ public class PlayerProfile {
     public double getHealth() { return this.health; }
     public double getRangedDamage() { return this.rangedDamage; }
     public double getRangedCritChance() { return this.rangedCritChance; }
-    public double getMeleeDamage() { return meleeDamage; }
-    public double getMeleeCritChance() { return meleeCritChance; }
+    public double getMeleeDamage() { return this.meleeDamage; }
+    public double getMeleeCritChance() { return this.meleeCritChance; }
+    public double getInstantAdultChance() { return this.instantAdultChance; }
+    public double getMultiBreedChance() { return this.multiBreedChance; }
+    public double getHusbandryAnimalDrops() { return this.husbandryAnimalDrops; }
+
+    /**
+     * PROBABLY NOT NEEDED
+     */
+    public void reloadNoSave(){
+        this.stamina =playerCon.getConfig().getDouble("stamina");
+
+        skills[0] = playerCon.getConfig().getDouble("skills.lockpicking");
+        skills[1] = playerCon.getConfig().getDouble("skills.farming");
+        skills[2] = playerCon.getConfig().getDouble("skills.stamina");
+        skills[3] = playerCon.getConfig().getDouble("skills.salvage");
+        skills[4] = playerCon.getConfig().getDouble("skills.husbandry");
+        skills[5] = playerCon.getConfig().getDouble("skills.strength");
+        skills[6] = playerCon.getConfig().getDouble("skills.cooking");
+        skills[7] = playerCon.getConfig().getDouble("skills.ranged");
+        skills[8] = playerCon.getConfig().getDouble("skills.stealth");
+
+        this.setHealth();
+
+        this.setRangedDamage();
+        this.setRangedCritChance();
+        this.setMeleeDamage();
+        this.setMeleeCritChance();
+        this.setInstantAdultChance();
+        this.setHusbandryAnimalDrops();
+    }
 }

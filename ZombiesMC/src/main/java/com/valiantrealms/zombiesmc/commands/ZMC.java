@@ -44,7 +44,7 @@ public class ZMC implements CommandExecutor {
             assert player != null;
 
             switch(args[0].toLowerCase()){
-                case "reload": case "r": // Reloads all configs
+                case "reload": case "r": // Saves then reloads all configs and players
                     try{
                         plugin.getReload().ReloadAll();
 
@@ -88,12 +88,12 @@ public class ZMC implements CommandExecutor {
                     }
                     break;
 
-                case "updateplayer": case "up": // Update player skills from config
+                case "updateplayer": case "up": case "register":// Update player skills from config
                     try{
                         if(args.length == 1){
-                            plugin.updatePlayerFromConfig(player.getUniqueId());
+                            plugin.register(player.getUniqueId());
                         }else if(args.length == 2){
-                            plugin.updatePlayerFromConfig(Bukkit.getPlayer(args[1]).getUniqueId());
+                            plugin.register(Bukkit.getPlayer(args[1]).getUniqueId());
                         }else{
                             sender.sendMessage("Correct usage: /zmc updateplayer (optional)[username]");
                         }
@@ -129,7 +129,7 @@ public class ZMC implements CommandExecutor {
                  * TESTING SECTION
                  */
                 case "test":
-                  plugin.getPlayers().get(((Player) sender).getUniqueId()).setHealth();
+                  plugin.getHusbandry().setVals();
                   break;
 
                 case "t":

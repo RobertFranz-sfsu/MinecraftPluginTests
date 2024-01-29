@@ -12,35 +12,37 @@ farming:
     double-chance: 1.0
 
 husbandry:
-  base:
-    # Number from 0%-100%
-    increased-drop-chance: 5.0
+  # Number from 0%-100%
+  base-increased-drop-chance: 5.0
 
-    # Number from 0%-100%
-    increased-drops-from-kills: 5.0
+  # Number from 0%-100%
+  base-increased-drops-from-kills: 5.0
 
-    # Number from 0%-100%
-    chance-of-multi-breeding: 5.0
+  # Number from 0%-100%
+  base-chance-of-multi-breeding: 5.0
 
-    # Number from 0%-100%
-    instant-adult-while-breeding: 5.0
-  leveling:
-    # Number from 0%-100%
-    increased-drop-chance: 1.0
+  # Number from 0%-100%
+  base-instant-adult-while-breeding: 5.0
 
-    increased-drops-from-kills: 5.0
+  # Number from 0%-100%
+  increased-drop-chance: 1.0
 
-    # Number from 0%-100%
-    chance-of-multi-breeding: 5.0
+  increased-drops-from-kills: 5.0
 
-    # Number from 0%-100%
-    instant-adult-while-breeding: 5.0
+  # Number from 0%-100%
+  chance-of-multi-breeding-increase: 5.0
+
+  # Number from 0%-100%
+  instant-adult-while-breeding-increase: 0.1
+
+  max-multi-breeding-chance: 80.0
+  max-instant-adult-chance: 80.0
 
 lockpicking:
   base:
     # Number from 0%-100%
     success-chance: 5.0
-    break-pick-chance: 1.0
+    break-pick-chance: 75.0
 
   leveling:
     # Number from 0%-100%

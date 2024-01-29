@@ -6,7 +6,9 @@ import com.valiantrealms.zombiesmc.util.BlockListener;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
 import com.valiantrealms.zombiesmc.util.PlayerHandler;
 import com.valiantrealms.zombiesmc.util.Vault;
+import com.valiantrealms.zombiesmc.util.skills.Husbandry;
 import com.valiantrealms.zombiesmc.util.skills.Ranged;
+import com.valiantrealms.zombiesmc.util.skills.Stealth;
 import com.valiantrealms.zombiesmc.util.skills.Strength;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,11 +33,14 @@ public final class ZombiesMC extends JavaPlugin {
     // Skills
     private Strength strength;
     private Ranged ranged;
+    private Stealth stealth;
+    private Husbandry husbandry;
 
     // Configs
     ConfigUtil skillSettings;
     ConfigUtil playerSettings;
     ConfigUtil blockValuesConfig;
+    ConfigUtil husbandryValues;
 
     // Other plugins
     Vault econ;
@@ -50,6 +55,7 @@ public final class ZombiesMC extends JavaPlugin {
         saveResource("PlayerInfo" + System.getProperty("file.separator") + "DefaultPlayerSettings.yml", false);
         saveResource("BlockValues.yml", false);
         saveResource("SkillSettings.yml", false);
+        saveResource("HusbandryValues.yml", false);
 
         this.setConfigs();
         this.setEcon();
@@ -104,8 +110,8 @@ public final class ZombiesMC extends JavaPlugin {
         }
     }
 
-    public void updatePlayerFromConfig(UUID id){
-        this.getPlayers().get(id).setSkillsFromConfig();
+    public void register(UUID id){
+        this.getPlayers().get(id).register(id);
     }
 
     /**
@@ -115,6 +121,7 @@ public final class ZombiesMC extends JavaPlugin {
         this.skillSettings.save();
         this.playerSettings.save();
         this.blockValuesConfig.save();
+        this.husbandryValues.save();
 
         this.setConfigs();
     }
@@ -123,11 +130,13 @@ public final class ZombiesMC extends JavaPlugin {
         this.skillSettings = new ConfigUtil(this, "SkillSettings.yml");
         this.playerSettings = new ConfigUtil(this, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + "DefaultPlayerSettings.yml");
         this.blockValuesConfig = new ConfigUtil(this, "BlockValues.yml");
+        this.husbandryValues = new ConfigUtil(this, "HusbandryValues.yml");
     }
 
     public ConfigUtil getSkillSettings() { return this.skillSettings; }
     public ConfigUtil getPlayerSettings() { return this.playerSettings; }
     public ConfigUtil getBlockValuesConfig() { return this.blockValuesConfig; }
+    public ConfigUtil getHusbandryValues() { return this.husbandryValues; }
 
     /**
      * Sub-Commands & Skills
@@ -142,6 +151,8 @@ public final class ZombiesMC extends JavaPlugin {
     private void setSkills(){
         this.strength = new Strength(this);
         this.ranged = new Ranged(this);
+        this.stealth = new Stealth(this);
+        this.husbandry = new Husbandry(this);
     }
 
     public Reload getReload(){ return this.reload; }
@@ -150,6 +161,8 @@ public final class ZombiesMC extends JavaPlugin {
     public PlayerHandler getPlayerHandler() { return this.playerHandler; }
     public BlockListener getBlockListener() { return this.blockListener; }
     public Ranged getRanged() { return this.ranged; }
+    public Stealth getStealth() { return this.stealth; }
+    public Husbandry getHusbandry() { return husbandry; }
 
     /**
      * ECONOMY STUFF

@@ -51,6 +51,7 @@ skills (each should have a config file)
         % chance of detection by mobs/npcs
     stamina
         multiplier for amount of stamina
+        increase per player level
     salvage
         % of resources to get back
     husbandry

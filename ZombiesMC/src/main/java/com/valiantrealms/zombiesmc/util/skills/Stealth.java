@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Stealth {
@@ -27,7 +28,7 @@ public class Stealth {
 
     public void setStealth(UUID id){
         // Equation: base radius - (stealth level * detection reduction)
-        Bukkit.getPlayer(id).getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue((BigDecimal.valueOf(plugin.getPlayers().get(id).getSkills()[9]).multiply(BigDecimal.valueOf(this.detectionReduction)).subtract(BigDecimal.valueOf(this.defaultRadius)).doubleValue()));
+        Objects.requireNonNull(Objects.requireNonNull(Bukkit.getPlayer(id)).getAttribute(Attribute.GENERIC_FOLLOW_RANGE)).setBaseValue((BigDecimal.valueOf(plugin.getPlayers().get(id).getSkills()[9]).multiply(BigDecimal.valueOf(this.detectionReduction)).subtract(BigDecimal.valueOf(this.defaultRadius)).doubleValue()));
     }
 
     public void setConfig() {
