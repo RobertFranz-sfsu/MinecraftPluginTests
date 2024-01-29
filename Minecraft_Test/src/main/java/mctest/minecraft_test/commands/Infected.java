@@ -3,8 +3,10 @@ package mctest.minecraft_test.commands;
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.commands.InfectedSubCommands.*;
 import mctest.minecraft_test.roles.GamesList;
+import mctest.minecraft_test.roles.PlayerRoles;
 import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
+import mctest.minecraft_test.util.InventoryUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -29,6 +31,7 @@ public class Infected implements CommandExecutor, Listener {
     ListLobbies list;
     ListWorlds listWorlds;
     GamesListCommand glc;
+    PlayerRoles roles = new PlayerRoles(plugin);
 
     public Infected(Minecraft_Test plugin, GamesList g){
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -53,25 +56,23 @@ public class Infected implements CommandExecutor, Listener {
 
         try {
             Player player = (Player) event.getWhoClicked();
-
+            SurvivalPlayer game = g.getGameMap().get(Objects.requireNonNull(Objects.requireNonNull(event.getCurrentItem()).getItemMeta()).getDisplayName());
             if (event.getCurrentItem() != null) {
                 if (event.getSlot() < 18) {
                     event.setCancelled(true);
                 } else {
-                    if (g.getGameMap().get(Objects.requireNonNull(event.getCurrentItem().getItemMeta()).getDisplayName()).getPlaying()) {
+                    if (game.getPlaying()) {
                         player.sendMessage("Game already in session");
                     }
-                    else if (g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getStatusMap().containsKey(player.getUniqueId())) {
+                    else if (game.getStatusMap().containsKey(player.getUniqueId())) {
                         player.sendMessage("You're already in the game");
                     } else if (plugin.getIsPlayingSet().contains(player.getUniqueId())) {
                         player.sendMessage("You're already in an active game");
                     } else {
                         String current = player.getWorld().getName();
-
-                        player.teleport(g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).getDefaultSpawn(event.getCurrentItem().getItemMeta().getDisplayName()));
-                        g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).setUnassigned(player);
-                        g.getGameMap().get(event.getCurrentItem().getItemMeta().getDisplayName()).addPreviousWorld(player.getUniqueId(), current);
-
+                        player.teleport(game.getDefaultSpawn(event.getCurrentItem().getItemMeta().getDisplayName()));
+                        roles.setUnassigned(player, game);
+                        game.addPreviousWorld(player.getUniqueId(), current);
                         player.closeInventory();
 
                         event.setCancelled(true);
@@ -79,7 +80,7 @@ public class Infected implements CommandExecutor, Listener {
                 }
             }
         } catch (Exception e) {
-            Bukkit.getLogger().info("Clicked on empty slot");
+            //Bukkit.getLogger().info("Clicked on empty slot");
         }
     }
 
@@ -339,7 +340,8 @@ public class Infected implements CommandExecutor, Listener {
                                     Bukkit.getLogger().severe(current);
 
                                     player.teleport(entry.getValue().getDefaultSpawn(entry.getKey()));
-                                    entry.getValue().setUnassigned(player);
+                                    roles.setUnassigned(player, entry.getValue());
+                                    //entry.getValue().setUnassigned(player);
                                     g.getGameMap().get(entry.getKey()).addPreviousWorld(player.getUniqueId(), current);
                                     break;
                                 }
@@ -354,7 +356,8 @@ public class Infected implements CommandExecutor, Listener {
                                     Bukkit.getLogger().severe(current);
 
                                     ((Player) sender).teleport(g.getGameMap().get(args[1]).getDefaultSpawn(args[1]));
-                                    g.getGameMap().get(args[1]).setUnassigned(player);
+                                    roles.setUnassigned(player, g.getGameMap().get(args[1]));
+                                    //g.getGameMap().get(args[1]).setUnassigned(player);
                                     g.getGameMap().get(args[1]).addPreviousWorld(player.getUniqueId(), current);
                                 } else {
                                     player.sendMessage("Game is already in session.");
@@ -536,6 +539,8 @@ public class Infected implements CommandExecutor, Listener {
                 case "setrole": case "sr": case "role":
                     if(sender.hasPermission("infected.infected.setrole") || sender.hasPermission("infected.*") || sender.hasPermission("infected.infected.*")){
                         try{
+                            SurvivalPlayer game = g.getGameMap().get(player.getWorld().getName());
+                            InventoryUtil invUtil = game.getInvUtil();
                             if(args.length != 3){
                                 sender.sendMessage("Usage: /infected setRole/sr [player] [infected(i)/survivor(s)/notplaying(np)]");
                             }else{
@@ -551,7 +556,7 @@ public class Infected implements CommandExecutor, Listener {
                                             role = "survivor";
                                             break;
                                         case "notplaying": case "np":
-                                            g.getGameMap().get(player.getWorld().getName()).setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
+                                            roles.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(args[1])), game, invUtil);
                                             break;
                                         default:
                                             sender.sendMessage("Must specify role:");
@@ -560,10 +565,10 @@ public class Infected implements CommandExecutor, Listener {
                                     }
 
                                     if(role != null){
-                                        g.getGameMap().get(player.getWorld().getName()).removeEffects(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
+                                        roles.removeEffects(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
                                         if(g.getGameMap().get(player.getWorld().getName()).getPlaying()){
                                             g.getGameMap().get(player.getWorld().getName()).getStatusMap().put(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId(), role);
-                                            g.getGameMap().get(player.getWorld().getName()).setRole(Objects.requireNonNull(Bukkit.getPlayer(args[1])));
+                                            roles.setRole(Objects.requireNonNull(Bukkit.getPlayer(args[1])), game);
                                         }else{
                                             sender.sendMessage("The player " + Objects.requireNonNull(Bukkit.getPlayer(args[1])).getName() + " is not currently in a match!");
                                         }

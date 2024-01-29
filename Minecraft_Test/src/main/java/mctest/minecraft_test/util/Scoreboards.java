@@ -1,7 +1,6 @@
 package mctest.minecraft_test.util;
 
 import mctest.minecraft_test.Minecraft_Test;
-import mctest.minecraft_test.roles.GamesList;
 import mctest.minecraft_test.roles.SurvivalPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,10 +21,10 @@ public class Scoreboards {
 
     private final Minecraft_Test plugin;
     private final SurvivalPlayer game;
+
     public Scoreboards(Minecraft_Test plugin, SurvivalPlayer game) {
         this.plugin = plugin;
         this.game = game;
-
     }
 
     public void setBoard(Player player) {
@@ -36,10 +35,10 @@ public class Scoreboards {
         Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
 
         Objective objective;
-        if(plugin.getIs18()){
+        if (plugin.getIs18()) {
             objective = scoreboard.registerNewObjective("Game Status", "dummy");
             objective.setDisplayName(ChatColor.GOLD + "Survival Status");
-        }else{
+        } else {
             objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Survival Status");
         }
 
@@ -49,7 +48,7 @@ public class Scoreboards {
         newLine1.setScore(6);
 
         String minutes = String.valueOf(game.getTimer() / 60);
-        String seconds = ((game.getTimer()%60 < 10) ? "0" : "") + game.getTimer()%60 ;
+        String seconds = ((game.getTimer() % 60 < 10) ? "0" : "") + game.getTimer() % 60;
         Score timer = objective.getScore("Time left in game: " + minutes + ":" + seconds);
         timer.setScore(4);
         Score newLine2 = objective.getScore("");
@@ -72,10 +71,10 @@ public class Scoreboards {
         Scoreboard scoreboard = Objects.requireNonNull(manager).getNewScoreboard();
 
         Objective objective;
-        if(plugin.getIs18()){
+        if (plugin.getIs18()) {
             objective = scoreboard.registerNewObjective("Game Status", "dummy");
             objective.setDisplayName(ChatColor.GOLD + "Survival Status");
-        }else{
+        } else {
             objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Survival Status");
         }
 
@@ -88,12 +87,12 @@ public class Scoreboards {
         newLine1.setScore(6);
 
         String ellipsis = ".";
-        ellipsis =  new String(new char[3-(game.getTimer() % 4)]).replace("\0", ellipsis);
+        ellipsis = new String(new char[3 - (game.getTimer() % 4)]).replace("\0", ellipsis);
         Score wait = objective.getScore("Respawning in: " + sec + ellipsis);
         wait.setScore(5);
 
         String minutes = String.valueOf(game.getTimer() / 60);
-        String seconds = ((game.getTimer()%60 < 10) ? "0" : "") + game.getTimer()%60 ;
+        String seconds = ((game.getTimer() % 60 < 10) ? "0" : "") + game.getTimer() % 60;
         Score timer = objective.getScore("Time left in game: " + minutes + ":" + seconds);
         timer.setScore(4);
         Score newLine2 = objective.getScore("");
@@ -106,6 +105,7 @@ public class Scoreboards {
 
         player.setScoreboard(scoreboard);
     }
+
     public void waitBoard(Player player) {
         if (!game.getStatusMap().containsKey(player.getUniqueId())) {
             return;
@@ -114,10 +114,10 @@ public class Scoreboards {
         Scoreboard scoreboard = Objects.requireNonNull(manager1).getNewScoreboard();
 
         Objective objective;
-        if(plugin.getIs18()){
+        if (plugin.getIs18()) {
             objective = scoreboard.registerNewObjective("Game Status", "dummy");
             objective.setDisplayName(ChatColor.GOLD + "Waiting on players");
-        }else{
+        } else {
             objective = scoreboard.registerNewObjective("Game Status", "", ChatColor.GOLD + "Waiting on players");
         }
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -126,7 +126,7 @@ public class Scoreboards {
         newLine1.setScore(5);
         if (game.getStatusMap().size() >= game.getMinPl()) {
             String minutes = String.valueOf(game.getTimer() / 60);
-            String seconds = ((game.getTimer()%60 < 10) ? "0" : "") + game.getTimer()%60 ;
+            String seconds = ((game.getTimer() % 60 < 10) ? "0" : "") + game.getTimer() % 60;
             Score timer = objective.getScore("Time left: " + minutes + ":" + seconds);
             timer.setScore(4);
         } else {
@@ -156,7 +156,7 @@ public class Scoreboards {
         Score newLine1 = objective.getScore("");
         newLine1.setScore(6);
 
-        Score timer  = objective.getScore("Starting in: " + sec);
+        Score timer = objective.getScore("Starting in: " + sec);
         timer.setScore(5);
 
         String tip = (Objects.equals(game.getStatusMap().get(player.getUniqueId()), "survivor")) ? "Prepare to survive!" : "Prepare to hunt!";
