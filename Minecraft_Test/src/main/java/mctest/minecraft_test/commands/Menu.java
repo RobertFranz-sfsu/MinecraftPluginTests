@@ -2,7 +2,10 @@ package mctest.minecraft_test.commands;
 
 import mctest.minecraft_test.Minecraft_Test;
 import mctest.minecraft_test.roles.GamesList;
+import mctest.minecraft_test.roles.PlayerRoles;
+import mctest.minecraft_test.roles.SurvivalPlayer;
 import mctest.minecraft_test.util.ConfigUtil;
+import mctest.minecraft_test.util.InventoryUtil;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,13 +26,19 @@ import java.util.Objects;
 public class Menu implements Listener, CommandExecutor {
     private String invName = "Loadouts";
     private Minecraft_Test plugin = Minecraft_Test.getPlugin(Minecraft_Test.class);
+
     ConfigUtil con = plugin.getLoadoutCon();
     private GamesList g;
+    private Player player;
+    private PlayerRoles roles;
 
     public Menu(Minecraft_Test plugin,  GamesList g) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
         this.g = g;
+        // Testing: Might not work if player isnt gotten in time... currently getting from sender in onCommand
+        // additionally... need to see if its getting the player's game at command call or plugin start
+        this.roles = new PlayerRoles(plugin);
     }
 
     @EventHandler
@@ -39,18 +48,20 @@ public class Menu implements Listener, CommandExecutor {
         }
 
         try {
-            Player player = (Player) event.getWhoClicked();
-            int slot = event.getSlot();
+            // Might need to uncomment if doesnt work
+            //this.player = (Player) event.getWhoClicked();
 
+            int slot = event.getSlot();
+            SurvivalPlayer game = g.getGameMap().get(this.player.getWorld().getName());
+            InventoryUtil invUtil = game.getInvUtil();
             if(slot == 53){
-                g.getGameMap().get(player.getWorld().getName()).setNotPlaying(player);
+                roles.setNotPlaying(player, game, invUtil);
                 event.setCancelled(true);
             } else if (slot == 45) {
                 g.getGameMap().get(player.getWorld().getName()).gameInit();
                 event.setCancelled(true);
             } else if (slot == 46) {
-
-                g.getGameMap().get(player.getWorld().getName()).setUnassigned(player);
+                roles.setUnassigned(player, game);
                 event.setCancelled(true);
             }
 
@@ -95,7 +106,7 @@ public class Menu implements Listener, CommandExecutor {
             return true;
         }
 
-        Player player = (Player) sender;
+        this.player = (Player) sender;
         Inventory inv = Bukkit.createInventory(player, 9 * 6, invName);
         int index = 0;
 

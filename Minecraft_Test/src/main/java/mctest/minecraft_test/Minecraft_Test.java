@@ -38,13 +38,6 @@ public final class Minecraft_Test extends JavaPlugin {
     private ConfigUtil loadoutCon = new ConfigUtil(this, "Loadouts.yml");
     private HashSet<UUID> isPlayingSet = new HashSet<>();
 
-    public HashSet<UUID> getIsPlayingSet() {
-        return this.isPlayingSet;
-    }
-    public void setIsPlayingSet(HashSet<UUID> set) {
-        this.isPlayingSet = set;
-    }
-
     // Checks for things
     private boolean is18;
     private boolean doKeepScore;
@@ -248,5 +241,12 @@ public final class Minecraft_Test extends JavaPlugin {
     }
     public ConcurrentHashMap<String, Integer[]> getStatsMap() {
         return this.statsMap;
+    }
+
+    public HashSet<UUID> getIsPlayingSet() {
+        return this.isPlayingSet;
+    }
+    public void setIsPlayingSet(HashSet<UUID> set) {
+        this.isPlayingSet = set;
     }
 }

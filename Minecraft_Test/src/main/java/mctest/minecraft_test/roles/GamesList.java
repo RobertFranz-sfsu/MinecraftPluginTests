@@ -28,8 +28,7 @@ public class GamesList {
     }
 
     /**
-     * @param list
-     * Initializes the Hashmap of worlds and games.  Called at server start
+     * @param list Initializes the Hashmap of worlds and games.  Called at server start
      */
     public void initGameMap(List<String> list) {
         for (String s : list) {
@@ -51,17 +50,18 @@ public class GamesList {
 //            this.arrayListGameMap.put(s, aL);
         }
     }
+
     public HashMap<String, SurvivalPlayer> getGameMap() {
         return this.gameMap;
     }
 
     /**
-     * @param world
-     * Adds a world and game to the hashmap
+     * @param world Adds a world and game to the hashmap
      */
     public void addWorld(String world) {
         this.gameMap.put(world, new SurvivalPlayer(this.plugin));
     }
+
     public void removeWorld(String world) {
         this.gameMap.remove(world);
     }
@@ -72,12 +72,12 @@ public class GamesList {
     public void setGameList() {
         this.worldList = Minecraft_Test.getPlugin(Minecraft_Test.class).getConfig().getStringList("allowed-worlds");
     }
+
     public List<String> getGameList() {
         return this.worldList;
     }
 
     /**
-     *
      * @return Hashmap of whether each world is in session or not
      */
     public HashMap<String, String> getGameStatus() {
@@ -89,7 +89,6 @@ public class GamesList {
     }
 
     /**
-     *
      * @return Hashmap of the amount of people in each game
      */
     public HashMap<String, String> getGameSizes() {
@@ -112,6 +111,7 @@ public class GamesList {
 
         this.gameInfos = list;
     }
+
     public ArrayList<String> getGameInfos() {
         this.setGameInfos();
         return this.gameInfos;
@@ -119,7 +119,7 @@ public class GamesList {
 
     public List<String> getInfoString(String world) {
         List<String> l = new ArrayList<>();
-        l.add((this.getGameMap().get(world).getPlaying() ? (ChatColor.RED + "Game in session") : (ChatColor.GRAY + "Game in lobby: " + this.getGameMap().get(world).getStatusMap().size() + "/" + this.getGameMap().get(world).getMaxPl()))) ;
+        l.add((this.getGameMap().get(world).getPlaying() ? (ChatColor.RED + "Game in session") : (ChatColor.GRAY + "Game in lobby: " + this.getGameMap().get(world).getStatusMap().size() + "/" + this.getGameMap().get(world).getMaxPl())));
         return l;
     }
 
@@ -130,7 +130,7 @@ public class GamesList {
     /**
      * Testing
      */
-    public void reloadGameMap(){
+    public void reloadGameMap() {
         initGameMap(this.getGameList());
     }
 
