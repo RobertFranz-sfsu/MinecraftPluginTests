@@ -35,6 +35,9 @@ husbandry:
   # Number from 0%-100%
   instant-adult-while-breeding-increase: 0.1
 
+  max-multi-breeding-chance: 80.0
+  max-instant-adult-chance: 80.0
+
 lockpicking:
   base:
     # Number from 0%-100%

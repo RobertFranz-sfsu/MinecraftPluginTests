@@ -22,7 +22,7 @@ public class PlayerProfile {
     private double husbandryAnimalDrops;
     ConfigUtil playerCon;
     double[] skills = new double[9];
-    /**
+    /*
      * 0 lockpicking
      * 1 farming
      * 2 stamina (skill)
@@ -138,15 +138,22 @@ public class PlayerProfile {
     public void setInstantAdultChance(){
         this.instantAdultChance = plugin.getSkillSettings().getConfig().getDouble("husbandry.base-instant-adult-while-breeding") +
                 (plugin.getPlayers().get(uid).getSkills()[4] * plugin.getSkillSettings().getConfig().getDouble("husbandry.instant-adult-while-breeding-increase"));
+        playerCon.getConfig().set("husbandry-instant-adult-chance", this.instantAdultChance);
+        playerCon.save();
     }
 
     public void setMultiBreedChance(){
         this.multiBreedChance = plugin.getSkillSettings().getConfig().getDouble("husbandry.base-chance-of-multi-breeding") +
                 (plugin.getPlayers().get(uid).getSkills()[4] * plugin.getSkillSettings().getConfig().getDouble("husbandry.chance-of-multi-breeding-increase"));
+        playerCon.getConfig().set("husbandry-multi-breeding-chance", this.multiBreedChance);
+        playerCon.save();
     }
 
     public void setHusbandryAnimalDrops(){
+        // CODE GOES HERE LOL
 
+        playerCon.getConfig().set("husbandry-multi-drop-chance", this.multiBreedChance);
+        playerCon.save();
     }
     public void setPlayerCon(){ playerCon = new ConfigUtil(plugin, System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + uid + ".yml"); }
 

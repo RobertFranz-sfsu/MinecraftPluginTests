@@ -75,6 +75,7 @@ public class PlayerHandler implements Listener {
     @EventHandler
     public void OnPlayerLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
+        UUID id = event.getPlayer().getUniqueId();
         String path = System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + player.getUniqueId() + ".yml";
         File dir = new File(plugin.getDataFolder().getPath() + System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator"));
         File[] dirList = dir.listFiles();
@@ -86,14 +87,15 @@ public class PlayerHandler implements Listener {
             fileNames.add(f.getName());
         }
 
-        if (!fileNames.contains(player.getUniqueId() + ".yml")) {
+        if (!fileNames.contains(id + ".yml")) {
             try {
                 Bukkit.getLogger().info("Creating new profile");
-                File p = new File(plugin.getDataFolder().getPath() + System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + player.getUniqueId() + ".yml");
+                File p = new File(plugin.getDataFolder().getPath() + System.getProperty("file.separator") + "PlayerInfo" + System.getProperty("file.separator") + id + ".yml");
                 p.createNewFile();
 
                 ConfigUtil con = new ConfigUtil(plugin, path);
                 ConfigUtil con1 = new ConfigUtil(plugin, "PlayerInfo" + System.getProperty("file.separator") + "DefaultPlayerSettings.yml");
+                ConfigUtil config = plugin.getSkillSettings();
 
                 // TODO
                 //  set these to base values from configs!!!
@@ -122,28 +124,30 @@ public class PlayerHandler implements Listener {
                 con.getConfig().set("saved-cooking-devices", 0.0);
                 con.save();
 
-                plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
+                plugin.getPlayers().put(id, plugin.getLoader().loadPlayer(id));
 
                 // Melee
-                plugin.getPlayers().get(player.getUniqueId()).setMeleeDamage();
-                plugin.getPlayers().get(player.getUniqueId()).setMeleeCritChance();
+                plugin.getPlayers().get(id).setMeleeDamage();
+                plugin.getPlayers().get(id).setMeleeCritChance();
 
                 // Ranged
-                plugin.getPlayers().get(player.getUniqueId()).setRangedDamage();
-                plugin.getPlayers().get(player.getUniqueId()).setRangedCritChance();
+                plugin.getPlayers().get(id).setRangedDamage();
+                plugin.getPlayers().get(id).setRangedCritChance();
 
                 // Husbandry
-                plugin.getPlayers().get(player.getUniqueId()).setInstantAdultChance();
-                plugin.getPlayers().get(player.getUniqueId()).setMultiBreedChance();
-                plugin.getPlayers().get(player.getUniqueId()).setHusbandryAnimalDrops();
+                Bukkit.getLogger().info("instant adult chance: " + plugin.getPlayers().get(id).getInstantAdultChance());
+                plugin.getPlayers().get(id).setInstantAdultChance();
+                Bukkit.getLogger().info("instant adult chance: " + plugin.getPlayers().get(id).getInstantAdultChance());
 
-                plugin.getPlayers().get(player.getUniqueId()).save();
+                plugin.getPlayers().get(id).setMultiBreedChance();
+                plugin.getPlayers().get(id).setHusbandryAnimalDrops();
 
+//                plugin.getPlayers().get(id).save();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }else{
-            plugin.getPlayers().put(player.getUniqueId(), plugin.getLoader().loadPlayer(player.getUniqueId()));
+            plugin.getPlayers().put(id, plugin.getLoader().loadPlayer(id));
         }
 
         Bukkit.getLogger().severe("Registered player: " + player.getUniqueId());

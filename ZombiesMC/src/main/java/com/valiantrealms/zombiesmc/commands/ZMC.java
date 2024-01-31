@@ -41,6 +41,7 @@ public class ZMC implements CommandExecutor {
             if(sender != Bukkit.getConsoleSender()){
                 player = (Player) sender;
             }
+
             assert player != null;
 
             switch(args[0].toLowerCase()){
@@ -129,7 +130,7 @@ public class ZMC implements CommandExecutor {
                  * TESTING SECTION
                  */
                 case "test":
-                  plugin.getHusbandry().setVals();
+                  Bukkit.getLogger().info("husbandry.base-instant-adult-while-breeding: " + plugin.getSkillSettings().getConfig().getDouble("husbandry.base-instant-adult-while-breeding"));
                   break;
 
                 case "t":

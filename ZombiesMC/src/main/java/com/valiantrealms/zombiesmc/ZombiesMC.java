@@ -44,10 +44,18 @@ public final class ZombiesMC extends JavaPlugin {
 
     // Other plugins
     Vault econ;
+    boolean hasProtocolLib;
 
     @Override
     public void onEnable() {
         Bukkit.getLogger().info("Enabling ZombiesMC");
+
+        if(this.getServer().getPluginManager().getPlugin("ProtocolLib") == null){
+            Bukkit.getLogger().info("NO VNP");
+            this.hasProtocolLib = false;
+        }else{
+            this.hasProtocolLib = true;
+        }
 
         //Configs
         this.saveDefaultConfig();
@@ -113,6 +121,7 @@ public final class ZombiesMC extends JavaPlugin {
     public void register(UUID id){
         this.getPlayers().get(id).register(id);
     }
+    public boolean isHasProtocolLib() { return this.hasProtocolLib; }
 
     /**
      * Config Files

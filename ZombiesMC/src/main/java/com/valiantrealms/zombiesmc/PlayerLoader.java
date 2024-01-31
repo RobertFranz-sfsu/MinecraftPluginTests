@@ -1,5 +1,7 @@
 package com.valiantrealms.zombiesmc;
 
+import org.bukkit.Bukkit;
+
 import java.util.UUID;
 
 public class PlayerLoader {
