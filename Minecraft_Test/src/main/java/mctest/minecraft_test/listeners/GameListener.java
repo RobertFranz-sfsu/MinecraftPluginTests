@@ -73,7 +73,7 @@ public class GameListener implements Listener {
         }
 
         Bukkit.getLogger().info("Player:  " + player.getName() + "  has disconnected");
-        role.setNotPlaying(player, game);
+        role.setNotPlaying(player, game, invUtil);
     }
 
     @EventHandler
