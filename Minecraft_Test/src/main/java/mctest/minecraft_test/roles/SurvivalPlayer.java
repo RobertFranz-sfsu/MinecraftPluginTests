@@ -26,9 +26,20 @@ import mctest.minecraft_test.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -354,7 +365,7 @@ public class SurvivalPlayer implements Listener {
             for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
                 if (entry.getKey() != null) {
                     plugin.getIsPlayingSet().add(entry.getKey());
-                    Bukkit.dispatchCommand(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())), "m");
+                    Bukkit.dispatchCommand(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())), "infectedmenu");
                 }
             }
         } catch (Exception e) {
@@ -802,7 +813,6 @@ public class SurvivalPlayer implements Listener {
         return this.endTime;
     }
 
-
     /**
      * Inventory util for getting previous inventories
      * */
@@ -811,36 +821,190 @@ public class SurvivalPlayer implements Listener {
         return this.invUtil;
     }
 
+
     /**
-     * Hiding usernames
+     * Listeners
+     * @param event
      */
 
-//    public void hideNames(Player player){
-//        ArmorStand as = (ArmorStand) player.getWorld().spawnEntity(player.getLocation(), EntityType.ARMOR_STAND);
-//        as.setVisible(false);
-//        as.setMetadata("nametag", new FixedMetadataValue(plugin, true));
-////        as.setBasePlate(false);
-//        as.setMarker(true);
-//        if(plugin.getIs18()){
-//            player.setPassenger(as);
-//        }else{
-//            player.addPassenger(as);
-//        }
-//    }
-//
-//    public void showNames(Player player){
-//        if(plugin.getIs18()){
-//            Entity entity = player.getPassenger();
-//            if(Objects.requireNonNull(entity).hasMetadata("nametag")){
-//                entity.remove();
-//            }
-//        }else{
-//            List<Entity> entities = player.getPassengers();
-//            for(Entity x : entities){
-//                if(Objects.requireNonNull(x).hasMetadata("nametag")){
-//                    x.remove();
-//                }
-//            }
-//        }
-//    }
+    @EventHandler
+    private void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        if (!this.getStatusMap().containsKey(player.getUniqueId())) {
+            return;
+        }
+        Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+        event.getDrops().clear();
+    }
+    @EventHandler
+    private void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        if (!this.getStatusMap().containsKey(player.getUniqueId())) {
+            return;
+        }
+        Bukkit.getLogger().info(player.getName() + " set as infected");
+        this.getStatusMap().put(player.getUniqueId(), "infected");
+        role.setRole(player, this);
+    }
+    @EventHandler
+    private void onPlayerDisconnect(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (!this.getStatusMap().containsKey(player.getUniqueId())) {
+            return;
+        }
+
+        Bukkit.getLogger().info("Player:  " + player.getName() + "  has disconnected");
+        role.setNotPlaying(player, this, invUtil);
+    }
+
+    @EventHandler
+    private void onPlayerDamage(EntityDamageByEntityEvent event) {
+        if(this.getPlaying()){
+            try {
+                Entity attacker = event.getDamager();
+                Entity damaged = event.getEntity();
+                Player player = (Player) damaged;
+
+                // If shooter and target are on same team, cancel damage
+                if((event.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE))){
+                    ProjectileSource attack = ((Projectile) event.getDamager()).getShooter();
+                    Entity victim = event.getEntity();
+
+                    Bukkit.getLogger().severe("PLAYER: " + player.getHealth() + ", DAMAGE: " + event.getDamage());
+
+                    if (!this.getStatusMap().containsKey(Objects.requireNonNull(((Player)attack)).getUniqueId()) && !this.getStatusMap().containsKey(victim.getUniqueId())) {
+                        return;
+                    }
+
+                    if((victim instanceof Player)){
+                        if(Objects.equals(this.getStatusMap().get(((Player) attack).getUniqueId()), this.getStatusMap().get(victim.getUniqueId()))){
+                            event.setCancelled(true);
+                        }else if(event.getDamage() >= player.getHealth()){
+                            event.setCancelled(true);
+
+                            if(plugin.doKeepScore()){
+                                Player killer = (Player) attacker;
+
+                                if(plugin.doInfectedKills() && Objects.equals(this.getStatusMap().get(killer.getUniqueId()), "infected")){
+                                    int k = this.infectedKills.get(killer.getUniqueId()) + 1;
+                                    this.infectedKills.put(killer.getUniqueId(), k);
+                                }
+
+                                if(plugin.doSurvivorKills() && Objects.equals(this.getStatusMap().get(killer.getUniqueId()), "survivor")){
+                                    int k = this.survivorKills.get(killer.getUniqueId()) + 1;
+                                    this.survivorKills.put(killer.getUniqueId(), k);
+                                }
+                            }
+
+                            Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+                            if(Objects.equals(this.getStatusMap().get(player.getUniqueId()).toLowerCase(), "survivor")){
+                                this.getStatusMap().put(player.getUniqueId(), "infected");
+                                invUtil.clearInventory(player);
+                            }
+
+                            role.removeEffects(player);
+                            role.setRole(player, this);
+
+                            player.teleport(this.getInfSpawn());
+
+                            new CountdownTimer(this.plugin, this.getRespawnTime(),
+                                    // What happens at the start
+                                    () -> {
+                                        this.gethealthMap().put(player.getUniqueId(), "dead");
+                                        player.setWalkSpeed(0);
+                                    },
+                                    // What happens at the end
+                                    () -> {
+                                        if (this.getPlaying()) {
+                                            this.gethealthMap().put(player.getUniqueId(), "alive");
+                                            player.setWalkSpeed(this.getInfSpeed());
+                                        }
+                                    },
+                                    // What happens during each tick
+                                    (t) -> {
+                                        if (this.getPlaying()) {
+                                            scoreboard.respawnBoard(player, t.getSecondsLeft());
+                                        }
+                                    }).scheduleTimer();
+                        }
+                    }
+                }
+                // If on same team, cancel damage
+                else if (Objects.equals(this.getStatusMap().get(attacker.getUniqueId()), this.getStatusMap().get(damaged.getUniqueId())) && this.getPlaying()) {
+                    event.setCancelled(true);
+                }
+
+                else if(event.getDamage() >= player.getHealth()){
+                    event.setCancelled(true);
+
+                    if(plugin.doKeepScore()){
+                        Player killer = (Player) attacker;
+
+                        if(plugin.doInfectedKills() && Objects.equals(this.getStatusMap().get(killer.getUniqueId()), "infected")){
+                            int k = this.infectedKills.get(killer.getUniqueId()) + 1;
+                            this.infectedKills.put(killer.getUniqueId(), k);
+                        }
+
+                        if(plugin.doSurvivorKills() && Objects.equals(this.getStatusMap().get(killer.getUniqueId()), "survivor")){
+                            int k = this.survivorKills.get(killer.getUniqueId()) + 1;
+                            this.survivorKills.put(killer.getUniqueId(), k);
+                        }
+                    }
+
+                    Bukkit.getLogger().info("Player:  " + player.getName() + "  has died ");
+                    if(Objects.equals(this.getStatusMap().get(player.getUniqueId()).toLowerCase(), "survivor")){
+                        this.getStatusMap().put(player.getUniqueId(), "infected");
+                        invUtil.clearInventory(player);
+                    }
+
+                    role.removeEffects(player);
+                    role.setRole(player, this);
+
+                    player.teleport(this.getInfSpawn());
+
+                    new CountdownTimer(this.plugin, this.getRespawnTime(),
+                            // What happens at the start
+                            () -> {
+                                this.gethealthMap().put(player.getUniqueId(), "dead");
+                                player.setWalkSpeed(0);
+                            },
+                            // What happens at the end
+                            () -> {
+                                if (this.getPlaying()) {
+                                    this.gethealthMap().put(player.getUniqueId(), "alive");
+                                    player.setWalkSpeed(this.getInfSpeed());
+                                }
+                            },
+                            // What happens during each tick
+                            (t) -> {
+                                if (this.getPlaying()) {
+                                    scoreboard.respawnBoard(player, t.getSecondsLeft());
+                                }
+                            }).scheduleTimer();
+                }
+            } catch (Exception e) {
+//            Bukkit.getLogger().info("Mob attacking mob");
+            }
+        }
+    }
+
+    @EventHandler
+    private void disableMovement(PlayerMoveEvent event) {
+        if (!this.getStatusMap().containsKey(event.getPlayer().getUniqueId())) {
+            return;
+        }
+        if (Objects.equals(this.gethealthMap().get(event.getPlayer().getUniqueId()), "dead")) {
+            if (Objects.requireNonNull(event.getTo()).getY() > event.getFrom().getY()) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    private void inventoryOpen(InventoryOpenEvent event){
+        if(this.getPlaying()){
+            Player player = (Player) event.getPlayer();
+            role.setEffects(player, this);
+        }
+    }
 }

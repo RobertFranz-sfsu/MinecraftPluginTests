@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
@@ -588,6 +589,10 @@ public class Infected implements CommandExecutor, Listener {
                     break;
                 case "games": case "g":
                     glc.gamesList(player);
+                    break;
+
+                case "menu": case "m":
+                    Bukkit.dispatchCommand(sender, "infectedmenu");
                     break;
 
                 case "test":

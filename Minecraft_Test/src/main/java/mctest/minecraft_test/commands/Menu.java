@@ -49,7 +49,7 @@ public class Menu implements Listener, CommandExecutor {
 
         try {
             // Might need to uncomment if doesnt work
-            //this.player = (Player) event.getWhoClicked();
+            this.player = (Player) event.getWhoClicked();
 
             int slot = event.getSlot();
             SurvivalPlayer game = g.getGameMap().get(this.player.getWorld().getName());

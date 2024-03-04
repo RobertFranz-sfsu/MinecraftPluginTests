@@ -9,7 +9,7 @@ commands:
   menu:
     description: Opens the Server Menu
     usage: /menu
-    aliases: [m, im]
+    aliases: [m, im, infectedmenu]
     permission: infected.menu
     permission-message: You do not have permission to open the menu
   spawn: # maybe remove this too
