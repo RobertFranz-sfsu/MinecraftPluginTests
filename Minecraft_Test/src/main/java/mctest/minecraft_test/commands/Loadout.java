@@ -63,6 +63,7 @@ public class Loadout implements CommandExecutor {
 
                                     con.getConfig().set(args[1] + ".placeholder", item);
                                     con.save();
+                                    plugin.setLoadoutCon();
 
                                     sender.sendMessage("New loadout created with name: " + args[1]);
                                 }
@@ -89,6 +90,7 @@ public class Loadout implements CommandExecutor {
                                 }else{
                                     con.getConfig().set(args[1], null);
                                     con.save();
+                                    plugin.setLoadoutCon();
 
                                     sender.sendMessage("Loadout " + args[1] + " has been deleted!");
                                 }
@@ -156,6 +158,7 @@ public class Loadout implements CommandExecutor {
                                     }
 
                                     con.save();
+                                    plugin.setLoadoutCon();
 
                                     sender.sendMessage("Loadout has been saved to " + args[1]);
                                 }
@@ -310,6 +313,7 @@ public class Loadout implements CommandExecutor {
 
                                     con.getConfig().set(args[1] + ".placeholder", item);
                                     con.save();
+                                    plugin.setLoadoutCon();
 
                                     sender.sendMessage("Placeholder for " + args[1] + " has been updated!");
                                 }
@@ -366,6 +370,7 @@ public class Loadout implements CommandExecutor {
                                     }
 
                                     con.save();
+                                    plugin.setLoadoutCon();
 
                                     sender.sendMessage("Description for " + args[1] + " has been updated!");
                                 }
@@ -402,6 +407,7 @@ public class Loadout implements CommandExecutor {
                                     }
                                     con.getConfig().set(args[1] + ".type", type);
                                     con.save();
+                                    plugin.setLoadoutCon();
                                     sender.sendMessage("Type for loadout " + args[1] + " set to " + type);
                                 }
                             }catch(Exception e){
@@ -425,6 +431,7 @@ public class Loadout implements CommandExecutor {
                             try{
                                 con.getConfig().set(args[1] + ".permission", args[2].toLowerCase());
                                 con.save();
+                                plugin.setLoadoutCon();
                                 sender.sendMessage("&fThe permission for " + args[1] + " has been set to " + args[2].toLowerCase());
                             }catch(Exception e){
                                 sender.sendMessage("Something went wrong. Please check the console.");
@@ -461,6 +468,7 @@ public class Loadout implements CommandExecutor {
                                 Objects.requireNonNull(im).setLore(lore);
                                 item.setItemMeta(im);
                                 con.save();
+                                plugin.setLoadoutCon();
 
                                 sender.sendMessage("The price for " + args[1] + " has been set to " + Double.valueOf(args[2]));
                             }catch(Exception e){

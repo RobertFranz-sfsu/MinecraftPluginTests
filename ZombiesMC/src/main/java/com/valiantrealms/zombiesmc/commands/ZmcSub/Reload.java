@@ -3,6 +3,7 @@ package com.valiantrealms.zombiesmc.commands.ZmcSub;
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import org.bukkit.Bukkit;
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class Reload {
     private final ZombiesMC plugin;
     public Reload(ZombiesMC plugin){
@@ -21,6 +22,12 @@ public class Reload {
             plugin.getStrength().setConfig();
             plugin.getRanged().setConfig();
             plugin.getStealth().setConfig();
+            plugin.getHusbandry().setConfig();
+            plugin.getFarming().setConfig();
+            plugin.getLockpicking().setConfig();
+            plugin.getSalvage().setConfig();
+            plugin.getCooking().setConfig();
+            plugin.getExperience().setConfig();
 
         }catch(Exception e){
             Bukkit.getLogger().severe("Something went wrong trying to reload the configs," +

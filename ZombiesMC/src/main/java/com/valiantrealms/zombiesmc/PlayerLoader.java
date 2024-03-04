@@ -14,4 +14,24 @@ public class PlayerLoader {
 
         return profile;
     }
+
+    public void setPlayer(UUID id){
+        // Melee
+        plugin.getPlayers().get(id).setMeleeDamage();
+        plugin.getPlayers().get(id).setMeleeCritChance();
+
+        // Ranged
+        plugin.getPlayers().get(id).setRangedDamage();
+        plugin.getPlayers().get(id).setRangedCritChance();
+
+        // Husbandry
+        Bukkit.getLogger().info("instant adult chance: " + plugin.getPlayers().get(id).getInstantAdultChance());
+        plugin.getPlayers().get(id).setInstantAdultChance();
+        Bukkit.getLogger().info("instant adult chance: " + plugin.getPlayers().get(id).getInstantAdultChance());
+
+        plugin.getPlayers().get(id).setMultiBreedChance();
+        plugin.getPlayers().get(id).setFarmingMultiHarvestChance();
+
+        plugin.getExperience().addPlayer(id);
+    }
 }

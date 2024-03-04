@@ -2,6 +2,7 @@ package com.valiantrealms.zombiesmc.util.skills;
 
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
+import org.bukkit.Bukkit;
 
 import java.util.Random;
 import java.util.UUID;
@@ -18,7 +19,7 @@ public class Ranged {
     }
 
     public void levelUp(UUID id){
-        plugin.getPlayers().get(id).getSkills()[7] += plugin.getSkillSettings().getConfig().getDouble("ranged.increase-per-level");
+        plugin.getPlayers().get(id).getSkills()[7] += plugin.getSkillSettings().getConfig().getDouble("ranged.points-given-per-level-up");
         plugin.getPlayers().get(id).updateRanged();
     }
 
@@ -35,13 +36,13 @@ public class Ranged {
         double num = (Math.floor(rand.nextDouble() * 1000))/10;
 
         boolean isCrit = (num <= critChance);
-        if(isCrit){ damage = damage * con.getConfig().getDouble("ranged.crit-damage-multiplier"); }
+        if(isCrit){ damage = damage * con.getConfig().getDouble("ranged.crit.multiplier"); }
 
         return damage;
     }
 
     public void setConfig() {
         con = plugin.getSkillSettings();
-        maxCritChance = con.getConfig().getDouble("ranged.max-crit-chance");
+        maxCritChance = con.getConfig().getDouble("ranged.crit.max-chance");
     }
 }

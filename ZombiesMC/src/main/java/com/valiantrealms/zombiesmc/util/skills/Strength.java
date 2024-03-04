@@ -2,6 +2,7 @@ package com.valiantrealms.zombiesmc.util.skills;
 
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.ConfigUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 import java.util.Random;
@@ -19,7 +20,7 @@ public class Strength implements Listener {
     }
 
     public void levelUp(UUID id){
-        plugin.getPlayers().get(id).getSkills()[5] += plugin.getSkillSettings().getConfig().getDouble("strength.increase-per-level");
+        plugin.getPlayers().get(id).getSkills()[5] += plugin.getSkillSettings().getConfig().getDouble("strength.points-given-per-level-up");
         plugin.getPlayers().get(id).setHealth();
         plugin.getPlayers().get(id).updateStrength();
     }
@@ -29,6 +30,7 @@ public class Strength implements Listener {
         double critChance = Math.min(maxCritChance, plugin.getPlayers().get(id).getMeleeCritChance());
 
         if(critChance > maxCritChance){
+            Bukkit.getLogger().info("MELEE CRIT");
             critChance = maxCritChance;
         }
 
@@ -37,13 +39,13 @@ public class Strength implements Listener {
         double num = (Math.floor(rand.nextDouble() * 1000))/10;
 
         boolean isCrit = (num <= critChance);
-        if(isCrit){ damage = damage * con.getConfig().getDouble("strength.crit-damage-multiplier"); }
+        if(isCrit){ damage = damage * con.getConfig().getDouble("strength.crit.multiplier"); }
 
         return damage;
     }
 
     public void setConfig() {
         con = plugin.getSkillSettings();
-        maxCritChance = con.getConfig().getDouble("strength.max-crit-chance");
+        maxCritChance = con.getConfig().getDouble("strength.crit.max-chance");
     }
 }

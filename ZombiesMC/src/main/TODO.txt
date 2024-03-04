@@ -1,3 +1,14 @@
+SKILL ARRAY:
+ * 0 lockpicking
+ * 1 farming
+ * 2 stamina (skill)
+ * 3 salvage
+ * 4 husbandry
+ * 5 strength
+ * 6 cooking
+ * 7 ranged
+ * 8 stealth
+
 block health values (configurable with blockvalues.yml)
     maybe use custom anvils or something similar?
     use -1 to make block unbreakable
@@ -7,6 +18,8 @@ different zombie types
 zombie behavior
     zombies only break blocks when trying to get to the player
         maybe make it so the blocks must be player placed as well?
+
+# number starting from 0.0. Equation is: final damage = damage + (original damage * (unarmed level * crit chance increase))
 
 stamina
     maybe use xp bar as a stamina bar?

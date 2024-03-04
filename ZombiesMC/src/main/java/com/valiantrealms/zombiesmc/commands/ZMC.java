@@ -113,8 +113,9 @@ public class ZMC implements CommandExecutor {
                     }
 
                     try{
-                        boolean setSkill = plugin.getPlayers().get(Bukkit.getPlayer(args[1]).getUniqueId()).setSkillCommand(args[2], Double.parseDouble(args[3]));
+                        boolean setSkill = plugin.getPlayers().get(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId()).setSkillCommand(args[2], Double.parseDouble(args[3]));
                         if(setSkill){
+                            plugin.getPlayers().get(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId()).setVals();
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully updated &b" + args[1] + "'s &c" + args[2] + " &flevel to &c" + args[3] + "&f."));
                         }else{
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cCouldn't update player skill. Check the input arguments and try again."));
@@ -130,7 +131,12 @@ public class ZMC implements CommandExecutor {
                  * TESTING SECTION
                  */
                 case "test":
-                  Bukkit.getLogger().info("husbandry.base-instant-adult-while-breeding: " + plugin.getSkillSettings().getConfig().getDouble("husbandry.base-instant-adult-while-breeding"));
+                    boolean setSkill = plugin.getPlayers().get(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId()).setSkillCommand(args[2], Double.parseDouble(args[3]));
+                    if(setSkill){
+                        plugin.getPlayers().get(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId()).setVals();
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully updated &b" + args[1] + "'s &c" + args[2] + " &flevel to &c" + args[3] + "&f."));
+                        plugin.getStealth().setStealth(Objects.requireNonNull(Bukkit.getPlayer(args[1])).getUniqueId());
+                    }
                   break;
 
                 case "t":
@@ -151,6 +157,9 @@ public class ZMC implements CommandExecutor {
                     ConcurrentHashMap<UUID, PlayerProfile> test = plugin.getPlayers();
 
                     test.forEach((key, value) -> Bukkit.getLogger().info(key + ""));
+                    break;
+                case "xp":
+                    Bukkit.getLogger().info(plugin.getExperience().getXp().toString());
                     break;
             }
         }catch(Exception e){

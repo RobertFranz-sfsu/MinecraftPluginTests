@@ -6,6 +6,8 @@ com\valiantrealms\zombiesmc\util\skills\Strength.class
 com\valiantrealms\zombiesmc\ZombiesMC.class
 com\valiantrealms\zombiesmc\util\skills\Farming.class
 com\valiantrealms\zombiesmc\commands\ZmcSub\Reload.class
+com\valiantrealms\zombiesmc\util\skills\Salvage.class
+com\valiantrealms\zombiesmc\util\Experience.class
 com\valiantrealms\zombiesmc\util\ConfigUtil.class
 com\valiantrealms\zombiesmc\util\BlockListener.class
 com\valiantrealms\zombiesmc\util\PlayerHandler.class
