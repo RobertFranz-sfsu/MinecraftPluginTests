@@ -8,6 +8,7 @@ import mctest.minecraft_test.Minecraft_Test;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Skull;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -67,26 +68,27 @@ public class GetCustomHead {
             }
         }
 
-        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null); // Create a GameProfile
+//            GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "null"); // Create a GameProfile
+        GameProfile gameProfile = new GameProfile(url1, Objects.requireNonNull(Bukkit.getOfflinePlayer(url1)).getName());
         byte[] data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", s_url.toString()).getBytes());
 
-        // Set the texture property in the GameProfile.
-        gameProfile.getProperties().put("textures", new Property("textures", new String(data)));
-        Field field = null;
+            // Set the texture property in the GameProfile.
+            gameProfile.getProperties().put("textures", new Property("textures", new String(data)));
+            Field field = null;
 
-        try {
-            field = skullMeta.getClass().getDeclaredField("profile"); // Get the field profile.
-            field.setAccessible(true); // Set as accessible to modify.
-            field.set(skullMeta, gameProfile); // Set in the skullMeta the modified GameProfile that we created.
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            try {
+                field = skullMeta.getClass().getDeclaredField("profile"); // Get the field profile.
+                field.setAccessible(true); // Set as accessible to modify.
+                field.set(skullMeta, gameProfile); // Set in the skullMeta the modified GameProfile that we created.
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-        if(plugin.getIs18()){;
-            skullMeta.setOwner(url1.toString());
-        }else{
-            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(url1));
-        }
+            if (plugin.getIs18()) {
+                skullMeta.setOwner(url1.toString());
+            } else {
+                skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(url1));
+            }
 
         skull.setItemMeta(skullMeta);
         return skull;

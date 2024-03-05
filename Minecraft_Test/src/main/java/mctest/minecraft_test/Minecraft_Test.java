@@ -27,7 +27,7 @@ public final class Minecraft_Test extends JavaPlugin {
         return this.getConfig();
     }
 
-    private final ConcurrentHashMap<String, Integer[]> statsMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Integer[]> statsMap = new ConcurrentHashMap<>();
     private HashMap<UUID, Integer> gameIDMap = new HashMap<>();
     public HashMap<UUID, Integer> getGameIDMap() {
         return this.gameIDMap;
@@ -40,6 +40,7 @@ public final class Minecraft_Test extends JavaPlugin {
 
     // Checks for things
     private boolean is18;
+    private boolean is20;
     private boolean doKeepScore;
     private boolean loadoutPrices;
     private boolean survivorGamesWon;
@@ -64,6 +65,7 @@ public final class Minecraft_Test extends JavaPlugin {
         Bukkit.getLogger().info("Server Started");
         this.saveDefaultConfig();
         this.setIs18();
+        this.setIs20();
         this.setLoadoutCon();
         this.setDoKeepScore();
 
@@ -149,9 +151,11 @@ public final class Minecraft_Test extends JavaPlugin {
      * Version check
      */
     public boolean getIs18(){ return this.is18; }
+    public boolean getIs20(){return this.is20; }
 
-    private void setIs18(){
-        is18 = Bukkit.getVersion().contains("1.8");
+    private void setIs18(){ this.is18 = Bukkit.getVersion().contains("1.8"); }
+    private void setIs20(){
+        this.is20 = Bukkit.getVersion().contains("1.20");
     }
 
     /**
@@ -225,21 +229,21 @@ public final class Minecraft_Test extends JavaPlugin {
                 String newPath = System.getProperty("file.separator") + "Scores"  + System.getProperty("file.separator") + child.getName();
                 ConfigUtil s = new ConfigUtil(this, newPath);
 //                String name = s.getConfig().getString("username");
-                String name = child.getName().substring(0, child.getName().length() - 4);
+                String uuid = child.getName().substring(0, child.getName().length() - 4);
                 int played = s.getConfig().getInt("games-played");
                 int infKills = s.getConfig().getInt("infected-kills");
                 int infWins = s.getConfig().getInt("infected-wins");
                 int surKills = s.getConfig().getInt("survivor-kills");
                 int surWins = s.getConfig().getInt("survivor-wins");
 
-                this.statsMap.put(name, new Integer[] {played, infKills, infWins, surKills, surWins});
+                this.statsMap.put(UUID.fromString(uuid), new Integer[] {played, infKills, infWins, surKills, surWins});
             }
             Bukkit.getLogger().info("Printing Values");
             this.statsMap.forEach((key, value) -> Bukkit.getLogger().info(key + "  " + Arrays.toString(value)));
 
         }
     }
-    public ConcurrentHashMap<String, Integer[]> getStatsMap() {
+    public ConcurrentHashMap<UUID, Integer[]> getStatsMap() {
         return this.statsMap;
     }
 

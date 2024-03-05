@@ -34,6 +34,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -872,18 +873,20 @@ public class SurvivalPlayer implements Listener {
 
                     Bukkit.getLogger().severe("PLAYER: " + player.getHealth() + ", DAMAGE: " + event.getDamage());
 
+                    // If they aren't in the game
                     if (!this.getStatusMap().containsKey(Objects.requireNonNull(((Player)attack)).getUniqueId()) && !this.getStatusMap().containsKey(victim.getUniqueId())) {
                         return;
                     }
 
                     if((victim instanceof Player)){
-                        if(Objects.equals(this.getStatusMap().get(((Player) attack).getUniqueId()), this.getStatusMap().get(victim.getUniqueId()))){
+                        if(Objects.equals(this.getStatusMap().get(((Player) attack).getUniqueId()), this.getStatusMap().get(victim.getUniqueId()))){ // If on the same team
                             event.setCancelled(true);
-                        }else if(event.getDamage() >= player.getHealth()){
+                        }else if(event.getDamage() >= player.getHealth()){ // If they died
+                            Bukkit.getLogger().warning("3");
                             event.setCancelled(true);
 
                             if(plugin.doKeepScore()){
-                                Player killer = (Player) attacker;
+                                Player killer = (Player) attack;
 
                                 if(plugin.doInfectedKills() && Objects.equals(this.getStatusMap().get(killer.getUniqueId()), "infected")){
                                     int k = this.infectedKills.get(killer.getUniqueId()) + 1;
@@ -984,6 +987,7 @@ public class SurvivalPlayer implements Listener {
                 }
             } catch (Exception e) {
 //            Bukkit.getLogger().info("Mob attacking mob");
+                e.printStackTrace();
             }
         }
     }

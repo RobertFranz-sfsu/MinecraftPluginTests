@@ -596,7 +596,7 @@ public class Infected implements CommandExecutor, Listener {
                     break;
 
                 case "test":
-                    Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(((Player) sender).getUniqueId().toString()));
+                    Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(((Player) sender).getUniqueId()));
                     for(Integer x : nArr){
                         sender.sendMessage(nArr[x] + "");
                     }

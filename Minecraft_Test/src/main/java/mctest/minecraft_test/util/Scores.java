@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import java.util.Objects;
 import java.util.UUID;
 
+@SuppressWarnings("ALL")
 public class Scores {
     private final Minecraft_Test plugin;
     private final SurvivalPlayer game;
@@ -20,7 +21,7 @@ public class Scores {
 
     public void setScores(UUID player) {
         ConfigUtil con = new ConfigUtil(plugin, System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator") + player + ".yml");
-        Integer[] nArr = plugin.getStatsMap().get(player.toString());
+        Integer[] nArr = plugin.getStatsMap().get(player);
 
 //        for(String x : plugin.getStatsMap().keySet()){
 //            Bukkit.getLogger().severe("NAME: " + x);
@@ -58,12 +59,12 @@ public class Scores {
         }
 
         con.save();
-        plugin.getStatsMap().put(Objects.requireNonNull(Bukkit.getPlayer(player)).getName(), nArr);
+        plugin.getStatsMap().put(Objects.requireNonNull(Bukkit.getPlayer(player)).getUniqueId(), nArr);
     }
 
     public void setGamesWon(UUID player, String team) {
         ConfigUtil con = new ConfigUtil(plugin, "/Scores/" + player + ".yml");
-        Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getName());
+        Integer[] nArr = plugin.getStatsMap().get(Objects.requireNonNull(Bukkit.getPlayer(player)).getUniqueId());
 
         if (plugin.doInfectedGamesWon() && team.equalsIgnoreCase("infected")) {
             int wins = con.getConfig().getInt("infected-wins");
@@ -80,7 +81,7 @@ public class Scores {
         }
 
         con.save();
-        plugin.getStatsMap().put(Objects.requireNonNull(Bukkit.getPlayer(player)).getName(), nArr);
+        plugin.getStatsMap().put(Objects.requireNonNull(Bukkit.getPlayer(player)).getUniqueId(), nArr);
     }
     public void giveRewards(Player player, String winner) {
         double reward;

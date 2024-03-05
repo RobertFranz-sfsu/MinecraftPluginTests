@@ -17,20 +17,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings({"CallToPrintStackTrace"})
 public class ZMC implements CommandExecutor {
     private final ZombiesMC plugin;
-    private int id = 867530942;
 
     Long saveTime;
     public ZMC(ZombiesMC plugin){
         this.plugin = plugin;
-        this.setSaveTime();
-        this.startSaveTask();
+//        plugin.setSaveTime();
+//        this.startSaveTask();
     }
 
-    public void startSaveTask(){
-        id = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            plugin.savePlayerData();
-        }, 0L, saveTime);
-    }
+//    public void startSaveTask(){
+//        id = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+//            plugin.savePlayerData();
+//        }, 0L, saveTime);
+//    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -50,10 +49,10 @@ public class ZMC implements CommandExecutor {
                         plugin.getReload().ReloadAll();
 
                         // Restarting the save task to update timer if time has changed
-                        if(!Objects.equals(plugin.getConfig().getLong("save-timer"), this.getSaveTime())){
-                            Bukkit.getServer().getScheduler().cancelTask(id);
-                            this.setSaveTime();
-                            this.startSaveTask();
+                        if(!Objects.equals(plugin.getConfig().getLong("save-timer"), plugin.getSaveTime())){
+                            Bukkit.getServer().getScheduler().cancelTask(plugin.getTaskId());
+                            plugin.setSaveTime();
+                            plugin.startSaveTask();
                         }
                     }catch (Exception e){
                         e.printStackTrace();
@@ -170,6 +169,6 @@ public class ZMC implements CommandExecutor {
         return true;
     }
 
-    public void setSaveTime(){ this.saveTime = 20 * plugin.getConfig().getLong("save-timer"); }
-    public long getSaveTime() { return this.saveTime; }
+//    public void setSaveTime(){ this.saveTime = 20 * plugin.getConfig().getLong("save-timer"); }
+//    public long getSaveTime() { return this.saveTime; }
 }

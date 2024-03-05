@@ -101,12 +101,19 @@ public class Menu implements Listener, CommandExecutor {
     // Removing the warning from the passed in objects.
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String [] args) {
+        con = plugin.getLoadoutCon();
+
         if (!(sender instanceof Player)) {
             sender.sendMessage(("Must be a player to run this command!"));
-            return true;
+            return false;
         }
 
         this.player = (Player) sender;
+        if(!player.isOp() && (!player.hasPermission("*") || !player.hasPermission("infected.*") || !player.hasPermission("infected.infected.*")) && !plugin.getIsPlayingSet().contains(player.getUniqueId())){
+            sender.sendMessage("Must be in a game to run this command!");
+            return false;
+        }
+
         Inventory inv = Bukkit.createInventory(player, 9 * 6, invName);
         int index = 0;
 

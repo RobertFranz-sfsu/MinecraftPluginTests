@@ -209,6 +209,21 @@ public final class ZombiesMC extends JavaPlugin {
     public boolean isCustomSkillSettings() { return this.isCustomSkillSettings; }
 
     /**
+     * Saving
+     */
+    private int taskID = 867530942;
+    Long saveTime;
+    public void setSaveTime(){ this.saveTime = 20 * this.getConfig().getLong("save-timer"); }
+
+    public void startSaveTask(){
+        taskID = this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            this.savePlayerData();
+        }, 0L, saveTime);
+    }
+    public long getSaveTime() { return this.saveTime; }
+    public int getTaskId() { return this.taskID; }
+
+    /**
      * ECONOMY STUFF
      */
     public void setEcon() { this.econ = new Vault(this); }

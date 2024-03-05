@@ -7,6 +7,8 @@ import mctest.minecraft_test.util.ConfigUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Skull;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -106,11 +108,12 @@ public class GamesListCommand {
                 .sorted((k1, k2) -> -k1.getValue()[pos].compareTo(k2.getValue()[pos]))
                 .limit(3)
                 .forEach(k -> {
-                    UUID u = UUID.fromString(k.getKey());
+                    UUID u = k.getKey();
                     uid.add(u);
                     topList.add(Bukkit.getOfflinePlayer(u).getName() + ": " + k.getValue()[pos]);
                 });
 
+//        ItemStack leaderboard = new ItemStack(custom.getCustomHead(uid.get(0)));
         ItemStack leaderboard = new ItemStack(custom.getCustomHead(uid.get(0)));
         ItemMeta leaderboardMeta = leaderboard.getItemMeta();
         assert leaderboardMeta != null;
@@ -120,5 +123,16 @@ public class GamesListCommand {
         leaderboardMeta.setLore(topList);
         leaderboard.setItemMeta(leaderboardMeta);
         return leaderboard;
+
+//        Skull skull = custom.getCustomSkull(uid.get(0));
+//        SkullMeta skullMeta = leaderboard.getMetadata();
+//        ItemMeta leaderboardMeta = leaderboard.getItemMeta();
+//        assert leaderboardMeta != null;
+//        leaderboardMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+//        Objects.requireNonNull(leaderboardMeta).setDisplayName(ChatColor.GOLD + name);
+//
+//        leaderboardMeta.setLore(topList);
+//        leaderboard.setItemMeta(leaderboardMeta);
+//        return leaderboard;
     }
 }
