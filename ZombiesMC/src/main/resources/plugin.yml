@@ -11,3 +11,7 @@ commands:
     usage: /zmc
     permission: zmc
     permission-message: You do not have permission to run this command.
+  unlock:
+    description: Unlock chest
+    usage: /unlock
+    aliases: un
