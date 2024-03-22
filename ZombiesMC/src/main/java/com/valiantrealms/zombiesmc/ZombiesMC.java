@@ -1,5 +1,6 @@
 package com.valiantrealms.zombiesmc;
 
+import com.valiantrealms.zombiesmc.commands.Unlock;
 import com.valiantrealms.zombiesmc.commands.ZMC;
 import com.valiantrealms.zombiesmc.commands.ZmcSub.Reload;
 import com.valiantrealms.zombiesmc.util.*;
@@ -82,6 +83,7 @@ public final class ZombiesMC extends JavaPlugin {
 
         // Enabling commands
         Objects.requireNonNull(getCommand("zmc")).setExecutor(new ZMC(this));
+        Objects.requireNonNull(getCommand("unlock")).setExecutor(new Unlock(this));
         this.setSubCommands();
 
         // Enabling utils
