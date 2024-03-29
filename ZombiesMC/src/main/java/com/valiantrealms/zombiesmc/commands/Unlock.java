@@ -3,48 +3,55 @@ package com.valiantrealms.zombiesmc.commands;
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.CountdownTimer;
 import com.valiantrealms.zombiesmc.util.DelayedTask;
+import com.valiantrealms.zombiesmc.util.Keys;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.block.TileState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
+//TODO
+// Add loot to chests
+// Possibly make list which is created from yml which contains lockpick games
+// Make file for all chests for 'lock/unlock all' since current set is lost at server restart
 public class Unlock implements Listener, CommandExecutor {
     private final ZombiesMC plugin;
-    //private Player player;
     private final String invName = "Unlock Chest";
-    //private final Integer[] seqArray = new Integer[5];
     private final HashMap<UUID, Integer[]> seqMap = new HashMap<>();
-    //private int num = 0;
-    private Map<UUID, Integer> numMap = new HashMap<>();
-    //private final Set<Integer> patternSet = new HashSet<Integer>();
-    //private final Set<Integer> answerSet = new HashSet<Integer>();
-    private final Map<UUID, Set<Integer>> patternMap = new HashMap<>();
-    private final Map<UUID, Set<Integer>> patternAnsMap = new HashMap<>();
-    //private Inventory patternAnswerInv;
-    private final Map<UUID,Inventory> invMap = new HashMap<>();
-    //private int patternIncorrect = 0;
-    private Map<UUID, Integer> patternIncMap = new HashMap<>();
-    //private List<Integer> chimpList;
-    private final Map<UUID,List<Integer>> chimpMap = new HashMap<>();
-    //original menu keys for convinirnvr
+    private final HashMap<UUID, Integer> numMap = new HashMap<>();
+    private final HashMap<UUID, Set<Integer>> patternMap = new HashMap<>();
+    private final HashMap<UUID, Set<Integer>> patternAnsMap = new HashMap<>();
+    private final HashMap<UUID, Inventory> invMap = new HashMap<>();
+    private final HashMap<UUID, Integer> patternIncMap = new HashMap<>();
+    private final HashMap<UUID, List<Integer>> chimpMap = new HashMap<>();
     private final HashMap<Integer, ItemStack> keyMap = new HashMap<Integer, ItemStack>();
+    private final HashMap<UUID, TileState> chestMap = new HashMap<>();
+    private final Set<TileState> chestSet = new HashSet<>();
 
     //TODO These three will most likely be config options
     private final int maxIncorrect = 3;
-    private final int numSlots = 10;
+    private final int numSlots = 5;
     private final int chimpLength = 5;
-
+    private final int autoLockTimer = 15;
 
     public Unlock(ZombiesMC plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -58,10 +65,10 @@ public class Unlock implements Listener, CommandExecutor {
         Player player = Bukkit.getPlayer(uuid);
         Inventory inv = Bukkit.createInventory(player, 9 * 4, "");
 
-        this.keyMap.put(2, getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), "&9RED", ""));
-        this.keyMap.put(3, getItem(new ItemStack(Material.BLUE_STAINED_GLASS_PANE), "&9BLUE", ""));
-        this.keyMap.put(4, getItem(new ItemStack(Material.GREEN_STAINED_GLASS_PANE), "&9GREEN", ""));
-        this.keyMap.put(5, getItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), "&9YELLOW", ""));
+        this.keyMap.put(2, getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), ChatColor.RED + "RED", ""));
+        this.keyMap.put(3, getItem(new ItemStack(Material.BLUE_STAINED_GLASS_PANE), ChatColor.BLUE + "BLUE", ""));
+        this.keyMap.put(4, getItem(new ItemStack(Material.GREEN_STAINED_GLASS_PANE), ChatColor.GREEN + "GREEN", ""));
+        this.keyMap.put(5, getItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), ChatColor.YELLOW + "YELLOW", ""));
 
         inv.setItem(2, this.keyMap.get(2));
         inv.setItem(3, this.keyMap.get(3));
@@ -82,10 +89,10 @@ public class Unlock implements Listener, CommandExecutor {
         seqMap.put(uuid, seqArray);
         this.colorSequence(uuid);
     }
+
     //TODO colorSequence could/should probably just be in runColorLockPick
     public void colorSequence(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
-        Bukkit.getLogger().info("Sequence timer called");
         CountdownTimer time = new CountdownTimer(this.plugin, 10,
                 // What happens at the start
                 () -> {
@@ -93,13 +100,11 @@ public class Unlock implements Listener, CommandExecutor {
                 },
                 // What happens at the end
                 () -> {
-                    Bukkit.getLogger().info("SEQUENCE ENDED");
                     player.closeInventory();
                     this.colorAnswerMenu(uuid);
                 },
                 // What happens during each tick
                 (t) -> {
-                    Bukkit.getLogger().info("Running");
                     int num = t.getTotalSeconds() - t.getSecondsLeft();
                     if (num % 2 == 1) {
                         this.flashColorPattern(uuid, this.seqMap.get(uuid)[num / 2]);
@@ -120,8 +125,7 @@ public class Unlock implements Listener, CommandExecutor {
      */
     public void flashColorPattern(UUID uuid, int slot) {
         Player player = Bukkit.getPlayer(uuid);
-        Bukkit.getLogger().info("Flashing sequence... Current Answer: " + slot);
-        Inventory inv = Bukkit.createInventory(player, 9 * 4, "Sequence");
+        Inventory inv = Bukkit.createInventory(player, 9, "Sequence");
         if (slot == -1) {
             for (int i = 2; i <= 5; i++) {
                 inv.setItem(i, getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
@@ -135,16 +139,14 @@ public class Unlock implements Listener, CommandExecutor {
                 }
             }
         }
-
         player.openInventory(inv);
     }
 
     // Create inventory for players to enter pattern
     public void colorAnswerMenu(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
-        Bukkit.getLogger().info("Answer menu opened");
         Bukkit.getLogger().info(Arrays.toString(this.seqMap.get(uuid)));
-        Inventory inv = Bukkit.createInventory(player, 9 * 4, "Enter the Colors");
+        Inventory inv = Bukkit.createInventory(player, 9, "Enter the Colors");
         inv.setItem(2, this.keyMap.get(2));
         inv.setItem(3, this.keyMap.get(3));
         inv.setItem(4, this.keyMap.get(4));
@@ -158,20 +160,17 @@ public class Unlock implements Listener, CommandExecutor {
         Player player = Bukkit.getPlayer(uuid);
 
         if (slot > 1 && slot < 6) {
-
-            //Bukkit.getLogger().info("seqMap: " + this.seqMap.get(uuid)[this.numMap.get(uuid)] + "  numMap: " + this.numMap.get(uuid));
             if (this.seqMap.get(uuid)[this.numMap.get(uuid)] != slot) {
-                Bukkit.getLogger().info("Incorrect :(");
                 player.sendMessage(ChatColor.RED + "Lock pick broke!");
                 player.closeInventory();
                 this.initVars(uuid);
-
+                this.chestMap.remove(uuid);
                 //this.colorsResult(false);
             } else if (this.numMap.get(uuid) == 4) {
-                Bukkit.getLogger().info("CORRECT!!!!!");
                 player.sendMessage(ChatColor.GREEN + "Correct!");
                 player.closeInventory();
                 this.initVars(uuid);
+                this.openChest(uuid);
 
                 //this.colorsResult(true);
             }
@@ -184,10 +183,8 @@ public class Unlock implements Listener, CommandExecutor {
         player.closeInventory();
         this.initVars(uuid);
         if (result) {
-            Bukkit.getLogger().info("CORRECT!!!!!");
             player.sendMessage(ChatColor.GREEN + "Correct!");
         } else {
-            Bukkit.getLogger().info("Incorrect :(");
             player.sendMessage(ChatColor.RED + "Lock pick broke!");
         }
     }
@@ -201,7 +198,7 @@ public class Unlock implements Listener, CommandExecutor {
      * Display the random slots in the menu, then remove them after
      * a delay.
      */
-    public void runPatterns(UUID uuid) {
+    public void runPatternsLockPick(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
         Random rand = new Random();
 
@@ -214,10 +211,8 @@ public class Unlock implements Listener, CommandExecutor {
             slotList.add(i);
         }
         Collections.shuffle(slotList);
-        List<Integer> sList;
-        sList = slotList.subList(0, this.numSlots);
-        Set<Integer> patternSet = new HashSet<>();
-        patternSet.addAll(sList);
+        List<Integer> sList = slotList.subList(0, this.numSlots);
+        Set<Integer> patternSet = new HashSet<>(sList);
         this.patternMap.put(uuid, patternSet);
         Bukkit.getLogger().info("PatternMap:  " + this.patternMap.get(uuid));
 
@@ -242,18 +237,22 @@ public class Unlock implements Listener, CommandExecutor {
         Player player = Bukkit.getPlayer(uuid);
         Inventory inv = Bukkit.createInventory(player, 9 * 4, "Enter the Pattern");
         this.invMap.put(uuid, inv);
+        assert player != null;
         player.openInventory(this.invMap.get(uuid));
     }
     //TODO possibly redundant/unnecessary with enterPattern.  Decide if needed
 
     /**
      * Handles the pattern game end
+     *
      * @param result result of the game
      */
     public void patternEnd(UUID uuid, Boolean result) {
         Player player = Bukkit.getPlayer(uuid);
         if (result) {
             player.sendMessage(ChatColor.GREEN + "Success!!!!");
+
+            this.openChest(uuid);
         } else {
             player.sendMessage(ChatColor.RED + "Lock pick broke");
         }
@@ -272,20 +271,17 @@ public class Unlock implements Listener, CommandExecutor {
         Inventory inv = this.invMap.get(uuid);
         // If slot has already been clicked, ignore
         if (this.patternAnsMap.get(uuid).contains(slot)) {
-            Bukkit.getLogger().info("Already entered");
-        }else if (this.patternMap.get(uuid).contains(slot)) {
+            //Bukkit.getLogger().info("Already entered");
+        } else if (this.patternMap.get(uuid).contains(slot)) {
             this.patternAnsMap.get(uuid).add(slot);
 
             inv.setItem(slot, getItem(new ItemStack(Material.GREEN_STAINED_GLASS_PANE), " ", ""));
             this.invMap.put(uuid, inv);
 
             if (this.patternAnsMap.get(uuid).size() == this.patternMap.get(uuid).size()) {
-                Bukkit.getLogger().info("SUCCESS!!!");
                 this.patternEnd(uuid, true);
             }
         } else {
-            Bukkit.getLogger().info("Incorrect Guess");
-
             inv.setItem(slot, getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), " ", ""));
             this.invMap.put(uuid, inv);
 
@@ -300,7 +296,7 @@ public class Unlock implements Listener, CommandExecutor {
      * Chimp Lock Pick Section
      */
 
-    public void runChimp(UUID uuid) {
+    public void runChimpLockPick(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
         int max = 9 * 4;
 
@@ -337,6 +333,7 @@ public class Unlock implements Listener, CommandExecutor {
         for (Integer integer : list) {
             inv.setItem(integer, getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
         }
+        assert player != null;
         player.openInventory(inv);
     }
 
@@ -346,6 +343,7 @@ public class Unlock implements Listener, CommandExecutor {
         for (int i : this.chimpMap.get(uuid)) {
             inv.setItem(i, getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
         }
+        assert player != null;
         player.openInventory(inv);
     }
 
@@ -355,19 +353,19 @@ public class Unlock implements Listener, CommandExecutor {
         if (Objects.equals(i, slot)) {
             this.chimpMap.get(uuid).remove(0);
             if (this.chimpMap.get(uuid).isEmpty()) {
-                Bukkit.getLogger().info("All Correct");
                 player.sendMessage(ChatColor.GREEN + "Chest opened");
+                this.openChest(uuid);
+
                 this.initVars(uuid);
             }
         } else {
-            Bukkit.getLogger().info("Incorrect");
             player.sendMessage(ChatColor.RED + "Lock Pick Broke");
             this.initVars(uuid);
         }
 
     }
 
-    /**093
+    /**
      * Clears all variables
      */
     public void initVars(UUID uuid) {
@@ -377,6 +375,7 @@ public class Unlock implements Listener, CommandExecutor {
         Inventory tempInv = Bukkit.createInventory(player, 9 * 4, this.invName);
         Integer[] tempArr = new Integer[5];
 
+        assert player != null;
         player.closeInventory();
         try {
             this.numMap.put(uuid, 0);
@@ -387,14 +386,8 @@ public class Unlock implements Listener, CommandExecutor {
             this.invMap.put(uuid, tempInv);
             this.chimpMap.put(uuid, tempList);
 
-//            Bukkit.getLogger().info("numMap " + this.numMap.get(uuid));
-//            Bukkit.getLogger().info("seqMap " + Arrays.toString(this.seqMap.get(uuid)));
-//            Bukkit.getLogger().info("patternMap " + this.patternMap.get(uuid));
-//            Bukkit.getLogger().info("patternAnsMap " + this.patternAnsMap.get(uuid));
-//            Bukkit.getLogger().info("patternIncMap " + this.patternIncMap.get(uuid));
-//            Bukkit.getLogger().info("chimpMap " + this.chimpMap.get(uuid));
         } catch (Exception e) {
-            Bukkit.getLogger().info("Tried to clear something that doesn't exist yet.  No worries");
+            //Bukkit.getLogger().info("Tried to clear something that doesn't exist yet.  No worries");
         }
     }
 
@@ -404,23 +397,35 @@ public class Unlock implements Listener, CommandExecutor {
      * @param event inventory click
      */
     @EventHandler
-    public void onInventoryClickEvent(InventoryClickEvent event) {
+    private void onInventoryClickEvent(InventoryClickEvent event) {
         int slot = event.getSlot();
         UUID uuid = event.getWhoClicked().getUniqueId();
-        event.setCancelled(true);
+
         if (event.getView().getTitle().equals(this.invName)) {
             if (slot == 0) {
+                event.setCancelled(true);
                 this.runColorLockPick(uuid);
             } else if (slot == 1) {
-                this.runPatterns(uuid);
+                event.setCancelled(true);
+                this.runPatternsLockPick(uuid);
             } else if (slot == 2) {
-                this.runChimp(uuid);
+                event.setCancelled(true);
+                this.runChimpLockPick(uuid);
+            } else if (slot == 34) {
+                event.setCancelled(true);
+                this.lockAllChests();
+            } else if (slot == 35) {
+                event.setCancelled(true);
+                this.unlockAllChests();
             }
         } else if (event.getView().getTitle().equals("Enter the Colors")) {
+            event.setCancelled(true);
             this.enterColors(uuid, slot);
         } else if (event.getView().getTitle().equals("Enter the Pattern")) {
+            event.setCancelled(true);
             this.enterPattern(uuid, slot);
         } else if (event.getView().getTitle().equals("Enter Chimp Order")) {
+            event.setCancelled(true);
             this.enterChimpPattern(uuid, slot);
         }
     }
@@ -430,8 +435,8 @@ public class Unlock implements Listener, CommandExecutor {
      *
      * @param sender  who/what sent the command
      * @param command what command is being run
-     * @param label
-     * @param args
+     * @param label   label
+     * @param args    arguments
      * @return true
      */
     @Override
@@ -443,6 +448,11 @@ public class Unlock implements Listener, CommandExecutor {
         inv.setItem(0, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9START Colors", "&aBegin Lockpicking"));
         inv.setItem(1, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9START Patterns", "&aBegin Lockpicking"));
         inv.setItem(2, getItem(new ItemStack(Material.DIAMOND_BLOCK), "&9START Chimp", "&aBegin Lockpicking"));
+        inv.setItem(4, getChest());
+        inv.setItem(5, getKey());
+        inv.setItem(6, getItem(new ItemStack(Material.IRON_DOOR), "", ""));
+        inv.setItem(34, getItem(new ItemStack(Material.DIAMOND_BLOCK), "Lock all Chests", ""));
+        inv.setItem(35, getItem(new ItemStack(Material.GOLD_BLOCK), "Unlock all Chests", ""));
 
         // Makes sure to init variables in case if inventory was manually closed previously and variables were never cleared
         this.initVars(player.getUniqueId());
@@ -473,5 +483,196 @@ public class Unlock implements Listener, CommandExecutor {
         item.setItemMeta(meta);
 
         return item;
+    }
+
+    private ItemStack getChest() {
+        ItemStack chest = new ItemStack(Material.CHEST);
+        ItemMeta meta = chest.getItemMeta();
+        assert meta != null;
+        meta.setDisplayName("Rare Chest");
+        meta.setLore(Arrays.asList("The chest is locked!", "Requires a key."));
+        meta.getPersistentDataContainer().set(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN, true);
+
+        chest.setItemMeta(meta);
+
+        return new ItemStack(chest);
+    }
+
+    private ItemStack getKey() {
+        ItemStack chest = new ItemStack(Material.KELP, 30);
+        ItemMeta meta = chest.getItemMeta();
+        assert meta != null;
+        meta.setDisplayName("Rare Key");
+        meta.setLore(Collections.singletonList("Use to open a chest"));
+        meta.getPersistentDataContainer().set(Keys.CUSTOM_KEY, PersistentDataType.BOOLEAN, true);
+
+        chest.setItemMeta(meta);
+
+        return new ItemStack(chest);
+    }
+
+    @EventHandler
+    private void onEntityPlaceEvent(BlockPlaceEvent event) {
+        if (event.getBlock().getType() == Material.IRON_DOOR) {
+            Bukkit.getLogger().info("IRON DOOR PLACED!");
+        }
+        if (event.getBlock().getType() != Material.CHEST) {
+            return;
+        }
+        if (!(event.getBlock().getState() instanceof TileState)) {
+            return;
+        }
+        TileState state = (TileState) event.getBlock().getState();
+        PersistentDataContainer chestContainer = state.getPersistentDataContainer();
+        Chest chest = (Chest) event.getBlock().getState();
+
+        // If the chest is a custom chest, give it the persistent keys
+        if (Objects.equals(chest.getCustomName(), "Rare Chest")) {
+            chestContainer.set(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN, true);
+            Bukkit.getLogger().info("Locked:   " + chestContainer.get(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN));
+            state.update();
+            this.chestSet.add(state);
+        }
+    }
+
+    @EventHandler
+    private void onEntityOpenEvent(PlayerInteractEvent event) {
+        try {
+            if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+                return;
+            }
+            Block block = event.getClickedBlock();
+            if (block.getType() != Material.CHEST) {
+                return;
+            }
+            if (!(block.getState() instanceof TileState)) {
+                return;
+            }
+            //todo POSSIBLY CAN REMOVE
+            //Chest chest = (Chest) block.getState();
+            TileState state = (TileState) event.getClickedBlock().getState();
+            PersistentDataContainer chestContainer = state.getPersistentDataContainer();
+
+            Bukkit.getLogger().info("Locked:   " + chestContainer.get(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN));
+
+            if (!chestContainer.has(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN)) {
+                return;
+            }
+            //make sure chest is a rare chest
+            if (chestContainer.has(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN)) {
+                // if locked, continue the unlock process
+                if (chestContainer.get(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN)) {
+                    Player player = event.getPlayer();
+                    ItemStack item = player.getInventory().getItemInMainHand();
+                    try {
+                        //todo POSSIBLY CAN REMOVE
+                        //PersistentDataContainer keyContainer = Objects.requireNonNull(item.getItemMeta()).getPersistentDataContainer();
+
+                        //if the item being held is a key
+                        if (Objects.requireNonNull(item.getItemMeta()).getPersistentDataContainer().has(Keys.CUSTOM_KEY, PersistentDataType.BOOLEAN)) {
+                            // Remove one key
+                            item.setAmount(item.getAmount() - 1);
+                            event.setCancelled(true);
+                            this.chestMap.put(player.getUniqueId(), state);
+                            this.initVars(player.getUniqueId());
+                            this.runRandomSeq(player.getUniqueId());
+                        } else {
+                            event.getPlayer().sendMessage("You need a key!");
+                            event.setCancelled(true);
+                        }
+                    } catch (Exception e) {
+                        event.setCancelled(true);
+                        player.sendMessage("You need a key!");
+                    }
+                // If the chest is unlocked: lock if holding a key
+                } else {
+                    Player player = event.getPlayer();
+                    //TODO make if more specific to non-rare chests to prevent compatibility issues
+                    if (!player.getInventory().getItemInMainHand().hasItemMeta()) {
+                        // Ignore is normal chest
+                        //Bukkit.getLogger().info("Open chest!");
+                    } else {
+                        ItemStack item = player.getInventory().getItemInMainHand();
+                        try {
+                            //PersistentDataContainer keyContainer = Objects.requireNonNull(item.getItemMeta()).getPersistentDataContainer();
+
+                            //if the item being held is a key
+                            if (Objects.requireNonNull(item.getItemMeta()).getPersistentDataContainer().has(Keys.CUSTOM_KEY, PersistentDataType.BOOLEAN)) {
+                                item.setAmount(item.getAmount() - 1);
+                                event.setCancelled(true);
+                                chestContainer.set(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN, true);
+                                state.update();
+                                Bukkit.getLogger().info("Locked:   " + chestContainer.get(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN));
+
+                            } else {
+                                event.getPlayer().sendMessage("Still Unlocked!");
+
+                            }
+                        } catch (Exception e) {
+                            event.setCancelled(true);
+                            player.sendMessage("You need a key!");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
+    //TODO Persistant data for doors...
+    // https://www.spigotmc.org/threads/custom-block-data-persistentdatacontainer-for-blocks.512422/
+
+    public void runRandomSeq(UUID uuid) {
+        Random rand = new Random();
+
+        int min = 1;
+        int max = 3;
+        int mode = rand.nextInt(max - min + 1) + min;
+
+        switch (mode) {
+            case 1:
+                this.runColorLockPick(uuid);
+                break;
+            case 2:
+                this.runPatternsLockPick(uuid);
+                break;
+            case 3:
+                this.runChimpLockPick(uuid);
+                break;
+        }
+    }
+
+    public void openChest(UUID uuid) {
+        PersistentDataContainer chestContainer = this.chestMap.get(uuid).getPersistentDataContainer();
+        TileState tempState = this.chestMap.get(uuid);
+        chestContainer.set(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN, false);
+        tempState.update();
+
+        new DelayedTask(() -> {
+            chestContainer.set(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN, true);
+            tempState.update();
+            Bukkit.getLogger().info("Chest auto locked");
+        }, 10L * this.autoLockTimer);
+        this.chestMap.remove(uuid);
+
+        Bukkit.getLogger().info("Locked:   " + chestContainer.get(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN));
+    }
+
+    public void lockAllChests() {
+        for (TileState tf : this.chestSet) {
+            Chest chest = (Chest) tf;
+            PersistentDataContainer chestContainer = chest.getPersistentDataContainer();
+            chestContainer.set(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN, true);
+            tf.update();
+        }
+    }
+
+    public void unlockAllChests() {
+        for (TileState tf : this.chestSet) {
+            Chest chest = (Chest) tf;
+            PersistentDataContainer chestContainer = chest.getPersistentDataContainer();
+            chestContainer.set(Keys.CUSTOM_CHEST, PersistentDataType.BOOLEAN, false);
+            tf.update();
+        }
     }
 }

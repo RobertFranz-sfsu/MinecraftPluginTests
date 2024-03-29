@@ -80,11 +80,12 @@ public final class ZombiesMC extends JavaPlugin {
             econ.setupPermissions();
             econ.setupChat();
         }
-
         // Enabling commands
         Objects.requireNonNull(getCommand("zmc")).setExecutor(new ZMC(this));
         Objects.requireNonNull(getCommand("unlock")).setExecutor(new Unlock(this));
         this.setSubCommands();
+
+        new DelayedTask(this);
 
         // Enabling utils
         this.setSkills();
@@ -214,4 +215,8 @@ public final class ZombiesMC extends JavaPlugin {
      * ECONOMY STUFF
      */
     public void setEcon() { this.econ = new Vault(this); }
+
+    public static ZombiesMC getInstance() {
+        return getPlugin(ZombiesMC.class);
+    }
 }
