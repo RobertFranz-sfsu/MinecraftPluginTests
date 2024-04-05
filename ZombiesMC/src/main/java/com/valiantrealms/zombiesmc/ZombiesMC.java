@@ -1,5 +1,7 @@
 package com.valiantrealms.zombiesmc;
 
+import com.valiantrealms.zombiesmc.Locks.Locks;
+import com.valiantrealms.zombiesmc.Locks.Minigames;
 import com.valiantrealms.zombiesmc.commands.Unlock;
 import com.valiantrealms.zombiesmc.commands.ZMC;
 import com.valiantrealms.zombiesmc.commands.ZmcSub.Reload;
@@ -40,6 +42,9 @@ public final class ZombiesMC extends JavaPlugin {
     private Farming farming;
     private Salvage salvage;
 
+    private Locks locks;
+    private Minigames minigames;
+
     // Configs
     ConfigUtil skillSettings;
     ConfigUtil playerSettings;
@@ -57,6 +62,9 @@ public final class ZombiesMC extends JavaPlugin {
     @Override
     public void onEnable() {
         Bukkit.getLogger().info("Enabling ZombiesMC");
+
+        this.locks = new Locks(this);
+        //this.minigames = new Minigames(this, this.locks);
 
         //Configs
         this.saveDefaultConfig();
@@ -91,6 +99,7 @@ public final class ZombiesMC extends JavaPlugin {
         this.setSkills();
 
         // Saving breakable blocks
+
     }
 
     @Override
@@ -218,5 +227,17 @@ public final class ZombiesMC extends JavaPlugin {
 
     public static ZombiesMC getInstance() {
         return getPlugin(ZombiesMC.class);
+    }
+
+    public Locks getLocks() {
+        Bukkit.getLogger().info("Getting Locks");
+        return this.locks;
+    }
+    public Minigames getMinigames() {
+        Bukkit.getLogger().info("Getting Minigames");
+        return this.minigames;
+    }
+    public void setMinigames(Minigames minigames) {
+        this.minigames = minigames;
     }
 }
