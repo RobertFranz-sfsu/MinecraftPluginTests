@@ -44,7 +44,6 @@ public class CountdownTimer implements Runnable {
 
     /**
      * Runs the timer once, decrements seconds etc...
-     * Really wish we could make it protected/private so you couldn't access it
      */
     @Override
     public void run() {

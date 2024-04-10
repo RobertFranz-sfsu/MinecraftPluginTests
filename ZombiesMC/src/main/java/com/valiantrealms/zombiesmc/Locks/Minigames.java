@@ -1,9 +1,7 @@
 package com.valiantrealms.zombiesmc.Locks;
 
 import com.valiantrealms.zombiesmc.ZombiesMC;
-import com.valiantrealms.zombiesmc.util.CountdownTimer;
-import com.valiantrealms.zombiesmc.util.DelayedTask;
-import com.valiantrealms.zombiesmc.util.Keys;
+import com.valiantrealms.zombiesmc.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,14 +11,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
 public class Minigames implements Listener {
     private final ZombiesMC plugin;
     private final Locks locks;
+    private final ItemUtil itemUtil = new ItemUtil();
+    private final UUID uuid;
+    private final ConfigUtil diffConfig;
     private final HashMap<UUID, Integer[]> seqMap = new HashMap<>();
     private final HashMap<UUID, Integer> numMap = new HashMap<>();
     private final HashMap<UUID, Set<Integer>> patternMap = new HashMap<>();
@@ -29,69 +30,114 @@ public class Minigames implements Listener {
     private final HashMap<UUID, Integer> patternIncMap = new HashMap<>();
     private final HashMap<UUID, List<Integer>> chimpMap = new HashMap<>();
     private final HashMap<Integer, ItemStack> keyMap = new HashMap<Integer, ItemStack>();
-    private final HashMap<String, Integer> colorDiffMap = new HashMap<>();
-    private final HashMap<String, Integer> patternDiffMap = new HashMap<>();
-    private final HashMap<String, Integer> chimpDiffMap = new HashMap<>();
-    private final int maxIncorrect = 3;
+    //private final HashMap<String, Integer> colorDiffMap = new HashMap<>();
+    //private final HashMap<String, Integer> patternDiffMap = new HashMap<>();
+    //private final HashMap<String, Integer> chimpDiffMap = new HashMap<>();
+    //private final HashMap<String, HashMap<String, Integer>> moleDiffMap = new HashMap<>();
+    private final HashMap<UUID, List<Integer>> moleListMap = new HashMap<>();
+    private final HashMap<UUID, CountdownTimer> moleTimerMap = new HashMap<>();
+    private final HashMap<UUID, Integer> moleFailsMap = new HashMap<>();
+    private final String difficulty;
+    private final int colorsLeft;
+    private final int colorsRight;
 
-    public Minigames(ZombiesMC plugin, Locks locks) {
+    //TODO rename mole stuff
+    // Add more difficulty options to other games
+    // Possibly change mole difficulty ints to floats to better customize flash time
+
+    public Minigames(ZombiesMC plugin, Locks locks, UUID uuid) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
         this.locks = locks;
+        this.uuid = uuid;
 
-        this.colorDiffMap.put("Easy", 3);
-        this.colorDiffMap.put("Normal", 5);
-        this.colorDiffMap.put("Hard", 7);
-        this.colorDiffMap.put("Impossible", 10);
+        this.difficulty = this.locks.getCurrentBlockMap().get(uuid).getPersistentDataContainer().get(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING);
+        this.diffConfig = new ConfigUtil(plugin, "LockPickDifficulties.yml");
+        this.diffConfig.save();
 
-        this.patternDiffMap.put("Easy", 3);
-        this.patternDiffMap.put("Normal", 5);
-        this.patternDiffMap.put("Hard", 7);
-        this.patternDiffMap.put("Impossible", 10);
+        this.keyMap.put(0, this.itemUtil.getItem(new ItemStack(Material.CYAN_STAINED_GLASS_PANE), ChatColor.BLUE + "CYAN", ""));
+        this.keyMap.put(1, this.itemUtil.getItem(new ItemStack(Material.ORANGE_STAINED_GLASS_PANE), ChatColor.YELLOW + "ORANGE", ""));
+        this.keyMap.put(2, this.itemUtil.getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), ChatColor.RED + "RED", ""));
+        this.keyMap.put(3, this.itemUtil.getItem(new ItemStack(Material.BLUE_STAINED_GLASS_PANE), ChatColor.BLUE + "BLUE", ""));
+        this.keyMap.put(4, this.itemUtil.getItem(new ItemStack(Material.GREEN_STAINED_GLASS_PANE), ChatColor.GREEN + "GREEN", ""));
+        this.keyMap.put(5, this.itemUtil.getItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), ChatColor.YELLOW + "YELLOW", ""));
+        this.keyMap.put(6, this.itemUtil.getItem(new ItemStack(Material.PURPLE_STAINED_GLASS_PANE), ChatColor.DARK_PURPLE + "PURPLE", ""));
+        this.keyMap.put(7, this.itemUtil.getItem(new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE), ChatColor.BLUE + "LIGHT BLUE", ""));
+        this.keyMap.put(8, this.itemUtil.getItem(new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE), ChatColor.BLUE + "MAGENTA", ""));
 
-        this.chimpDiffMap.put("Easy", 3);
-        this.chimpDiffMap.put("Normal", 5);
-        this.chimpDiffMap.put("Hard", 7);
-        this.chimpDiffMap.put("Impossible", 10);
+        this.colorsLeft = this.diffConfig.getConfig().getInt("colors." + difficulty + ".left");
+        this.colorsRight = this.diffConfig.getConfig().getInt("colors." + difficulty + ".right");
+
+//        this.colorDiffMap.put("Easy", 3);
+//        this.colorDiffMap.put("Normal", 5);
+//        this.colorDiffMap.put("Hard", 7);
+//        this.colorDiffMap.put("Impossible", 10);
+//
+//        this.patternDiffMap.put("Easy", 3);
+//        this.patternDiffMap.put("Normal", 5);
+//        this.patternDiffMap.put("Hard", 7);
+//        this.patternDiffMap.put("Impossible", 10);
+
+//        this.chimpDiffMap.put("Easy", 3);
+//        this.chimpDiffMap.put("Normal", 5);
+//        this.chimpDiffMap.put("Hard", 7);
+//        this.chimpDiffMap.put("Impossible", 10);
+
+//        HashMap<String, Integer> easyMoleMap = new HashMap<>();
+//        easyMoleMap.put("errors", 3);
+//        easyMoleMap.put("length", 5);
+//        easyMoleMap.put("fail time", 3);
+//        easyMoleMap.put("flash time", 2);
+//        this.moleDiffMap.put("Easy", easyMoleMap);
+//
+//        HashMap<String, Integer> normalMoleMap = new HashMap<>();
+//        normalMoleMap.put("errors", 2);
+//        normalMoleMap.put("length", 10);
+//        normalMoleMap.put("fail time", 3);
+//        normalMoleMap.put("flash time", 2);
+//        this.moleDiffMap.put("Normal", normalMoleMap);
+//
+//        HashMap<String, Integer> hardMoleMap = new HashMap<>();
+//        hardMoleMap.put("errors", 1);
+//        hardMoleMap.put("length", 15);
+//        hardMoleMap.put("fail time", 2);
+//        hardMoleMap.put("flash time", 1);
+//        this.moleDiffMap.put("Hard", hardMoleMap);
+//
+//        HashMap<String, Integer> impMoleMap = new HashMap<>();
+//        impMoleMap.put("errors", 0);
+//        impMoleMap.put("length", 20);
+//        impMoleMap.put("fail time", 2);
+//        impMoleMap.put("flash time", 1);
+//        this.moleDiffMap.put("Impossible", impMoleMap);
     }
 
     /**
      * Colors Lock Pick Section
      */
-    public void runColorLockPick(UUID uuid) {
+    public void runColorLockPick() {
+        this.initVars();
         Player player = Bukkit.getPlayer(uuid);
         Inventory inv = Bukkit.createInventory(player, 9 * 4, "");
 
-        this.keyMap.put(2, getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), ChatColor.RED + "RED", ""));
-        this.keyMap.put(3, getItem(new ItemStack(Material.BLUE_STAINED_GLASS_PANE), ChatColor.BLUE + "BLUE", ""));
-        this.keyMap.put(4, getItem(new ItemStack(Material.GREEN_STAINED_GLASS_PANE), ChatColor.GREEN + "GREEN", ""));
-        this.keyMap.put(5, getItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), ChatColor.YELLOW + "YELLOW", ""));
-        this.keyMap.put(6, getItem(new ItemStack(Material.PURPLE_STAINED_GLASS_PANE), ChatColor.DARK_PURPLE + "PURPLE", ""));
-
-        inv.setItem(2, this.keyMap.get(2));
-        inv.setItem(3, this.keyMap.get(3));
-        inv.setItem(4, this.keyMap.get(4));
-        inv.setItem(5, this.keyMap.get(5));
-        inv.setItem(6, this.keyMap.get(6));
+        for (int i = this.colorsLeft; i < this.colorsRight; i++) {
+            inv.setItem(i, this.keyMap.get(i));
+        }
 
         player.openInventory(inv);
-        String difficulty = this.locks.getCurrentBlockMap().get(uuid).getPersistentDataContainer().get(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING);
-        Integer length = this.colorDiffMap.get(difficulty);
+
+        int length = this.diffConfig.getConfig().getInt("colors." + this.difficulty + ".length");
         Integer[] seqArray = new Integer[length];
         Random rand = new Random();
 
-        int min = 2;
-        int max = 6;
         for (int i = 0; i < length; i++) {
-            seqArray[i] = rand.nextInt(max - min + 1) + min;
+            seqArray[i] = rand.nextInt(this.colorsRight - this.colorsLeft + 1) + this.colorsLeft;
         }
-        Bukkit.getLogger().info("Random sequence:  " + Arrays.toString(seqArray));
         seqMap.put(uuid, seqArray);
-        this.colorSequence(uuid, length);
+        this.colorSequence(length);
     }
 
-    //TODO colorSequence could/should probably just be in runColorLockPick
-    public void colorSequence(UUID uuid, Integer length) {
+    public void colorSequence(Integer length) {
         Player player = Bukkit.getPlayer(uuid);
         CountdownTimer time = new CountdownTimer(this.plugin, length * 2,
                 // What happens at the start
@@ -101,15 +147,15 @@ public class Minigames implements Listener {
                 // What happens at the end
                 () -> {
                     player.closeInventory();
-                    this.colorAnswerMenu(uuid);
+                    this.colorAnswerMenu();
                 },
                 // What happens during each tick
                 (t) -> {
-                    int num = t.getTotalSeconds() - t.getSecondsLeft();
-                    if (num % 2 == 1) {
-                        this.flashColorPattern(uuid, this.seqMap.get(uuid)[num / 2]);
+                    int count = t.getTotalSeconds() - t.getSecondsLeft();
+                    if (count % 2 == 1) {
+                        this.flashColorPattern(this.seqMap.get(uuid)[count / 2]);
                     } else {
-                        this.flashColorPattern(uuid, -1);
+                        this.flashColorPattern( -1);
                     }
 
                 });
@@ -123,73 +169,54 @@ public class Minigames implements Listener {
      *
      * @param slot the slot to light up
      */
-    public void flashColorPattern(UUID uuid, int slot) {
+    public void flashColorPattern(int slot) {
         Player player = Bukkit.getPlayer(uuid);
         Inventory inv = Bukkit.createInventory(player, 9, "Sequence");
-        if (slot == -1) {
-            for (int i = 2; i <= 6; i++) {
-                inv.setItem(i, getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
-            }
-        } else {
-            for (int i = 2; i <= 6; i++) {
+        for (int i = this.colorsLeft; i <= this.colorsRight; i++) {
+            if (slot == -1) {
+                inv.setItem(i, this.itemUtil.getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
+            } else {
                 if (i == slot) {
                     inv.setItem(i, this.keyMap.get(i));
                 } else {
-                    inv.setItem(i, getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
+                    inv.setItem(i, this.itemUtil.getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
                 }
             }
         }
+
         player.openInventory(inv);
     }
 
     // Create inventory for players to enter pattern
-    public void colorAnswerMenu(UUID uuid) {
+    public void colorAnswerMenu() {
         Player player = Bukkit.getPlayer(uuid);
-        Bukkit.getLogger().info(Arrays.toString(this.seqMap.get(uuid)));
         Inventory inv = Bukkit.createInventory(player, 9, "Enter the Colors");
-        inv.setItem(2, this.keyMap.get(2));
-        inv.setItem(3, this.keyMap.get(3));
-        inv.setItem(4, this.keyMap.get(4));
-        inv.setItem(5, this.keyMap.get(5));
-        inv.setItem(6, this.keyMap.get(6));
+        for (int i = this.colorsLeft; i <= this.colorsRight; i++) {
+            inv.setItem(i, this.keyMap.get(i));
+        }
         player.openInventory(inv);
     }
 
-    //TODO enterColors and colorsResult might be redundant.
-    // Decide if worth to have separate methods.  Specifically when opening the chests
-    public void enterColors(UUID uuid, int slot) {
+    public void enterColors(int slot) {
         Player player = Bukkit.getPlayer(uuid);
-        String difficulty = this.locks.getCurrentBlockMap().get(uuid).getPersistentDataContainer().get(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING);
-        Integer length = this.colorDiffMap.get(difficulty);
+        Integer length = this.diffConfig.getConfig().getInt("colors." + this.difficulty + ".length");
+        //Integer length = this.colorDiffMap.get(difficulty);
 
-        if (slot > 1 && slot < 7) {
+        if ((slot > this.colorsLeft-1) && slot < (this.colorsRight+1)) {
             if (this.seqMap.get(uuid)[this.numMap.get(uuid)] != slot) {
                 player.sendMessage(ChatColor.RED + "Lock pick broke!");
                 player.closeInventory();
-                this.initVars(uuid);
+                this.initVars();
                 this.locks.getCurrentBlockMap().remove(uuid);
-                //this.colorsResult(false);
-                //TODO <ight need to change 4 to num from difficulty
+                this.end();
             } else if (this.numMap.get(uuid) == length - 1) {
-                player.sendMessage(ChatColor.GREEN + "Correct!");
+                player.sendMessage(ChatColor.GREEN + "Unlocked");
                 player.closeInventory();
-                this.initVars(uuid);
+                this.initVars();
                 this.locks.openBlock(uuid);
-
-                //this.colorsResult(true);
+                this.end();
             }
             this.numMap.put(uuid, this.numMap.get(uuid) + 1);
-        }
-    }
-
-    public void colorsResult(UUID uuid, Boolean result) {
-        Player player = Bukkit.getPlayer(uuid);
-        player.closeInventory();
-        this.initVars(uuid);
-        if (result) {
-            player.sendMessage(ChatColor.GREEN + "Correct!");
-        } else {
-            player.sendMessage(ChatColor.RED + "Lock pick broke!");
         }
     }
 
@@ -202,35 +229,33 @@ public class Minigames implements Listener {
      * Display the random slots in the menu, then remove them after
      * a delay.
      */
-    public void runPatternsLockPick(UUID uuid) {
+    public void runPatternsLockPick() {
+        this.initVars();
         Player player = Bukkit.getPlayer(uuid);
-        Random rand = new Random();
 
-        // Chest dimensions
-        int min = 0;
         int max = 9 * 4;
-        String difficulty = this.locks.getCurrentBlockMap().get(uuid).getPersistentDataContainer().get(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING);
 
         ArrayList<Integer> slotList = new ArrayList<>();
         for (int i = 0; i < max; i++) {
             slotList.add(i);
         }
         Collections.shuffle(slotList);
-        List<Integer> sList = slotList.subList(0, this.patternDiffMap.get(difficulty));
+        int amount = this.diffConfig.getConfig().getInt("pattern." + difficulty + ".amount");
+        List<Integer> sList = slotList.subList(0, amount);
         Set<Integer> patternSet = new HashSet<>(sList);
         this.patternMap.put(uuid, patternSet);
-        Bukkit.getLogger().info("PatternMap:  " + this.patternMap.get(uuid));
+        //Bukkit.getLogger().info("PatternMap:  " + this.patternMap.get(uuid));
 
         Inventory inv = Bukkit.createInventory(player, 9 * 4, "Memorize");
 
         for (int i : this.patternMap.get(uuid)) {
-            inv.setItem(i, getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
+            inv.setItem(i, this.itemUtil.getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
         }
 
         player.openInventory(inv);
         new DelayedTask(this.plugin);
         new DelayedTask(() -> {
-            this.patternAnswer(uuid);
+            this.patternAnswer();
         }, 10L * 5);
 
     }
@@ -238,7 +263,7 @@ public class Minigames implements Listener {
     /**
      * Creates inventory menu for the player to enter their guess
      */
-    public void patternAnswer(UUID uuid) {
+    public void patternAnswer() {
         Player player = Bukkit.getPlayer(uuid);
         Inventory inv = Bukkit.createInventory(player, 9 * 4, "Enter the Pattern");
         this.invMap.put(uuid, inv);
@@ -252,16 +277,17 @@ public class Minigames implements Listener {
      *
      * @param result result of the game
      */
-    public void patternEnd(UUID uuid, Boolean result) {
+    public void patternEnd(Boolean result) {
         Player player = Bukkit.getPlayer(uuid);
         if (result) {
-            player.sendMessage(ChatColor.GREEN + "Success!!!!");
+            player.sendMessage(ChatColor.GREEN + "Chest Opened");
 
             this.locks.openBlock(uuid);
         } else {
             player.sendMessage(ChatColor.RED + "Lock pick broke");
         }
-        this.initVars(uuid);
+        this.initVars();
+        this.end();
     }
 
     /**
@@ -270,29 +296,30 @@ public class Minigames implements Listener {
      *
      * @param slot The slot entered by the player
      */
-    public void enterPattern(UUID uuid, int slot) {
-        Player player = Bukkit.getPlayer(uuid);
+    public void enterPattern(int slot) {
         // make new inv so changing inv in map clearer
         Inventory inv = this.invMap.get(uuid);
+        int maxIncorrect = this.diffConfig.getConfig().getInt("pattern." + this.difficulty + ".errors");
         // If slot has already been clicked, ignore
         if (this.patternAnsMap.get(uuid).contains(slot)) {
             //Bukkit.getLogger().info("Already entered");
         } else if (this.patternMap.get(uuid).contains(slot)) {
             this.patternAnsMap.get(uuid).add(slot);
 
-            inv.setItem(slot, getItem(new ItemStack(Material.GREEN_STAINED_GLASS_PANE), " ", ""));
+            inv.setItem(slot, this.itemUtil.getItem(new ItemStack(Material.GREEN_STAINED_GLASS_PANE), " ", ""));
             this.invMap.put(uuid, inv);
 
             if (this.patternAnsMap.get(uuid).size() == this.patternMap.get(uuid).size()) {
-                this.patternEnd(uuid, true);
+                this.patternEnd(true);
             }
         } else {
-            inv.setItem(slot, getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), " ", ""));
+            inv.setItem(slot, this.itemUtil.getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), " ", ""));
             this.invMap.put(uuid, inv);
 
             this.patternIncMap.put(uuid, this.patternIncMap.get(uuid) + 1);
-            if (this.patternIncMap.get(uuid) == this.maxIncorrect) {
-                this.patternEnd(uuid, false);
+            Bukkit.getLogger().info("Incorrect: " + this.patternIncMap.get(uuid) + "  Max: " + maxIncorrect);
+            if (this.patternIncMap.get(uuid) == maxIncorrect) {
+                this.patternEnd(false);
             }
         }
     }
@@ -301,20 +328,21 @@ public class Minigames implements Listener {
      * Chimp Lock Pick Section
      */
 
-    public void runChimpLockPick(UUID uuid) {
+    public void runChimpLockPick() {
+        this.initVars();
         Player player = Bukkit.getPlayer(uuid);
         int max = 9 * 4;
-        String difficulty = this.locks.getCurrentBlockMap().get(uuid).getPersistentDataContainer().get(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING);
 
         ArrayList<Integer> slotList = new ArrayList<>();
         for (int i = 0; i < max; i++) {
             slotList.add(i);
         }
         Collections.shuffle(slotList);
-        List<Integer> list = slotList.subList(0, this.chimpDiffMap.get(difficulty));
+        int amount = this.diffConfig.getConfig().getInt("chimp." + this.difficulty + ".amount");
+        List<Integer> list = slotList.subList(0, amount);
         this.chimpMap.put(uuid, list);
 
-        CountdownTimer time = new CountdownTimer(this.plugin, this.chimpDiffMap.get(difficulty),
+        CountdownTimer time = new CountdownTimer(this.plugin, amount,
                 // What happens at the start
                 () -> {
 
@@ -322,38 +350,38 @@ public class Minigames implements Listener {
                 // What happens at the end
                 () -> {
                     player.closeInventory();
-                    this.chimpAnswerMenu(uuid);
+                    this.chimpAnswerMenu();
                 },
                 // What happens during each tick
                 (t) -> {
                     int n = t.getTotalSeconds() - t.getSecondsLeft();
-                    this.displayChimpTest(uuid, this.chimpMap.get(uuid).subList(0, n));
+                    this.displayChimpTest(this.chimpMap.get(uuid).subList(0, n));
 
                 });
         time.scheduleTimer();
     }
 
-    public void displayChimpTest(UUID uuid, List<Integer> list) {
+    public void displayChimpTest(List<Integer> list) {
         Player player = Bukkit.getPlayer(uuid);
         Inventory inv = Bukkit.createInventory(player, 9 * 4, "Memorize Order");
         for (Integer integer : list) {
-            inv.setItem(integer, getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
+            inv.setItem(integer, this.itemUtil.getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
         }
         assert player != null;
         player.openInventory(inv);
     }
 
-    public void chimpAnswerMenu(UUID uuid) {
+    public void chimpAnswerMenu() {
         Player player = Bukkit.getPlayer(uuid);
         Inventory inv = Bukkit.createInventory(player, 9 * 4, "Enter Chimp Order");
         for (int i : this.chimpMap.get(uuid)) {
-            inv.setItem(i, getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
+            inv.setItem(i, this.itemUtil.getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
         }
         assert player != null;
         player.openInventory(inv);
     }
 
-    public void enterChimpPattern(UUID uuid, int slot) {
+    public void enterChimpPattern(int slot) {
         Player player = Bukkit.getPlayer(uuid);
         int i = this.chimpMap.get(uuid).get(0);
         if (Objects.equals(i, slot)) {
@@ -362,19 +390,121 @@ public class Minigames implements Listener {
                 player.sendMessage(ChatColor.GREEN + "Chest opened");
                 this.locks.openBlock(uuid);
 
-                this.initVars(uuid);
+                this.initVars();
+                this.end();
             }
         } else {
             player.sendMessage(ChatColor.RED + "Lock Pick Broke");
-            this.initVars(uuid);
+            this.initVars();
+            this.end();
         }
 
+    }
+
+
+    /**
+     * Whack a mole Minigame
+     */
+    public void runMoleLockPick() {
+        this.initVars();
+        Player player = Bukkit.getPlayer(uuid);
+        int max = 9 * 4;
+        int length = this.diffConfig.getConfig().getInt("mole." + this.difficulty + ".length");
+
+        ArrayList<Integer> slotList = new ArrayList<>();
+        for (int i = 0; i < max; i++) {
+            slotList.add(i);
+        }
+        Collections.shuffle(slotList);
+        List<Integer> list = slotList.subList(0, length);
+        List<Integer> temp = new ArrayList<>();
+        this.moleListMap.put(uuid, temp);
+        this.moleFailsMap.put(uuid, 0);
+        int flashTime = this.diffConfig.getConfig().getInt("mole." + this.difficulty + ".flash-time");
+
+        CountdownTimer time = new CountdownTimer(this.plugin, length * flashTime,
+                // What happens at the start
+                () -> {
+
+                },
+                // What happens at the end
+                () -> {
+                    player.closeInventory();
+                    Bukkit.getPlayer(uuid).sendMessage(ChatColor.GREEN + "Opened!");
+                    this.initVars();
+                    this.locks.openBlock(uuid);
+                    this.end();
+
+                },
+                // What happens during each tick
+                (t) -> {
+                    int n = t.getTotalSeconds() - t.getSecondsLeft();
+                    if (n % flashTime == 0) {
+                        this.addMole(list.get(n/flashTime), t.getSecondsLeft());
+                    }
+                });
+        this.moleTimerMap.put(uuid, time);
+        time.scheduleTimer();
+
+
+    }
+
+    public void addMole(Integer slot, Integer time) {
+        List<Integer> tempList = this.moleListMap.get(uuid);
+        tempList.add(slot);
+        this.moleListMap.put(uuid, tempList);
+        int failTime = this.diffConfig.getConfig().getInt("mole." + this.difficulty + ".fail-time");
+        int errors = this.diffConfig.getConfig().getInt("mole." + this.difficulty + ".errors");
+        this.displayMoleInv();
+
+        // For each new tile: create a timer to see if the player clicked before the timer runs out
+        new DelayedTask(() -> {
+            if (this.moleListMap.get(uuid).contains(slot)) {
+                // If there is still time left to fail so that it doesn't run after game ended
+                if ((time - failTime) > 0) {
+                    // If the timer is still running
+                    if (Bukkit.getScheduler().isQueued(this.moleTimerMap.get(uuid).getId())) {
+                        Bukkit.getPlayer(uuid).sendMessage(ChatColor.RED + "Missed one!");
+                        this.moleFailsMap.put(uuid, this.moleFailsMap.get(uuid) + 1);
+                        this.moleListMap.get(uuid).remove(slot);
+
+                        // If the player missed more than allowed: they fail
+                        if (this.moleFailsMap.get(uuid) >= errors) {
+                            Bukkit.getPlayer(uuid).sendMessage(ChatColor.RED + "Lock Pick Broke");
+                            Bukkit.getScheduler().cancelTask(this.moleTimerMap.get(uuid).getId());
+                            Bukkit.getPlayer(uuid).closeInventory();
+                            this.end();
+                        }
+                    }
+                }
+            }
+        }, 10L * failTime);
+    }
+
+    public void displayMoleInv() {
+        Player player = Bukkit.getPlayer(uuid);
+        Inventory inv = Bukkit.createInventory(player, 9 * 4, "Whack a Mole");
+        for (Integer integer : this.moleListMap.get(uuid)) {
+            inv.setItem(integer, this.itemUtil.getItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " ", ""));
+        }
+        assert player != null;
+        player.openInventory(inv);
+    }
+
+    //TODO Actually implement incorrect clicks
+    public void enterMoleAnswer(Integer slot) {
+        if (this.moleListMap.get(uuid).contains(slot)) {
+            this.moleListMap.get(uuid).remove(slot);
+        } else {
+            //Bukkit.getLogger().info("Clicked Wrong Slot!");
+            Bukkit.getPlayer(uuid).sendMessage(ChatColor.RED + "Clicked Wrong Slot!");
+        }
     }
 
     /**
      * Clears all variables
      */
-    public void initVars(UUID uuid) {
+    public void initVars() {
         Player player = Bukkit.getPlayer(uuid);
         Set<Integer> tempSet = new HashSet<>();
         List<Integer> tempList = new ArrayList<>();
@@ -391,10 +521,17 @@ public class Minigames implements Listener {
             this.patternIncMap.put(uuid, 0);
             this.invMap.put(uuid, tempInv);
             this.chimpMap.put(uuid, tempList);
+            this.moleListMap.put(uuid, tempList);
+            this.moleFailsMap.put(uuid, 0);
 
         } catch (Exception e) {
             //Bukkit.getLogger().info("Tried to clear something that doesn't exist yet.  No worries");
         }
+    }
+
+    public void end() {
+        //Bukkit.getLogger().info("Ending Listener");
+        InventoryClickEvent.getHandlerList().unregister(this);
     }
 
     /**
@@ -404,40 +541,26 @@ public class Minigames implements Listener {
      */
     @EventHandler
     private void onInventoryClickEvent(InventoryClickEvent event) {
+        UUID uuidEvent = event.getWhoClicked().getUniqueId();
+        if (uuidEvent != uuid) {
+            return;
+        }
+
         int slot = event.getSlot();
-        UUID uuid = event.getWhoClicked().getUniqueId();
 
         if (event.getView().getTitle().equals("Enter the Colors")) {
             event.setCancelled(true);
-            this.enterColors(uuid, slot);
+            this.enterColors(slot);
         } else if (event.getView().getTitle().equals("Enter the Pattern")) {
             event.setCancelled(true);
-            this.enterPattern(uuid, slot);
+            this.enterPattern(slot);
         } else if (event.getView().getTitle().equals("Enter Chimp Order")) {
             event.setCancelled(true);
-            this.enterChimpPattern(uuid, slot);
+            this.enterChimpPattern(slot);
+        } else if (event.getView().getTitle().equals("Whack a Mole")) {
+            event.setCancelled(true);
+            this.enterMoleAnswer(slot);
         }
     }
-    /**
-     * Helper function for creating item stacks
-     *
-     * @param item Item to be created
-     * @param name Custom name of the item
-     * @param lore Custom Lore of the item
-     * @return Custom item
-     */
-    public ItemStack getItem(ItemStack item, String name, String... lore) {
-        ItemMeta meta = item.getItemMeta();
 
-        Objects.requireNonNull(meta).setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-
-        List<String> lores = new ArrayList<>();
-        for (String s : lore) {
-            lores.add(ChatColor.translateAlternateColorCodes('&', s));
-        }
-        meta.setLore(lores);
-        item.setItemMeta(meta);
-
-        return item;
-    }
 }

@@ -42,9 +42,6 @@ public final class ZombiesMC extends JavaPlugin {
     private Farming farming;
     private Salvage salvage;
 
-    private Locks locks;
-    private Minigames minigames;
-
     // Configs
     ConfigUtil skillSettings;
     ConfigUtil playerSettings;
@@ -62,9 +59,6 @@ public final class ZombiesMC extends JavaPlugin {
     @Override
     public void onEnable() {
         Bukkit.getLogger().info("Enabling ZombiesMC");
-
-        this.locks = new Locks(this);
-        //this.minigames = new Minigames(this, this.locks);
 
         //Configs
         this.saveDefaultConfig();
@@ -94,6 +88,7 @@ public final class ZombiesMC extends JavaPlugin {
         this.setSubCommands();
 
         new DelayedTask(this);
+        new Locks(this);
 
         // Enabling utils
         this.setSkills();
@@ -229,15 +224,4 @@ public final class ZombiesMC extends JavaPlugin {
         return getPlugin(ZombiesMC.class);
     }
 
-    public Locks getLocks() {
-        Bukkit.getLogger().info("Getting Locks");
-        return this.locks;
-    }
-    public Minigames getMinigames() {
-        Bukkit.getLogger().info("Getting Minigames");
-        return this.minigames;
-    }
-    public void setMinigames(Minigames minigames) {
-        this.minigames = minigames;
-    }
 }

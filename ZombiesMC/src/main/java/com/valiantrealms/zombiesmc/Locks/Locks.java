@@ -2,6 +2,7 @@ package com.valiantrealms.zombiesmc.Locks;
 
 import com.valiantrealms.zombiesmc.ZombiesMC;
 import com.valiantrealms.zombiesmc.util.DelayedTask;
+import com.valiantrealms.zombiesmc.util.ItemUtil;
 import com.valiantrealms.zombiesmc.util.Keys;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,7 +26,7 @@ import java.util.*;
 
 public class Locks implements Listener {
     private final ZombiesMC plugin;
-    private final Minigames minigames;
+    private final ItemUtil itemUtil = new ItemUtil();
 
     // currentBlockMap is the block the player is currently interacting with
     private final HashMap<UUID, TileState> currentBlockMap = new HashMap<>();
@@ -36,8 +37,6 @@ public class Locks implements Listener {
     public Locks(ZombiesMC plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
-        this.minigames = new Minigames(plugin, this);
-        plugin.setMinigames(this.minigames);
     }
 
     /**
@@ -52,28 +51,31 @@ public class Locks implements Listener {
 
         if (event.getView().getTitle().equals("Customize Lock")) {
             event.setCancelled(true);
-            if (slot == 12) {
-                this.editLock(uuid, "Colors");
+            if (slot == 11) {
+                this.editLock(uuid, "colors");
+                this.displayEditInv(uuid);
+            } else if (slot == 12) {
+                this.editLock(uuid, "pattern");
                 this.displayEditInv(uuid);
             } else if (slot == 13) {
-                this.editLock(uuid, "Pattern");
+                this.editLock(uuid, "chimp");
                 this.displayEditInv(uuid);
             } else if (slot == 14) {
-                this.editLock(uuid, "Chimp");
+                this.editLock(uuid, "mole");
+                this.displayEditInv(uuid);
+            } else if (slot == 15) {
+                this.editLock(uuid, "all");
                 this.displayEditInv(uuid);
             } else if (slot == 21) {
-                this.editLock(uuid, "All");
-                this.displayEditInv(uuid);
-            } else if (slot == 22) {
                 this.editDifficulty(uuid);
                 this.displayEditInv(uuid);
-            } else if (slot == 23) {
+            } else if (slot == 22) {
                 this.setAutoLock(uuid);
                 this.displayEditInv(uuid);
             } else if (slot == 31) {
                 this.setBlockLock(uuid);
                 this.displayEditInv(uuid);
-            } else if (slot == 32) {
+            } else if (slot == 23) {
                 this.setLockable(uuid);
                 this.displayEditInv(uuid);
             }
@@ -111,7 +113,7 @@ public class Locks implements Listener {
                         item.setAmount(item.getAmount() - 1);
                         event.setCancelled(true);
                         this.currentBlockMap.put(player.getUniqueId(), state);
-                        this.minigames.initVars(player.getUniqueId());
+                        //this.minigames.initVars(player.getUniqueId());
                         this.runRandomSeq(player.getUniqueId());
                     } else {
                         event.getPlayer().sendMessage("You need a key!");
@@ -146,40 +148,6 @@ public class Locks implements Listener {
 
         }
     }
-//TODO REMOVE
-
-//    @EventHandler
-//    public void makeLockableEvent(PlayerInteractEvent event) {
-//        try {
-//            // This allows players to still destroy chests
-//            if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-//                return;
-//            }
-//            Block block = event.getClickedBlock();
-//            TileState state = (TileState) event.getClickedBlock().getState();
-//            PersistentDataContainer blockContainer = state.getPersistentDataContainer();
-//
-//            Player player = event.getPlayer();
-//            ItemStack item = player.getInventory().getItemInMainHand();
-//            PersistentDataContainer itemContainer = item.getItemMeta().getPersistentDataContainer();
-//
-//            if (!(block.getState() instanceof TileState)) {
-//                return;
-//            }
-//            // Ignore if not holding a key of if the block is already lockable
-//            if (!(itemContainer.has(Keys.CUSTOM_KEY, PersistentDataType.BOOLEAN) && !blockContainer.has(Keys.CUSTOM_LOCK, PersistentDataType.BOOLEAN))) {
-//                return;
-//            }
-//            blockContainer.set(Keys.CUSTOM_LOCK, PersistentDataType.BOOLEAN, true);
-//            state.update();
-//            this.chestSet.add(state);
-//            Bukkit.getLogger().info("Added lock to block!");
-//            player.sendMessage(ChatColor.GREEN + "Added a lock!");
-//            event.setCancelled(true);
-//        } catch (Exception e) {
-//            //Bukkit.getLogger().info("Exception when adding lock");
-//        }
-//    }
 
     /**
      * If a block is clicked on with an Admin Key: set up customization options.
@@ -215,7 +183,7 @@ public class Locks implements Listener {
             // Setting Difficulty Persistent Data
             if (!blockContainer.has(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING)) {
                 Bukkit.getLogger().info("Difficulty not already set... Setting as normal.");
-                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "Normal");
+                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "normal");
             }
             // Setting Custom Lock Persistent Data
             if (!blockContainer.has(Keys.CUSTOM_LOCK, PersistentDataType.BOOLEAN)) {
@@ -256,9 +224,10 @@ public class Locks implements Listener {
                 locksList = new ArrayList<>(Arrays.asList(arr));
             }
 
-            String colorsStr = (locksList.contains("Colors") ? "Remove" : "Add") + " Colors Lock";
-            String patternStr = (locksList.contains("Pattern") ? "Remove" : "Add") + " Pattern Lock";
-            String chimpStr = (locksList.contains("Chimp") ? "Remove" : "Add") + " Chimp Lock";
+            String colorsStr = (locksList.contains("colors") ? "Remove" : "Add") + " Colors Lock";
+            String patternStr = (locksList.contains("pattern") ? "Remove" : "Add") + " Pattern Lock";
+            String chimpStr = (locksList.contains("chimp") ? "Remove" : "Add") + " Chimp Lock";
+            String moleStr = (locksList.contains("mole") ? "Remove" : "Add") + " Mole Lock";
             String allStr = (locksList.size() == 3 ? "Remove" : "Add") + " All Locks";
 //            String list = (locksList.contains("Colors") ? "Colors Lock\n" : "") + (locksList.contains("Pattern") ? "Pattern Lock\n" : "") + (locksList.contains("Chimp") ? "Chimp Lock" : "");
 //            Bukkit.getLogger().info(list);
@@ -267,15 +236,19 @@ public class Locks implements Listener {
 
             Inventory inv = Bukkit.createInventory(player, 9 * 4, "Customize Lock");
 
-            inv.setItem(4, this.minigames.getItem(new ItemStack(Material.CHEST), "Settings Applied", "Difficulty: " + difficulty, "Auto Lock: " + autoLock, "", (locksList.contains("Colors") ? "Colors Lock\n" : ""), (locksList.contains("Pattern") ? "Pattern Lock\n" : ""), (locksList.contains("Chimp") ? "Chimp Lock" : "")));
-            inv.setItem(12, this.minigames.getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), colorsStr, "Lock pick minigame rotation."));
-            inv.setItem(13, this.minigames.getItem(new ItemStack(Material.BAMBOO_HANGING_SIGN), patternStr, "Lock pick minigame rotation."));
-            inv.setItem(14, this.minigames.getItem(new ItemStack(Material.AXOLOTL_BUCKET), chimpStr, "Lock pick minigame rotation."));
-            inv.setItem(21, this.minigames.getItem(new ItemStack(Material.DIAMOND_BLOCK), allStr, "Lock pick minigame rotation."));
-            inv.setItem(22, this.minigames.getItem(new ItemStack(Material.TNT), "Difficulty Setting", "Currently: " + difficulty));
-            inv.setItem(23, this.minigames.getItem(new ItemStack(Material.IRON_DOOR), "Auto Lock", "Currently: " + autoLock));
-            inv.setItem(31, this.minigames.getItem(new ItemStack(Material.IRON_BARS), (blockContainer.get(Keys.CUSTOM_LOCK, PersistentDataType.BOOLEAN) ? "Unlock" : "Lock"), " "));
-            inv.setItem(32, this.minigames.getItem(new ItemStack(Material.KELP), "Set as " + (blockContainer.get(Keys.LOCKABLE, PersistentDataType.BOOLEAN) ? "Unlockable" : "Lockable"), "Determines if it can be locked with a key."));
+            inv.setItem(4, this.itemUtil.getItem(new ItemStack(Material.CHEST), "Settings Applied", "Difficulty: " + difficulty, "Auto Lock: " + autoLock, "", (locksList.contains("colors") ? "Colors Lock" : ""), (locksList.contains("pattern") ? "Pattern Lock" : ""), (locksList.contains("Chimp") ? "chimp Lock" : ""), (locksList.contains("mole") ? "Mole Lock" : "")));
+
+            inv.setItem(11, this.itemUtil.getItem(new ItemStack(Material.RED_STAINED_GLASS_PANE), colorsStr, "Simon Says."));
+            inv.setItem(12, this.itemUtil.getItem(new ItemStack(Material.BAMBOO_HANGING_SIGN), patternStr, "Remember the pattern."));
+            inv.setItem(13, this.itemUtil.getItem(new ItemStack(Material.AXOLOTL_BUCKET), chimpStr, "Remember the order."));
+            inv.setItem(14, this.itemUtil.getItem(new ItemStack(Material.EGG), moleStr, "Whack a mole."));
+            inv.setItem(15, this.itemUtil.getItem(new ItemStack(Material.DIAMOND_BLOCK), allStr, "Lock pick minigame rotation."));
+
+            inv.setItem(21, this.itemUtil.getItem(new ItemStack(Material.TNT), "Difficulty Setting", "Currently: " + difficulty));
+            inv.setItem(22, this.itemUtil.getItem(new ItemStack(Material.IRON_DOOR), "Auto Lock", "Currently: " + autoLock));
+            inv.setItem(23, this.itemUtil.getItem(new ItemStack(Material.KELP), "Set as " + (blockContainer.get(Keys.LOCKABLE, PersistentDataType.BOOLEAN) ? "Unlockable" : "Lockable"), "Determines if it can be locked with a key."));
+
+            inv.setItem(31, this.itemUtil.getItem(new ItemStack(Material.IRON_BARS), (blockContainer.get(Keys.CUSTOM_LOCK, PersistentDataType.BOOLEAN) ? "Unlock" : "Lock"), " "));
 
             player.openInventory(inv);
         } catch (Exception e) {
@@ -286,16 +259,6 @@ public class Locks implements Listener {
 
     //TODO Persistent data for doors...
     // https://www.spigotmc.org/threads/custom-block-data-persistentdatacontainer-for-blocks.512422/
-
-    //TODO Possibly unneeded... or figure out how to better implement
-    @EventHandler
-    private void closeInventoryEvent(InventoryCloseEvent event) {
-        if (event.getView().getTitle().equals("Customize Lock")) {
-            //Bukkit.getLogger().info("CLOSE EVENT");
-            UUID uuid = event.getPlayer().getUniqueId();
-//            this.chestMap.remove(uuid);
-        }
-    }
 
     public void editLock(UUID uuid, String type) {
         TileState tileState = this.currentBlockMap.get(uuid);
@@ -317,17 +280,20 @@ public class Locks implements Listener {
                 locksList.add(type);
             }
         } else {
-            if (locksList.size() == 3) {
+            if (locksList.size() == 4) {
                 locksList.removeAll(locksList);
             } else {
-                if (!locksList.contains("Colors")) {
-                    locksList.add("Colors");
+                if (!locksList.contains("colors")) {
+                    locksList.add("colors");
                 }
-                if (!locksList.contains("Pattern")) {
-                    locksList.add("Pattern");
+                if (!locksList.contains("pattern")) {
+                    locksList.add("pattern");
                 }
-                if (!locksList.contains("Chimp")) {
-                    locksList.add("Chimp");
+                if (!locksList.contains("chimp")) {
+                    locksList.add("chimp");
+                }
+                if (!locksList.contains("mole")) {
+                    locksList.add("mole");
                 }
             }
         }
@@ -360,17 +326,17 @@ public class Locks implements Listener {
         }
 
         switch (blockContainer.get(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING)) {
-            case "Easy":
-                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "Normal");
+            case "easy":
+                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "normal");
                 break;
-            case "Normal":
-                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "Hard");
+            case "normal":
+                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "hard");
                 break;
-            case "Hard":
-                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "Impossible");
+            case "hard":
+                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "impossible");
                 break;
-            case "Impossible":
-                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "Easy");
+            case "impossible":
+                blockContainer.set(Keys.DIFFICULTY_SETTING, PersistentDataType.STRING, "easy");
                 break;
         }
         tileState.update();
@@ -407,17 +373,23 @@ public class Locks implements Listener {
         int max = arr.length;
         int mode = rand.nextInt(max - min) + min;
 
+        Minigames minigame = new Minigames(plugin, this, uuid);
+
         switch (arr[mode]) {
-            case "Colors":
-                this.minigames.runColorLockPick(uuid);
+            case "colors":
+                minigame.runColorLockPick();
                 break;
-            case "Pattern":
-                this.minigames.runPatternsLockPick(uuid);
+            case "pattern":
+                minigame.runPatternsLockPick();
                 break;
-            case "Chimp":
-                this.minigames.runChimpLockPick(uuid);
+            case "chimp":
+                minigame.runChimpLockPick();
+                break;
+            case "mole":
+                minigame.runMoleLockPick();
                 break;
         }
+
     }
 
     public void openBlock(UUID uuid) {
