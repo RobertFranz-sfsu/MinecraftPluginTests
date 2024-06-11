@@ -71,12 +71,17 @@ public class Infected implements CommandExecutor, Listener {
                         player.sendMessage("You're already in an active game");
                     } else {
                         String current = player.getWorld().getName();
-                        player.teleport(game.getDefaultSpawn(event.getCurrentItem().getItemMeta().getDisplayName()));
-                        roles.setUnassigned(player, game);
-                        game.addPreviousWorld(player.getUniqueId(), current);
-                        player.closeInventory();
+                        try{
+                            player.teleport(game.getDefaultSpawn(event.getCurrentItem().getItemMeta().getDisplayName()));
+                            roles.setUnassigned(player, game);
+                            game.addPreviousWorld(player.getUniqueId(), current);
+                            player.closeInventory();
 
-                        event.setCancelled(true);
+                            event.setCancelled(true);
+                        }catch(Exception e){
+                            event.setCancelled(true);
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -116,24 +121,26 @@ public class Infected implements CommandExecutor, Listener {
                                         String infPath = "spawns." + Objects.requireNonNull(player.getLocation().getWorld()).getName();
                                         String infLabel = null;
 
-                                        if(infConfig.getConfig().get(infPath) == null && (args.length < 3)){
+                                        if(infConfig.getConfig().get(infPath) == null && (args.length < 4)){
                                             infLabel = "first";
                                             infPath += ".first";
                                             infConfig.getConfig().createSection(infPath);
                                         }else{
-                                            if(args.length < 3){
-                                                sender.sendMessage("Usage: /infected addSpawn/as [infected/survivor/default] [label (optional for first spawn)] overwrite(optional to overwrite" +
+                                            if(args.length < 4){
+                                                sender.sendMessage("OR: /infected addSpawn/as [infected/survivor/default] [world] [label (optional for first spawn)] overwrite(optional to overwrite" +
                                                         " existing spawn)");
                                                 break;
                                             }else{
-                                                infPath += ("." + args[2].toLowerCase());
-                                                infLabel = args[2].toLowerCase();
+//                                                infPath += ("." + args[2].toLowerCase());
+//                                                infLabel = args[2].toLowerCase();
+                                                infPath += ("." + args[2].toLowerCase() + "." + args[3].toLowerCase());
+                                                infLabel = args[3].toLowerCase();
 
                                                 if(infConfig.getConfig().get(infPath) != null && args.length < 4){
                                                     sender.sendMessage("This label already exists, please choose another or choose to " +
                                                             "overwrite!");
                                                     break;
-                                                }else if(infConfig.getConfig().get(infPath) != null && !Objects.equals(args[3].toLowerCase(), "overwrite")){
+                                                }else if(infConfig.getConfig().get(infPath) != null && !Objects.equals(args[4].toLowerCase(), "overwrite")){
                                                     sender.sendMessage("This label already exists, please choose another or choose to " +
                                                             "overwrite!");
                                                     break;
@@ -143,6 +150,7 @@ public class Infected implements CommandExecutor, Listener {
                                             }
                                         }
 
+                                        infConfig.getConfig().set(infPath + ".world", player.getLocation().getWorld().getName());
                                         infConfig.getConfig().set(infPath + ".x", player.getLocation().getX());
                                         infConfig.getConfig().set(infPath + ".y", player.getLocation().getY());
                                         infConfig.getConfig().set(infPath + ".z", player.getLocation().getZ());
@@ -188,6 +196,7 @@ public class Infected implements CommandExecutor, Listener {
                                             }
                                         }
 
+                                        surConfig.getConfig().set(surPath + ".world", player.getLocation().getWorld().getName());
                                         surConfig.getConfig().set(surPath + ".x", player.getLocation().getX());
                                         surConfig.getConfig().set(surPath + ".y", player.getLocation().getY());
                                         surConfig.getConfig().set(surPath + ".z", player.getLocation().getZ());
@@ -202,7 +211,7 @@ public class Infected implements CommandExecutor, Listener {
 
                                         break;
                                     case "default": case "d":
-                                        String defPath = "default-spawns." + Objects.requireNonNull(player.getLocation().getWorld()).getName();
+                                        String defPath = "default-spawns" + Objects.requireNonNull(player.getLocation().getWorld()).getName();
 
                                         if(plugin.getConfig().get(defPath) != null && args.length < 3){
                                             sender.sendMessage("This world already has a default spawn, please choose another world or choose to " +
@@ -216,6 +225,7 @@ public class Infected implements CommandExecutor, Listener {
 
                                         plugin.getConfig().set(defPath, "");
 
+                                        plugin.getConfig().set(defPath + ".world", player.getLocation().getWorld().getName());
                                         plugin.getConfig().set(defPath + ".x", player.getLocation().getX());
                                         plugin.getConfig().set(defPath + ".y", player.getLocation().getY());
                                         plugin.getConfig().set(defPath + ".z", player.getLocation().getZ());
@@ -466,12 +476,12 @@ public class Infected implements CommandExecutor, Listener {
                                 sender.sendMessage("or /infected setWorld [world name]");
                             }
                             if(args.length == 2){
-                                if(Bukkit.getWorld(args[1]) != null){
-                                    world = args[1];
-                                }else{
-                                    sender.sendMessage("This world does not exist!");
-                                    break;
-                                }
+                                world = args[1];
+//                                if(Bukkit.getWorld(args[1]) != null){
+//                                    world = args[1];
+//                                }else{
+//                                    sender.sendMessage("This world does not exist!");
+//                                }
                             }else if(args.length == 1){
                                 world = ((Player) sender).getWorld().getName();
                             }else{
@@ -487,7 +497,7 @@ public class Infected implements CommandExecutor, Listener {
                                 plugin.saveConfig();
                                 plugin.reloadConfig();
 
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully &aadded &fworld &a" + ((Player) sender).getWorld().getName() + " &fto list of allowed worlds."));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&fSuccessfully &aadded &fworld &a" + world + " &fto list of allowed worlds."));
                             }else{
                                 sender.sendMessage("This world is already set as a lobby!");
                             }
@@ -593,6 +603,10 @@ public class Infected implements CommandExecutor, Listener {
 
                 case "menu": case "m":
                     Bukkit.dispatchCommand(sender, "infectedmenu");
+                    break;
+
+                case "region": case "rg":
+
                     break;
 
                 case "test":

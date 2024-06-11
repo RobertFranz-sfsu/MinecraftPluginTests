@@ -4,6 +4,9 @@
 # Queue length in seconds
 wait-timer: 5
 
+# Plugin will handle saving/returning inventories (if you are doing this with another plugin, disable this!
+inventory-handling: true
+
 # Respawn timer for infected in seconds
 respawn-timer: 3
 

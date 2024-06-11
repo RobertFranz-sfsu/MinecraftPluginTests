@@ -3,12 +3,14 @@
 spawns:
   exampleworld: # World names must be in lower case!
     first: # Labels must be in lower case!
+      world:
       x: 0
       y: 0
       z: 0
       pitch: 0
       yaw: 0
     second:
+      world:
       x: 0
       y: 0
       z: 0

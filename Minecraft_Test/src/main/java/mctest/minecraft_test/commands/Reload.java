@@ -46,6 +46,7 @@ public class Reload implements CommandExecutor {
             Bukkit.getLogger().info("Reloaded sub-commands.");
 
             plugin.setLoadoutPrices();
+            plugin.setInvHandling();
             plugin.setDoKeepScore();
             plugin.setScoreOptions();
             Bukkit.getLogger().info("Finished checking main config settings.");

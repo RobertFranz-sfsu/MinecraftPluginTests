@@ -69,7 +69,31 @@ public class GetCustomHead {
         }
 
 //            GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "null"); // Create a GameProfile
-        GameProfile gameProfile = new GameProfile(url1, Objects.requireNonNull(Bukkit.getOfflinePlayer(url1)).getName());
+        GameProfile gameProfile = null;
+        boolean firstTry = false;
+        boolean secondTry = false;
+
+        try{
+            gameProfile = new GameProfile(url1, Objects.requireNonNull(Bukkit.getOfflinePlayer(url1)).getName());
+        }catch(Exception e){
+            firstTry = true;
+            Bukkit.getLogger().info("First try to get skin failed.");
+            e.printStackTrace();
+
+            try{
+                Bukkit.getLogger().info("Second try to get skin failed.");
+                gameProfile = new GameProfile(url1, Objects.requireNonNull(Bukkit.getPlayer(url1)).getName());
+            }catch (Exception ex){
+                ex.printStackTrace();
+                secondTry = true;
+            }
+        }
+
+        if(firstTry && secondTry){
+            Bukkit.getLogger().info("Returning default skull.");
+            return new ItemStack(Objects.requireNonNull(Material.getMaterial("GOLD_INGOT")));
+        }
+
         byte[] data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", s_url.toString()).getBytes());
 
             // Set the texture property in the GameProfile.

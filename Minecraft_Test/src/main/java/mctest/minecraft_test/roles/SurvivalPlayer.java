@@ -52,6 +52,7 @@ public class SurvivalPlayer implements Listener {
     private final ConcurrentHashMap<UUID, String> statusMap = new ConcurrentHashMap<>();
     private final HashMap<UUID, String> healthMap = new HashMap<>();
     public HashMap<UUID, String> previousWorlds = new HashMap<>();
+    private List<UUID> currentPlayers = new ArrayList<>();
 
     public HashMap<UUID, Integer> survivorKills = new HashMap<>();
 
@@ -342,8 +343,12 @@ public class SurvivalPlayer implements Listener {
 
             for (Map.Entry<UUID, String> entry : statusMap.entrySet()) {
                 entry.setValue((pList.contains(iter++)) ? "infected" : "survivor");
-                invUtil.saveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
-                invUtil.clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+
+                if(plugin.isInvHandling()){
+                    invUtil.saveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    invUtil.clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                }
+
                 scoreboard.setBoard(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
                 role.setRole(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())), this);
 
@@ -384,7 +389,9 @@ public class SurvivalPlayer implements Listener {
                 if (entry.getKey() == null) {
                     it.remove();
                 } else {
-                    invUtil.clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    if(plugin.isInvHandling()){
+                        invUtil.clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    }
 
                     role.removeEffects(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
@@ -403,7 +410,10 @@ public class SurvivalPlayer implements Listener {
                         Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).teleport(this.getDefaultSpawn(this.getLobbies().get(0)));
                     }
 
-                    invUtil.giveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    if(plugin.isInvHandling()){
+                        invUtil.giveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    }
+
 
                     role.setNotPlaying(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())), this, invUtil);
 
@@ -437,7 +447,10 @@ public class SurvivalPlayer implements Listener {
                 if (entry.getKey() == null) {
                     it.remove();
                 } else {
-                    invUtil.clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    if(plugin.isInvHandling()){
+                        invUtil.clearInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    }
+
 
                     role.removeEffects(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
 
@@ -456,7 +469,10 @@ public class SurvivalPlayer implements Listener {
                         Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())).teleport(getDefaultSpawn(this.getLobbies().get(0)));
                     }
 
-                    invUtil.giveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    if(plugin.isInvHandling()){
+                        invUtil.giveInventory(Objects.requireNonNull(Bukkit.getPlayer(entry.getKey())));
+                    }
+
 
                     if (entry.getValue().equals(winner)) {
                         scores.giveRewards(Bukkit.getPlayer(entry.getKey()), winner);
@@ -628,7 +644,7 @@ public class SurvivalPlayer implements Listener {
 
         if (type.equalsIgnoreCase("survivor")) {
             this.surSpawn = new Location(
-                    Bukkit.getWorld(world),
+                    Bukkit.getWorld(surConfig.getConfig().getString("")),
                     surConfig.getConfig().getDouble(path + ".x"),
                     surConfig.getConfig().getDouble(path + ".y"),
                     surConfig.getConfig().getDouble(path + ".z"),
@@ -637,7 +653,7 @@ public class SurvivalPlayer implements Listener {
             );
         } else {
             this.infSpawn = new Location(
-                    Bukkit.getWorld(world),
+                    Bukkit.getWorld(infConfig.getConfig().getString("")),
                     infConfig.getConfig().getDouble(path + ".x"),
                     infConfig.getConfig().getDouble(path + ".y"),
                     infConfig.getConfig().getDouble(path + ".z"),
@@ -813,6 +829,8 @@ public class SurvivalPlayer implements Listener {
         setEndTime();
         return this.endTime;
     }
+
+    public List<UUID> getCurrentPlayers() { return this.currentPlayers; }
 
     /**
      * Inventory util for getting previous inventories

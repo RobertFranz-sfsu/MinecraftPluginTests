@@ -48,6 +48,8 @@ public final class Minecraft_Test extends JavaPlugin {
     private boolean survivorKills;
     private boolean infectedKills;
     private boolean gamesPlayed;
+    private boolean invHandling;
+    private boolean isUsingWorldGuard;
 
     //Sub Commands
     Start start;
@@ -59,6 +61,7 @@ public final class Minecraft_Test extends JavaPlugin {
     GetCustomHead head;
     Infected infected;
 
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -68,6 +71,15 @@ public final class Minecraft_Test extends JavaPlugin {
         this.setIs20();
         this.setLoadoutCon();
         this.setDoKeepScore();
+
+        if((getServer().getPluginManager().getPlugin("WorldGuard")) == null){
+            this.isUsingWorldGuard = false;
+            Bukkit.getLogger().info("[InfectedMC] World guard not found! Some features may" +
+                    "be disabled.");
+        }else{
+            this.isUsingWorldGuard = true;
+            Bukkit.getLogger().info("[InfectedMC] World guard found!");
+        }
 
         saveResource("Scores" + System.getProperty("file.separator") + "ScoresConfig.yml", false);
 
@@ -91,6 +103,7 @@ public final class Minecraft_Test extends JavaPlugin {
         saveResource("Loadouts.yml", false);
 
         this.setLoadoutPrices();
+        this.setInvHandling();
 
         this.g = new GamesList(this);
 
@@ -196,8 +209,13 @@ public final class Minecraft_Test extends JavaPlugin {
     public void setLoadoutPrices() {
         this.loadoutPrices = getDefaultConfig().getBoolean("loadout-prices") && (!Objects.equals(this.getEcon(), null));
     }
-
     public boolean isLoadoutPrices(){ return this.loadoutPrices; }
+
+    public void setInvHandling(){
+        this.invHandling = getDefaultConfig().getBoolean("inventory-handling");
+    }
+
+    public boolean isInvHandling() { return this.invHandling; }
 
     public void setDoKeepScore(){
         this.doKeepScore = getDefaultConfig().getBoolean("keep-score");
@@ -217,6 +235,8 @@ public final class Minecraft_Test extends JavaPlugin {
     public boolean doSurvivorKills(){ return this.survivorKills; }
     public boolean doInfectedKills(){ return this.infectedKills; }
     public boolean doGamesPlayed(){ return this.gamesPlayed; }
+    public boolean isUsingWorldGuard() { return this.isUsingWorldGuard; }
+
     private void initStatMap() {
         File dir = new File(this.getDataFolder().getPath() + System.getProperty("file.separator") + "Scores" + System.getProperty("file.separator"));
         File[] dirList = dir.listFiles();

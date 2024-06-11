@@ -58,7 +58,7 @@ public class PlayerRoles {
 
     private void setAttributes(Player player, Float speed, int maxHealth, int health) {
         player.setWalkSpeed(speed);
-        if (plugin.getIs18()) {
+        if (this.plugin.getIs18()) {
             player.setMaxHealth(maxHealth);
         } else {
             Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(maxHealth);
